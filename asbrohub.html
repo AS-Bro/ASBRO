@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AS BRO — Official Hub</title>
+<link id="favicon-link" rel="icon" href="">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* Minecraft-style Pixel Pointer Cursor (Base64) */
+body {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="2" stroke-linecap="square"><path fill="%23000000" d="M3 3v16l4-4 3 7 4-2-3-7 6-1L3 3z"/></svg>') 0 0, auto;
+}
+
+/* Hover Pointer */
+a, button, .pixel-btn {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ffaa00" stroke-width="2" stroke-linecap="square"><path fill="%23ffaa00" d="M3 3v16l4-4 3 7 4-2-3-7 6-1L3 3z"/></svg>') 0 0, pointer;
+}
+
+:root{
+  --void:#0a0a0a;
+  --panel:#141414;
+  --panel-2:#1c1c1c;
+  --panel-border:#3a3a3a;
+  --red:#ff0033;
+  --red-dim:#7a0019;
+  --gold:#ffcc00;
+  --gold-dim:#8a6c00;
+  --ink:#f5f5f0;
+  --ink-dim:#a4a49c;
+  --online:#3ddc84;
+  --warn:#ffb020;
+  --discord:#5865F2;
+  --font-display:'Press Start 2P', 'Courier New', monospace;
+  --font-body:'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:'JetBrains Mono', 'Courier New', monospace;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+
+html{scroll-behavior:smooth;}
+
+body{
+  background:var(--void);
+  color:var(--ink);
+  font-family:var(--font-body);
+  min-height:100vh;
+  padding-bottom:96px;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
+}
+
+a{color:inherit; text-decoration:none;}
+img{display:block; max-width:100%;}
+button{font-family:inherit; cursor:pointer;}
+
+::selection{background:var(--red); color:var(--ink);}
+
+:focus-visible{
+  outline:3px solid var(--gold);
+  outline-offset:2px;
+}
+
+/* ---------- Pixel bevel primitives ---------- */
+.pixel-panel{
+  background:var(--panel);
+  border:3px solid var(--panel-border);
+  box-shadow:
+    inset 2px 2px 0 rgba(255,255,255,0.06),
+    inset -3px -3px 0 rgba(0,0,0,0.55),
+    5px 5px 0 rgba(0,0,0,0.35);
+  border-radius:0;
+}
+
+.pixel-slot{
+  background:var(--panel-2);
+  border:3px solid var(--panel-border);
+  box-shadow:
+    inset 2px 2px 0 rgba(255,255,255,0.08),
+    inset -3px -3px 0 rgba(0,0,0,0.6);
+  border-radius:0;
+}
+
+.pixel-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  font-family:var(--font-mono);
+  font-weight:700;
+  font-size:13px;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  padding:12px 20px;
+  border:3px solid;
+  border-radius:0;
+  transition:transform 0.08s ease, box-shadow 0.08s ease;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.pixel-btn.primary{
+  background:var(--red);
+  color:#fff;
+  border-color:#ff5c7a;
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,0.35), inset -3px -3px 0 rgba(0,0,0,0.35), 4px 4px 0 rgba(0,0,0,0.4);
+}
+.pixel-btn.secondary{
+  background:transparent;
+  color:var(--ink);
+  border-color:var(--panel-border);
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,0.06), inset -3px -3px 0 rgba(0,0,0,0.5), 4px 4px 0 rgba(0,0,0,0.4);
+}
+.pixel-btn.gold{
+  background:var(--gold);
+  color:#1a1400;
+  border-color:#ffe680;
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,0.5), inset -3px -3px 0 rgba(0,0,0,0.3), 4px 4px 0 rgba(0,0,0,0.4);
+}
+.pixel-btn:hover{ transform:translate(-2px,-2px); }
+.pixel-btn.primary:hover{ box-shadow: inset 2px 2px 0 rgba(255,255,255,0.35), inset -3px -3px 0 rgba(0,0,0,0.35), 6px 6px 0 rgba(0,0,0,0.4); }
+.pixel-btn.secondary:hover{ box-shadow: inset 2px 2px 0 rgba(255,255,255,0.06), inset -3px -3px 0 rgba(0,0,0,0.5), 6px 6px 0 rgba(0,0,0,0.4); border-color:var(--ink-dim); }
+.pixel-btn.gold:hover{ box-shadow: inset 2px 2px 0 rgba(255,255,255,0.5), inset -3px -3px 0 rgba(0,0,0,0.3), 6px 6px 0 rgba(0,0,0,0.4); }
+.pixel-btn:active{
+  transform:translate(1px,1px);
+  box-shadow:inset 2px 2px 0 rgba(0,0,0,0.4) !important;
+}
+
+/* ---------- Text Display Section ---------- */
+.text-section-box {
+  padding: 24px;
+  margin-bottom: 44px;
+  background: var(--panel);
+  border-left: 4px solid var(--gold);
+}
+.text-section-box p {
+  color: var(--ink-dim);
+  font-size: 15px;
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+.text-section-box p:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- About Photo Gallery (Flexible Heights) ---------- */
+.about-gallery {
+  column-count: 3;
+  column-gap: 16px;
+  margin-top: 24px;
+  margin-bottom: 44px;
+}
+
+@media (max-width: 900px) {
+  .about-gallery { column-count: 2; }
+}
+@media (max-width: 600px) {
+  .about-gallery { column-count: 1; }
+}
+
+.gallery-card {
+  display: inline-block; 
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 8px;
+  transition: transform 0.2s ease;
+}
+.gallery-card:hover {
+  transform: translate(-3px, -3px);
+}
+
+.gallery-frame {
+  width: 100%;
+  overflow: hidden;
+  border: 3px solid var(--panel-border);
+  background: var(--panel-2);
+}
+
+.gallery-frame img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.2s ease;
+}
+.gallery-card:hover .gallery-frame img {
+  transform: scale(1.03);
+}
+
+.gallery-caption {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 10px;
+}
+
+/* Status Badge Base */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-weight: bold;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+/* Status Indicator Dots */
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Green dot for Online */
+.status-dot.online {
+  background-color: #55ff55;
+  box-shadow: 0 0 8px #55ff55;
+}
+
+/* Red dot for Offline */
+.status-dot.offline {
+  background-color: #ff5555;
+  box-shadow: 0 0 6px #ff5555;
+}
+
+/* ---------- Top bar ---------- */
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:40;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:12px 20px;
+  background:rgba(10,10,10,0.92);
+  backdrop-filter:blur(6px);
+  border-bottom:3px solid var(--panel-border);
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.brand img{
+  width:40px;
+  height:40px;
+  border:3px solid var(--red);
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,0.2), inset -2px -2px 0 rgba(0,0,0,0.5);
+}
+.brand-name{
+  font-family:var(--font-display);
+  font-size:13px;
+  letter-spacing:0.03em;
+  color:var(--ink);
+}
+.brand-name span{ color:var(--red); }
+
+.social-row{ display:flex; gap:8px; }
+.social-slot{
+  width:38px; height:38px;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+  transition:transform 0.2s ease;
+}
+.social-slot img{ width:100%; height:100%; object-fit:cover; }
+.social-slot:hover{ transform:translateY(-2px); border-color:var(--gold); }
+
+/* ---------- Hotbar navigation ---------- */
+.hotbar-wrap{
+  position:fixed;
+  bottom:16px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:50;
+  display:flex;
+  gap:6px;
+  padding:6px;
+  background:rgba(20,20,20,0.85);
+  backdrop-filter:blur(6px);
+  border:3px solid var(--panel-border);
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,0.06), inset -3px -3px 0 rgba(0,0,0,0.6), 5px 5px 0 rgba(0,0,0,0.4);
+}
+.hotbar-slot{
+  position:relative;
+  width:60px;
+  height:60px;
+  background:var(--panel-2);
+  border:3px solid var(--panel-border);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,0.06), inset -2px -2px 0 rgba(0,0,0,0.55);
+  transition:transform 0.08s ease;
+}
+.hotbar-slot svg{ width:22px; height:22px; stroke:var(--ink-dim); fill:none; stroke-width:2; }
+.hotbar-slot .slot-label{
+  font-family:var(--font-mono);
+  font-size:8px;
+  letter-spacing:0.03em;
+  color:var(--ink-dim);
+  text-transform:uppercase;
+}
+.hotbar-slot .slot-num{
+  position:absolute;
+  top:2px; left:4px;
+  font-family:var(--font-mono);
+  font-size:9px;
+  color:#6b6b66;
+}
+.hotbar-slot:hover{ transform:translateY(-3px); }
+.hotbar-slot.active{
+  border-color:var(--gold);
+  box-shadow: 0 0 0 2px var(--gold), inset 2px 2px 0 rgba(255,255,255,0.15), inset -2px -2px 0 rgba(0,0,0,0.5);
+}
+.hotbar-slot.active svg{ stroke:var(--gold); }
+.hotbar-slot.active .slot-label{ color:var(--gold); }
+
+@media (prefers-reduced-motion: no-preference){
+  .hotbar-slot.active{ animation:pulse-glow 1.8s ease-in-out infinite; }
+}
+@keyframes pulse-glow{
+  0%,100%{ box-shadow: 0 0 0 2px var(--gold), inset 2px 2px 0 rgba(255,255,255,0.15), inset -2px -2px 0 rgba(0,0,0,0.5); }
+  50%{ box-shadow: 0 0 0 2px var(--gold), 0 0 12px rgba(255,204,0,0.5), inset 2px 2px 0 rgba(255,255,255,0.15), inset -2px -2px 0 rgba(0,0,0,0.5); }
+}
+
+/* ---------- Layout ---------- */
+main{ max-width:1100px; margin:0 auto; padding:48px 20px 40px; }
+.page{ display:none; }
+.page.active{ display:block; animation:fade-in 0.25s ease; }
+@keyframes fade-in{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+@media (prefers-reduced-motion: reduce){ .page.active{ animation:none; } }
+
+.eyebrow{
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:var(--red);
+  margin-bottom:10px;
+}
+h1.display, h2.display{
+  font-family:var(--font-display);
+  line-height:1.6;
+  color:var(--ink);
+}
+h1.display{ font-size:clamp(22px, 4.4vw, 38px); margin-bottom:18px; }
+h2.display{ font-size:clamp(18px, 3vw, 24px); margin-bottom:14px; }
+.subheading{
+  color:var(--ink-dim);
+  font-size:16px;
+  line-height:1.6;
+  max-width:640px;
+  margin-bottom:32px;
+}
+
+/* ---------- Home ---------- */
+.hero{ padding:24px 0 8px; }
+.hero-actions{ display:flex; gap:12px; flex-wrap:wrap; margin-top:8px; margin-bottom:44px; }
+.video-frame{
+  padding:10px;
+  margin-bottom:52px;
+}
+.video-frame .ratio{
+  position:relative;
+  width:100%;
+  padding-top:56.25%;
+  background:#000;
+  border:3px solid var(--panel-border);
+}
+.video-frame iframe{
+  position:absolute; inset:0; width:100%; height:100%; border:0;
+}
+
+.quick-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+  gap:16px;
+}
+
+/* ---------- Channel Highlights ---------- */
+.highlights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.highlight-card {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.1s ease;
+}
+
+.highlight-card:hover {
+  transform: translate(-3px, -3px);
+}
+
+.highlight-banner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 3px solid var(--panel-border);
+  background: var(--panel-2);
+}
+
+.highlight-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+.highlight-card:hover .highlight-banner img {
+  transform: scale(1.04);
+}
+
+.highlight-tag {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(10, 10, 10, 0.88);
+  border: 2px solid var(--panel-border);
+  padding: 3px 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+}
+
+.highlight-title {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+.highlight-desc {
+  font-size: 13.5px;
+  color: var(--ink-dim);
+  line-height: 1.5;
+  flex: 1;
+}
+
+.highlight-actions {
+  margin-top: 4px;
+}
+
+.quick-card{
+  padding:22px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  transition:transform 0.1s ease;
+}
+.quick-card:hover{ transform:translate(-3px,-3px); }
+.quick-card svg{ width:26px; height:26px; stroke:var(--gold); fill:none; stroke-width:1.8; }
+.quick-card h3{ font-family:var(--font-mono); font-size:14px; letter-spacing:0.03em; text-transform:uppercase; }
+.quick-card p{ color:var(--ink-dim); font-size:13.5px; line-height:1.5; }
+
+/* ---------- About ---------- */
+.about-grid{
+  display:grid;
+  grid-template-columns:220px 1fr;
+  gap:36px;
+  align-items:start;
+  margin-bottom:44px;
+}
+@media (max-width:640px){ .about-grid{ grid-template-columns:1fr; } }
+.avatar-frame{ padding:8px; width:fit-content; }
+.avatar-frame img{ width:200px; height:200px; object-fit:cover; }
+@media (max-width:640px){ .avatar-frame{ margin:0 auto; } .avatar-frame img{ width:100%; height:auto; aspect-ratio:1/1; } }
+.bio p{ color:var(--ink-dim); font-size:15.5px; line-height:1.7; margin-bottom:14px; max-width:560px; }
+
+.milestones{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+  gap:14px;
+}
+.milestone{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:16px 18px;
+}
+.milestone img{ width:32px; height:32px; flex-shrink:0; }
+.milestone .m-value{ font-family:var(--font-mono); font-weight:700; font-size:20px; color:var(--gold); line-height:1.2; }
+.milestone .m-label{ font-size:11.5px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.04em; }
+
+/* ---------- Servers ---------- */
+.server-list{ display:flex; flex-direction:column; gap:16px; }
+.server-card{
+  padding:20px;
+  display:grid;
+  grid-template-columns:72px 1fr auto;
+  gap:18px;
+  align-items:center;
+}
+@media (max-width:640px){ .server-card{ grid-template-columns:56px 1fr; } .server-card .server-actions{ grid-column:1 / -1; } }
+.server-card img{ width:72px; height:72px; }
+@media (max-width:640px){ .server-card img{ width:56px; height:56px; } }
+.server-name{ font-family:var(--font-mono); font-weight:700; font-size:16px; margin-bottom:4px; }
+.server-meta{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-dim); margin-bottom:10px; }
+.ip-row{ display:flex; align-items:center; gap:8px; }
+.ip-value{ font-family:var(--font-mono); font-size:13.5px; background:var(--panel-2); border:2px solid var(--panel-border); padding:6px 10px; color:var(--ink); }
+.copy-btn{ font-family:var(--font-mono); font-size:11px; text-transform:uppercase; background:var(--panel-2); border:2px solid var(--panel-border); color:var(--ink-dim); padding:6px 10px; transition:all 0.1s ease; }
+.copy-btn:hover{ color:var(--gold); border-color:var(--gold); }
+.copy-btn.copied{ color:var(--online); border-color:var(--online); }
+.server-actions{ display:flex; flex-direction:column; gap:8px; }
+
+/* ---------- MC Files & Worlds ---------- */
+.files-grid, .worlds-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
+  gap:22px;
+}
+.file-card{ overflow:hidden; display:flex; flex-direction:column; }
+.file-banner{ position:relative; width:100%; aspect-ratio:16/9; overflow:hidden; border-bottom:3px solid var(--panel-border); }
+.file-banner img{ width:100%; height:100%; object-fit:cover; transition:transform 0.2s ease; }
+.file-card:hover .file-banner img{ transform:scale(1.04); }
+@media (prefers-reduced-motion: reduce){ .file-card:hover .file-banner img{ transform:none; } }
+.file-tag{
+  position:absolute; top:10px; left:10px;
+  display:flex; align-items:center; gap:6px;
+  background:rgba(10,10,10,0.85);
+  border:2px solid var(--panel-border);
+  padding:4px 8px 4px 4px;
+  font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:0.03em; color:var(--gold);
+}
+.file-tag img{ width:16px; height:16px; }
+.file-body{ padding:20px; display:flex; flex-direction:column; gap:10px; flex:1; }
+.file-title{ font-family:var(--font-mono); font-weight:700; font-size:15px; line-height:1.4; }
+.file-meta{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px; }
+.meta-badge{ font-family:var(--font-mono); font-size:10px; background:var(--panel-2); border:1px solid var(--panel-border); padding:2px 6px; color:var(--ink-dim); text-transform:uppercase; }
+.file-date{ font-size:11.5px; color:#6b6b66; text-transform:uppercase; letter-spacing:0.04em; }
+.file-desc{ color:var(--ink-dim); font-size:13.5px; line-height:1.6; flex:1; }
+.file-actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; }
+
+/* ---------- Footer ---------- */
+footer{
+  max-width:1100px;
+  margin:40px auto 0;
+  padding:24px 20px 8px;
+  border-top:3px solid var(--panel-border);
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  font-family:var(--font-mono);
+  font-size:11.5px;
+  color:#6b6b66;
+  text-transform:uppercase;
+  letter-spacing:0.03em;
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img id="brand-logo" src="" alt="Channel logo">
+    <div class="brand-name" id="brand-name"></div>
+  </div>
+  <div class="social-row" id="social-row"></div>
+</header>
+
+<main>
+
+  <section id="page-home" class="page">
+    <div class="hero">
+      <div class="eyebrow">// Live Dashboard</div>
+      <h1 class="display" id="home-title"></h1>
+      <p class="subheading" id="home-subtitle"></p>
+      <div class="hero-actions">
+        <a href="#servers" class="pixel-btn gold">▶ Join the servers</a>
+        <a href="#mc-world" class="pixel-btn secondary">⇩ Browse Downloads</a>
+      </div>
+    </div>
+
+    <div class="video-frame pixel-panel">
+      <div class="ratio">
+        <iframe id="home-video" src="" title="Featured video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+
+    <h2 class="display" style="margin-bottom: 16px;">Channel Highlights</h2>
+    <div class="highlights-grid" id="highlights-grid" style="margin-bottom: 44px;"></div>
+
+    <div class="quick-grid" id="quick-grid"></div>
+  </section>
+
+  <section id="page-about" class="page">
+    <div class="eyebrow">// Creator Profile</div>
+    <div class="about-grid">
+      <div class="avatar-frame pixel-panel">
+        <img id="about-avatar" src="" alt="Creator avatar">
+      </div>
+      <div>
+        <h1 class="display" id="about-heading"></h1>
+        <div class="bio" id="about-bio"></div>
+      </div>
+    </div>
+
+    <h2 class="display">Milestones</h2>
+    <div class="milestones" id="about-milestones"></div>
+    
+    <h2 class="display" style="margin-top: 44px;">ME</h2>
+    <div class="about-gallery" id="about-gallery"></div>
+
+    <!-- FIRST ANNOUNCEMENTS SECTION -->
+    <h2 class="display" id="about-text-heading" style="margin-top: 44px;">Announcements & Updates</h2>
+    <div class="text-section-box pixel-panel" id="about-text-content"></div>
+
+    <!-- SECOND TEXT SECTION -->
+    <h2 class="display" id="about-second-text-heading" style="margin-top: 44px;">Server Rules & FAQ</h2>
+    <div class="text-section-box pixel-panel" id="about-second-text-content"></div>
+  </section>
+
+  <section id="page-servers" class="page">
+    <div class="eyebrow">// Multiplayer</div>
+    <h1 class="display" id="servers-heading"></h1>
+    <p class="subheading" id="servers-subheading"></p>
+    <div class="server-list" id="server-list"></div>
+  </section>
+
+  <section id="page-mc-files" class="page">
+    <div class="eyebrow">// File Repository</div>
+    <h1 class="display" id="files-heading"></h1>
+    <p class="subheading" id="files-subheading"></p>
+    <div class="files-grid" id="files-grid"></div>
+  </section>
+
+  <section id="page-mc-world" class="page">
+    <div class="eyebrow">// Minecraft Worlds</div>
+    <h1 class="display" id="worlds-heading"></h1>
+    <p class="subheading" id="worlds-subheading"></p>
+    <div class="worlds-grid" id="worlds-grid"></div>
+  </section>
+
+</main>
+
+<footer>
+  <div id="footer-copy"></div>
+  <div>Press 1-5 to jump between pages</div>
+</footer>
+
+<div class="hotbar-wrap" id="hotbar"></div>
+
+<script>
+const WebsiteConfig = {
+    brand: {
+        channelName: "AS BRO",
+        siteLogo: "images/branding/logo.png",
+        favicon: "images/branding/favicon.png"
+    },
+
+    socials: [
+        { name: "YouTube",   icon: "images/socials/youtube.png", url: "https://www.youtube.com/@asbro_yt" },
+        { name: "Telegram",  icon: "images/socials/telegram.png", url: "https://t.me/asbro_yt" },
+        { name: "Discord",   icon: "images/socials/discord.png", url: "https://discord.gg/wAGZDfsAnY" },
+        { name: "Instagram", icon: "images/socials/instagram.png", url: "https://www.instagram.com/asbro_ig" }
+    ],
+
+    homePage: {
+        heroTitle: "Welcome to the AS BRO Hub",
+        heroSubtitle: "Epic gaming strategies, custom Minecraft worlds, and live community updates straight from the channel.",
+
+        featuredVideoEmbedUrl: "https://www.youtube.com/embed?listType=playlist&list=UUkWDXtbj08Yt1dRrLBO-y_A",
+        highlights: [
+            {
+                title: "Celebrity commented on my video",
+                tag: "Best Moment",
+                image: "images/files/highlight-comment-sudhy.png",
+                description: "Explore our active survival multiplayer server with custom events, active players, and massive builds.",
+                linkText: "Watch Video",
+                url: "https://youtube.com/shorts/IvAvs0vSMkE?si=IjfWbtq9kmRYwj8a"
+            },
+            {
+                title: "Survival Series Season 1",
+                tag: "Must Watch",
+                image: "images/files/playlist-cover-s1.png",
+                description: "Catch up on the complete epic survival playlist featuring automated farms, base builds, and more.",
+                linkText: "Watch Series",
+                url: "https://www.youtube.com/watch?v=JKzt8ibyVpA&list=PLeRSQWBIp81vBLOyZNAq2x91FdQQmolCk"
+            },
+            {
+                title: "World Map & Schematics",
+                tag: "Free Download",
+                image: "images/files/survival-world-banner-coming-soon.png",
+                description: "Download our custom maps and schematics showcased in the latest YouTube tutorials.",
+                linkText: "Get Downloads",
+                url: "#mc-world"
+            }
+        ]
+    },
+
+    aboutPage: {
+        avatar: "images/about/avatar.png",
+        heading: "About AS BRO",
+        bioParagraphs: [
+            "I’m a Mallu Minecraft player from Kerala, creating fun and engaging Minecraft gameplay with a chill and friendly vibe. On this channel, I share my survival adventures, builds, farms, redstone experiments, and real gameplay moments — from noob mistakes to pro plays. I love exploring, building, and enjoying Minecraft my own way while connecting with fellow Minecraft lovers. If you enjoy relaxed gameplay, creativity, and honest fun, you’re in the right place."
+        ],
+        
+        // FIRST TEXT SECTION
+        announcementsHeading: "System Specs",
+        announcementsText: [
+            "**SYSTEM     :     ** HP VICTUS 15",
+            "**Processor  :     ** Intel Core i5-12450H",
+            "**Graphics   :     ** NVIDIA GeForce RTX 3060",
+            "**Memory     :     ** 8GB",
+            "**Storage    :     ** 512GB SSD"
+          ],
+
+        // SECOND TEXT SECTION
+        secondNoticeHeading: "Software Used",
+        secondNoticeText: [
+            "**Video Editing    :     ** Davinci resolve",
+            "**Photo Editing    :     ** GIMP"
+        ],
+
+        milestones: [
+            { label: "YouTube Subscribers", value: "800+", icon: "images/about/milestone-subscribers.png" },
+            { label: "Total Video Views",    value: "90k+",  icon: "images/about/milestone-views.png" },
+            { label: "Community Members",    value: "30+",  icon: "images/about/milestone-members.png" },
+            { label: "Years of Content",     value: "1+",   icon: "images/about/milestone-years.png" }
+        ],
+        photos: [
+            { image: "images/about/avatar-head.png", caption: "Face" },
+            { image: "images/about/avatar-head-side.png", caption: "Face Side View" },
+            { image: "images/about/avatar-body-1.png", caption: "Body" },
+            { image: "images/about/avatar-body-3.png", caption: "Action Shot" },
+            { image: "images/about/avatar-body-2.png", caption: "Side View" },
+            { image: "images/about/avatar-sitting.png", caption: "Sitting" },
+        ]
+    },
+
+    serversPage: {
+        heading: "Official Community Servers",
+        subheading: "Hop into the game with the community! Copy the server IPs below to join our active worlds.",
+        serversList: [
+            {
+                name: "ASBRO's Server",
+                serverLogo: "images/servers/asbro-smp-icon.png",
+                ip: "as_bros_lokam.aternos.me:52225",
+                version: "All versions supported",
+                status: "Online",
+                discordLink: "https://discord.gg/wAGZDfsAnY"
+            }
+        ]
+    },
+
+    mcWorldPage: {
+        heading: "World Downloads",
+        subheading: "Access official map saves, custom schematics, and modpacks featured in my videos.",
+        worldsList: [
+            {
+                title: "Survival World Season 1 Release (S01)",
+                fileIcon: "images/files/survival-world-icon.png",
+                category: "World Download",
+                version: "1.21.11",
+                size: "Unknown",
+                date: "Coming Soon",
+                image: "images/files/survival-world-banner-coming-soon.png",
+                description: "The complete survival world save featuring the ultimate farms and builds from our first season of epic adventures.",
+                actions: [
+                    { label: "Download World (.zip)", url: "----------------Coming_Soooooooooooooooooooooon--------------", type: "primary" },
+                    { label: "Screenshots", url: "https://drive.google.com/drive/folders/1gxqzeW3o5yB4mT8zq5pt0H9AxqURXdhG?usp=drive_link", type: "secondary" },
+                    { label: "Watch Video Tour", url: "https://youtube.com/watch?v=example", type: "secondary" }
+                ]
+            }
+        ]
+    },
+    
+    mcFilesPage: {
+        heading: "Channel Files Downloads",
+        subheading: "Access pictures and other media featured in my videos.",
+        filesList: [
+            {
+                title: "Survival World Season 3",
+                fileIcon: "images/files/survival-world-icon.png",
+                category: "Image",
+                date: "July 2026",
+                image: "images/files/survival-world-banner-coming-soon.png",
+                description: "The complete survival world save featuring the automated mega farms built in our latest video series.",
+                actions: [
+                    { label: "Download Image", url: "https://drive.google.com/drive/folders/1gxqzeW3o5yB4mT8zq5pt0H9AxqURXdhG?usp=drive_link", type: "primary" }
+                ]
+            }
+        ]
+    }
+};
+
+const NAV_ICONS = {
+  home:          '<svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>',
+  about:         '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>',
+  servers:       '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6"/><rect x="3" y="14" width="18" height="6"/><circle cx="7" cy="7" r="0.6"/><circle cx="7" cy="17" r="0.6"/></svg>',
+  files:         '<svg viewBox="0 0 24 24"><path d="M4 4h9l3 3h4v13H4z"/><path d="M12 11v6M9 14h6"/></svg>',
+  worldDownload: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a15.3 15.3 0 0 1 4 9 15.3 15.3 0 0 1-4 9 15.3 15.3 0 0 1-4-9z"/><path d="M12 8v8M9 13l3 3 3-3"/></svg>'
+};
+
+const PAGES = [
+  { id: "home",     label: "Home",    icon: NAV_ICONS.home },
+  { id: "about",    label: "About",   icon: NAV_ICONS.about },
+  { id: "servers",  label: "Servers", icon: NAV_ICONS.servers },
+  { id: "mc-world", label: "World",   icon: NAV_ICONS.worldDownload },
+  { id: "mc-files", label: "Files",   icon: NAV_ICONS.files }
+];
+
+function el(html){
+  const t = document.createElement("template");
+  t.innerHTML = html.trim();
+  return t.content.firstElementChild;
+}
+
+function renderChrome(){
+  document.title = WebsiteConfig.brand.channelName + " — Official Hub";
+  document.getElementById("favicon-link").href = WebsiteConfig.brand.favicon;
+  document.getElementById("brand-logo").src = WebsiteConfig.brand.siteLogo;
+  document.getElementById("brand-logo").alt = WebsiteConfig.brand.channelName + " logo";
+  document.getElementById("brand-name").innerHTML = WebsiteConfig.brand.channelName.split(" ").map((w,i)=> i===1 ? `<span>${w}</span>` : w).join(" ");
+
+  const socialRow = document.getElementById("social-row");
+  socialRow.innerHTML = "";
+  WebsiteConfig.socials.forEach(s=>{
+    const a = el(`<a class="social-slot pixel-slot" href="${s.url}" target="_blank" rel="noopener noreferrer" title="${s.name}"><img src="${s.icon}" alt="${s.name}"></a>`);
+    socialRow.appendChild(a);
+  });
+
+  document.getElementById("footer-copy").textContent = `© ${new Date().getFullYear()} ${WebsiteConfig.brand.channelName}. All rights reserved.`;
+
+  const hotbar = document.getElementById("hotbar");
+  hotbar.innerHTML = "";
+  PAGES.forEach((p, i)=>{
+    const slot = el(`
+      <a class="hotbar-slot" href="#${p.id}" data-page="${p.id}" title="${p.label} (${i+1})">
+        <span class="slot-num">${i+1}</span>
+        ${p.icon}
+        <span class="slot-label">${p.label}</span>
+      </a>`);
+    hotbar.appendChild(slot);
+  });
+}
+
+function renderHome(){
+  const cfg = WebsiteConfig.homePage;
+  document.getElementById("home-title").textContent = cfg.heroTitle;
+  document.getElementById("home-subtitle").textContent = cfg.heroSubtitle;
+  document.getElementById("home-video").src = cfg.featuredVideoEmbedUrl;
+
+  const highlightsGrid = document.getElementById("highlights-grid");
+  if (highlightsGrid && cfg.highlights) {
+    highlightsGrid.innerHTML = "";
+    cfg.highlights.forEach(h => {
+      const isExternal = h.url.startsWith("http");
+      highlightsGrid.appendChild(el(`
+        <div class="highlight-card pixel-panel">
+          <div class="highlight-banner">
+            <img src="${h.image}" alt="${h.title}">
+            <div class="highlight-tag">${h.tag}</div>
+          </div>
+          <div class="highlight-title">${h.title}</div>
+          <div class="highlight-desc">${h.description}</div>
+          <div class="highlight-actions">
+            <a class="pixel-btn secondary" href="${h.url}" ${isExternal ? 'target="_blank" rel="noopener noreferrer"' : ''}>
+              ${h.linkText || 'Learn More'}
+            </a>
+          </div>
+        </div>
+      `));
+    });
+  }
+
+  const quickGrid = document.getElementById("quick-grid");
+  const quickItems = [
+    { icon: NAV_ICONS.about,   title: "Meet the creator", desc: "Bio, milestones and the story behind the channel.", href: "#about" },
+    { icon: NAV_ICONS.servers, title: "Live servers",     desc: "Check status and copy the IP to join right now.",   href: "#servers" },
+    { icon: NAV_ICONS.files,   title: "World downloads",  desc: "Grab map saves and schematics from recent videos.", href: "#mc-world" }
+  ];
+  quickGrid.innerHTML = "";
+  quickItems.forEach(q=>{
+    quickGrid.appendChild(el(`
+      <a class="quick-card pixel-panel" href="${q.href}">
+        ${q.icon}
+        <h3>${q.title}</h3>
+        <p>${q.desc}</p>
+      </a>`));
+  });
+}
+
+function renderAbout(){
+  const cfg = WebsiteConfig.aboutPage;
+  document.getElementById("about-avatar").src = cfg.avatar;
+  document.getElementById("about-heading").textContent = cfg.heading;
+
+  const bio = document.getElementById("about-bio");
+  bio.innerHTML = "";
+  cfg.bioParagraphs.forEach(p=> bio.appendChild(el(`<p>${p}</p>`)));
+
+  const milestones = document.getElementById("about-milestones");
+  milestones.innerHTML = "";
+  cfg.milestones.forEach(m=>{
+    milestones.appendChild(el(`
+      <div class="milestone pixel-panel">
+        <img src="${m.icon}" alt="${m.label}">
+        <div>
+          <div class="m-value">${m.value}</div>
+          <div class="m-label">${m.label}</div>
+        </div>
+      </div>`));
+  });
+
+  const gallery = document.getElementById("about-gallery");
+  if (gallery && cfg.photos) {
+    gallery.innerHTML = "";
+    cfg.photos.forEach(photo => {
+      gallery.appendChild(el(`
+        <div class="gallery-card pixel-panel">
+          <div class="gallery-frame">
+            <img src="${photo.image}" alt="${photo.caption}">
+          </div>
+          <div class="gallery-caption">${photo.caption}</div>
+        </div>
+      `));
+    });
+  }
+
+  // RENDER FIRST TEXT SECTION
+  const textHeading = document.getElementById("about-text-heading");
+  const textContainer = document.getElementById("about-text-content");
+  
+  if (cfg.announcementsHeading && cfg.announcementsText) {
+    textHeading.textContent = cfg.announcementsHeading;
+    textContainer.innerHTML = "";
+    cfg.announcementsText.forEach(text => {
+      const formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      textContainer.appendChild(el(`<p>${formattedText}</p>`));
+    });
+  }
+
+  // RENDER SECOND TEXT SECTION
+  const secondHeading = document.getElementById("about-second-text-heading");
+  const secondContainer = document.getElementById("about-second-text-content");
+
+  if (cfg.secondNoticeHeading && cfg.secondNoticeText) {
+    secondHeading.textContent = cfg.secondNoticeHeading;
+    secondContainer.innerHTML = "";
+    cfg.secondNoticeText.forEach(text => {
+      const formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      secondContainer.appendChild(el(`<p>${formattedText}</p>`));
+    });
+  }
+}
+
+function renderServers(){
+  const cfg = WebsiteConfig.serversPage;
+  document.getElementById("servers-heading").textContent = cfg.heading;
+  document.getElementById("servers-subheading").textContent = cfg.subheading;
+
+  const list = document.getElementById("server-list");
+  list.innerHTML = "";
+  cfg.serversList.forEach((s, idx)=>{
+    const isOnline = s.status === "Online";
+    const card = el(`
+      <div class="server-card pixel-panel">
+        <img src="${s.serverLogo}" alt="${s.name} icon">
+        <div>
+          <div class="server-name">${s.name}</div>
+          <div class="server-meta">
+            <span class="status-badge"><span class="status-dot ${isOnline ? "online" : "maintenance"}"></span>${s.status}</span>
+            <span>${s.version}</span>
+          </div>
+          <div class="ip-row">
+            <span class="ip-value">${s.ip}</span>
+            <button class="copy-btn" data-ip="${s.ip}" data-id="copy-${idx}" id="copy-${idx}">Copy</button>
+          </div>
+        </div>
+        <div class="server-actions">
+          <a class="pixel-btn secondary" href="${s.discordLink}" target="_blank" rel="noopener noreferrer">Discord</a>
+        </div>
+      </div>`);
+    list.appendChild(card);
+  });
+
+  list.querySelectorAll(".copy-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const ip = btn.getAttribute("data-ip");
+      const done = ()=>{
+        const original = "Copy";
+        btn.textContent = "Copied!";
+        btn.classList.add("copied");
+        setTimeout(()=>{ btn.textContent = original; btn.classList.remove("copied"); }, 1500);
+      };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(ip).then(done).catch(done);
+      } else {
+        done();
+      }
+    });
+  });
+}
+
+function renderFiles(){
+  const cfg = WebsiteConfig.mcFilesPage;
+  document.getElementById("files-heading").textContent = cfg.heading;
+  document.getElementById("files-subheading").textContent = cfg.subheading;
+
+  const grid = document.getElementById("files-grid");
+  grid.innerHTML = "";
+  cfg.filesList.forEach(f=>{
+    const actions = f.actions.map(a=> `<a class="pixel-btn ${a.type === "primary" ? "primary" : "secondary"}" href="${a.url}" target="_blank" rel="noopener noreferrer">${a.label}</a>`).join("");
+    grid.appendChild(el(`
+      <div class="file-card pixel-panel">
+        <div class="file-banner">
+          <img src="${f.image}" alt="${f.title}">
+          <div class="file-tag"><img src="${f.fileIcon}" alt="">${f.category}</div>
+        </div>
+        <div class="file-body">
+          <div class="file-title">${f.title}</div>
+          <div class="file-date">${f.date}</div>
+          <div class="file-desc">${f.description}</div>
+          <div class="file-actions">${actions}</div>
+        </div>
+      </div>`));
+  });
+}
+
+function renderWorlds() {
+  const cfg = WebsiteConfig.mcWorldPage;
+  
+  document.getElementById("worlds-heading").textContent = cfg.heading;
+  document.getElementById("worlds-subheading").textContent = cfg.subheading;
+
+  const grid = document.getElementById("worlds-grid");
+  grid.innerHTML = "";
+
+  cfg.worldsList.forEach(w => {
+    const actions = w.actions.map(a => 
+      `<a class="pixel-btn ${a.type === "primary" ? "primary" : "secondary"}" href="${a.url}" target="_blank" rel="noopener noreferrer">${a.label}</a>`
+    ).join("");
+
+    grid.appendChild(el(`
+      <div class="file-card pixel-panel world-card">
+        <div class="file-banner">
+          <img src="${w.image}" alt="${w.title}">
+          <div class="file-tag"><img src="${w.fileIcon}" alt="">${w.category}</div>
+        </div>
+        <div class="file-body">
+          <div class="file-title">${w.title}</div>
+          
+          <div class="file-meta">
+            <span class="meta-badge">Ver: ${w.version}</span>
+            <span class="meta-badge">Size: ${w.size}</span>
+            <span class="file-date">${w.date}</span>
+          </div>
+
+          <div class="file-desc">${w.description}</div>
+          <div class="file-actions">${actions}</div>
+        </div>
+      </div>
+    `));
+  });
+}
+
+const VALID_PAGES = PAGES.map(p=>p.id);
+
+function router(){
+  let hash = location.hash.replace("#", "");
+  if(!VALID_PAGES.includes(hash)){ hash = "home"; }
+
+  document.querySelectorAll(".page").forEach(p=> p.classList.remove("active"));
+  document.getElementById("page-" + hash).classList.add("active");
+
+  document.querySelectorAll(".hotbar-slot").forEach(s=>{
+    s.classList.toggle("active", s.getAttribute("data-page") === hash);
+  });
+
+  window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+}
+
+window.addEventListener("hashchange", router);
+window.addEventListener("keydown", (e)=>{
+  const n = parseInt(e.key, 10);
+  if(n >= 1 && n <= PAGES.length && !["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){
+    location.hash = PAGES[n-1].id;
+  }
+});
+
+renderChrome();
+renderHome();
+renderAbout();
+renderServers();
+renderFiles();
+renderWorlds();
+router();
+</script>
+</body>
+</html>
