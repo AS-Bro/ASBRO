@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minecraft Potion Guide - AS BRO</title>
+
+<style>
+
+:root {
+  --bg: #0a0a0a;
+  --panel: #111111;
+  --panel-2: #161616;
+  --panel-border: #3a3a3a;
+  --red: #ff3333;
+  --red-hover: #cc0000;
+  --ink: #ffffff;
+  --ink-dim: #d1d5db;
+  --font-mono: 'Courier New', Courier, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--bg);
+  font-family: var(--font-mono);
+  color: var(--ink);
+  padding: 40px 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header Section */
+.header {
+  text-align: center;
+  margin-bottom: 35px;
+  background: var(--panel);
+  border: 4px solid var(--panel-border);
+  box-shadow: inset -4px -4px 0px 0px #000, inset 4px 4px 0px 0px #333;
+  padding: 2.5rem;
+}
+
+.header h1 {
+  font-size: 2.6rem;
+  color: var(--red);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  text-shadow: 2px 2px 0px #000;
+}
+
+.header p {
+  color: var(--ink-dim);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Base Pixel Button System */
+.pixel-btn {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: bold;
+  padding: 14px 20px;
+  background: var(--panel-2);
+  color: var(--ink);
+  border: 4px solid var(--panel-border);
+  box-shadow: inset -3px -3px 0px 0px #000, inset 3px 3px 0px 0px #444;
+  cursor: pointer;
+  text-align: center;
+  text-transform: uppercase;
+  transition: all 0.1s ease;
+  user-select: none;
+}
+
+.pixel-btn:hover {
+  background: #222;
+  border-color: #666;
+  color: #fff;
+}
+
+.pixel-btn:active {
+  box-shadow: inset 3px 3px 0px 0px #000, inset -3px -3px 0px 0px #333;
+  transform: translateY(2px);
+}
+
+.pixel-btn.active {
+  background: var(--red);
+  border-color: #ff6666;
+  color: #fff;
+  box-shadow: inset -3px -3px 0px 0px #880000, inset 3px 3px 0px 0px #ff9999;
+}
+
+/* Search and Controls Box */
+.controls-panel {
+  background: var(--panel);
+  border: 4px solid var(--panel-border);
+  box-shadow: inset -4px -4px 0px 0px #000, inset 4px 4px 0px 0px #333;
+  padding: 1.5rem;
+  margin-bottom: 35px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 16px 18px;
+  border: 4px solid var(--panel-border);
+  box-shadow: inset 3px 3px 0px 0px #000;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  outline: none;
+  margin-bottom: 16px;
+}
+
+.search-box input:focus {
+  border-color: var(--red);
+}
+
+.filter-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Cards Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: var(--panel-2);
+  border: 4px solid var(--panel-border);
+  box-shadow: inset -4px -4px 0px 0px #000, inset 4px 4px 0px 0px #222;
+  padding: 1.6rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.1s ease;
+}
+
+.card:hover {
+  border-color: var(--red);
+  transform: translateY(-3px);
+}
+
+.card h2 {
+  font-size: 1.4rem;
+  color: #ffffff;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.card p {
+  color: var(--ink-dim);
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.badge {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 6px 12px;
+  background: #000000;
+  border: 3px solid var(--panel-border);
+  color: var(--red);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Modal Overlay */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 750px;
+  background: var(--panel);
+  border: 4px solid var(--panel-border);
+  box-shadow: inset -4px -4px 0px 0px #000, inset 4px 4px 0px 0px #444;
+  padding: 2.2rem;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.close-btn {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  width: 40px;
+  height: 40px;
+  line-height: 32px;
+  padding: 0;
+  font-size: 18px;
+}
+
+.modal-title {
+  font-size: 2rem;
+  color: var(--red);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  padding-right: 50px;
+  text-shadow: 1px 1px 0px #000;
+}
+
+.modal-desc {
+  color: #ffffff !important;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.section {
+  margin-top: 24px;
+  background: var(--panel-2);
+  border: 4px solid var(--panel-border);
+  box-shadow: inset -4px -4px 0px 0px #000, inset 4px 4px 0px 0px #222;
+  padding: 1.2rem;
+}
+
+.section h3 {
+  margin-bottom: 14px;
+  color: #ffffff;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 3px solid var(--panel-border);
+  padding-bottom: 8px;
+}
+
+.ingredients-list, .steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item {
+  background: #050505;
+  border: 3px solid var(--panel-border);
+  box-shadow: inset 2px 2px 0px 0px #000;
+  padding: 12px 16px;
+  font-size: 15px;
+  color: #ffffff;
+  line-height: 1.6;
+}
+
+.upgrades-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.tip {
+  margin-top: 24px;
+  padding: 16px;
+  border: 3px dashed #666;
+  background: #1a1a1a;
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.tip strong {
+  color: var(--red);
+}
+
+@media(max-width: 600px) {
+  .header h1 {
+    font-size: 2rem;
+  }
+  .upgrades-grid {
+    grid-template-columns: 1fr;
+  }
+  .filter-group .pixel-btn {
+    flex: 1 1 45%;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>🧪 BREWING RECIPE BOOK</h1>
+        <p>Master Minecraft alchemy. Search potions, check ingredients, and view exact brewing steps.</p>
+    </div>
+
+    <div class="controls-panel">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="SEARCH POTION NAME...">
+        </div>
+
+        <div class="filter-group">
+            <button class="pixel-btn active" onclick="filterTier('ALL', this)">ALL</button>
+            <button class="pixel-btn" onclick="filterTier('Base Potion', this)">BASE</button>
+            <button class="pixel-btn" onclick="filterTier('Positive', this)">POSITIVE</button>
+            <button class="pixel-btn" onclick="filterTier('Negative', this)">NEGATIVE</button>
+            <button class="pixel-btn" onclick="filterTier('Trial Potion', this)">TRIAL</button>
+        </div>
+    </div>
+
+    <div class="grid" id="potionsGrid"></div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <button class="pixel-btn close-btn" onclick="closeModal()">✕</button>
+
+        <h2 class="modal-title" id="modalTitle"></h2>
+        <p id="modalDescription" class="modal-desc"></p>
+
+        <div class="section">
+            <h3>🧱 INGREDIENTS REQUIRED</h3>
+            <div class="ingredients-list" id="ingredientsList"></div>
+        </div>
+
+        <div class="section">
+            <h3>⚗️ BREWING STEPS</h3>
+            <div class="steps-list" id="stepsList"></div>
+        </div>
+
+        <div class="section">
+            <h3>✨ MODIFIERS & UPGRADES</h3>
+            <div class="upgrades-grid" id="upgradesList"></div>
+        </div>
+
+        <div class="tip" id="tipBox"></div>
+    </div>
+</div>
+
+<script>
+const potions = [
+{
+    name: 'Awkward Potion',
+    effect: 'Base potion required to craft almost all primary status effect potions.',
+    tier: 'Base Potion',
+    ingredients: ['Water Bottle (3x)', 'Nether Wart (1x)', 'Blaze Powder (Fuel)'],
+    steps: [
+        'Fill fuel slot in the Brewing Stand with Blaze Powder.',
+        'Place 1 to 3 Water Bottles into the bottom slots.',
+        'Place Nether Wart into the top ingredient slot.',
+        'Wait 20 seconds for brewing to finish.'
+    ],
+    upgrades: {
+        redstone: 'Cannot upgrade.',
+        glowstone: 'Cannot upgrade.',
+        splash: 'Add Gunpowder to make Splash Awkward Potion.'
+    },
+    tip: 'Always brew 3 bottles at once to maximize Blaze Powder efficiency.'
+},
+{
+    name: 'Mundane Potion',
+    effect: 'Base potion with no special effects.',
+    tier: 'Base Potion',
+    ingredients: ['Water Bottle', 'Redstone Dust / Spider Eye / Ghast Tear'],
+    steps: [
+        'Place Blaze Powder in fuel slot.',
+        'Place Water Bottles in bottom slots.',
+        'Brew using Redstone Dust or standard ingredients without Nether Wart.'
+    ],
+    upgrades: {
+        redstone: 'N/A',
+        glowstone: 'N/A',
+        splash: 'Add Gunpowder for Splash Mundane Potion.'
+    },
+    tip: 'Created when brewing base ingredients directly into water without Nether Wart.'
+},
+{
+    name: 'Thick Potion',
+    effect: 'Base potion with no special effects.',
+    tier: 'Base Potion',
+    ingredients: ['Water Bottle', 'Glowstone Dust'],
+    steps: [
+        'Place Blaze Powder in fuel slot.',
+        'Place Water Bottles in bottom slots.',
+        'Add Glowstone Dust to top ingredient slot.'
+    ],
+    upgrades: {
+        redstone: 'N/A',
+        glowstone: 'N/A',
+        splash: 'Add Gunpowder for Splash Thick Potion.'
+    },
+    tip: 'Used as a decorational item or base placeholder.'
+},
+{
+    name: 'Potion of Fire Resistance',
+    effect: 'Grants immunity to fire, lava, and Blaze fireballs.',
+    tier: 'Positive',
+    ingredients: ['Awkward Potion', 'Magma Cream'],
+    steps: [
+        'Prepare Awkward Potion in bottom slots.',
+        'Place Magma Cream into top ingredient slot.',
+        'Wait for brewing cycle to finish.'
+    ],
+    upgrades: {
+        redstone: 'Extends duration from 3:00 to 8:00.',
+        glowstone: 'Not applicable.',
+        splash: 'Add Gunpowder for Splash form.'
+    },
+    tip: 'Essential for Nether mining and fighting Blazes.'
+},
+{
+    name: 'Potion of Healing',
+    effect: 'Instantly restores 4 Health (2 Hearts).',
+    tier: 'Positive',
+    ingredients: ['Awkward Potion', 'Glistering Melon Slice'],
+    steps: [
+        'Prepare Awkward Potion in bottom slots.',
+        'Place Glistering Melon Slice into top ingredient slot.',
+        'Wait for brewing cycle to finish.'
+    ],
+    upgrades: {
+        redstone: 'Not applicable.',
+        glowstone: 'Healing II: Restores 8 Health (4 Hearts).',
+        splash: 'Add Gunpowder for instant area healing.'
+    },
+    tip: 'Deals instant damage to Undead mobs like Zombies and Skeletons.'
+},
+{
+    name: 'Potion of Invisibility',
+    effect: 'Renders player model completely invisible.',
+    tier: 'Positive',
+    ingredients: ['Potion of Night Vision', 'Fermented Spider Eye'],
+    steps: [
+        'Brew a standard Potion of Night Vision.',
+        'Place Night Vision Potion into bottom slots.',
+        'Add Fermented Spider Eye into top slot.'
+    ],
+    upgrades: {
+        redstone: 'Extends duration from 3:00 to 8:00.',
+        glowstone: 'Not applicable.',
+        splash: 'Add Gunpowder to make allies invisible.'
+    },
+    tip: 'Equipped armor, held items, and particle effects remain visible.'
+},
+{
+    name: 'Potion of Leaping',
+    effect: 'Increases jump height and reduces fall damage.',
+    tier: 'Positive',
+    ingredients: ['Awkward Potion', 'Rabbit Foot'],
+    steps: [
+        'Prepare Awkward Potion in bottom slots.',
+        'Place Rabbit Foot in top ingredient slot.',
+        'Wait for brewing to finish.'
+    ],
+    upgrades: {
+        redstone: 'Extends duration from 3:00 to 8:00.',
+        glowstone: 'Jump Boost II: Allows jumping 2.5 blocks high.',
+        splash: 'Add Gunpowder for Splash form.'
+    },
+    tip: 'Combine with Feather Falling boots for maximum vertical maneuverability.'
+},
+{
+    name: 'Potion of Night Vision',
+    effect: 'Makes everything appear at maximum light level and improves underwater vision.',
+    tier: 'Positive',
+    ingredients: ['Awkward Potion', 'Golden Carrot'],
+    steps: [
+        'Prepare Awkward Potion in bottom slots.',
+        'Place Golden Carrot in top slot.',
+        'Wait for brewing to complete.'
+    ],
+    upgrades: {
+        redstone: 'Extends duration from 3:00 to 8:00.',
+        glowstone: 'Not applicable.',
+        splash: 'Add Gunpowder for Splash form.'
+    },
+    tip: 'Blinking screen effect alerts you 10 seconds before expiration.'
+},
+{
+    name: 'Potion of Regeneration',
+    effect: 'Restores health continuously over time.',
+    tier: 'Positive',
+    ingredients: ['Awkward Potion', 'Ghast Tear'],
+    steps: [
+        'Prepare Awkward Potion in bottom slots.',
+        'Place Ghast Tear in top slot.',
+        'Wait for brewing cycle.'
+    ],
+    upgrades: {
+        redstone: 'Extends duration from 0:45 to 1:30.',
+        glowstone: 'Regeneration II: Restores health twice as fast.',
+        splash: 'Add Gunpowder for Splash form.'
+    },
+    tip: 'Crucial for boss battles like Wither and Ender Dragon.'
+},
+{
+    name: 'Potion of Slow Falling',
+    effect: 'Slows falling speed and completely negates fall damage.',
+    tier: 'Positive',
+    ingredients: ['Awkward Potion', 'Phantom Membrane'],
+    steps: [
+        'Prepare Awkward Potion in bottom slots.',
+        'Place Phantom Membrane in top slot.',
+        'Wait for brewing cycle.'
+    ],
+    upgrades: {
+        redstone: 'Extends duration from 1:30 to 4:00.',
+        glowstone: 'Not applicable.',
+        splash: 'Add Gunpowder for Splash form.'
+    },
+    tip: 'Prevents falling into the void during End city exploration.'
+},
+{
+    name: 'Potion of Strength',
+    effect: 'Increases melee attack damage (+3 damage per hit).',
+    tier: 'Positive',
+    ingredients: ['Awkward Potion', 'Blaze Powder'],
+    steps: [
+        'Prepare Awkward Potion in bottom slots.',
+        'Place Blaze Powder in top ingredient slot.',
+        'Wait for brewing to complete.'
+    ],
+    upgrades: {
+        redstone: 'Extends duration from 3:00 to 8:00.',
+        glowstone: 'Strength II: Grants +6 attack damage.',
+        splash: 'Add Gunpowder for Splash form.'
+    },
+    tip: 'Essential component for high-tier PvP and mob grinding.'
+},
+{
+    name: 'Potion of Swiftness',
+    effect: 'Increases movement speed and field of view by +20%.',
+    tier: 'Positive',
+    ingredients: ['Awkward Potion', 'Sugar'],
+    steps: [
+        'Prepare Awkward Potion in bottom slots.',
+        'Place Sugar in top ingredient slot.',
+        'Wait for brewing to finish.'
+    ],
+    upgrades: {
+        redstone: 'Extends duration from 3:00 to 8:00.',
+        glowstone: 'Speed II: Increases movement speed by +40%.',
+        splash: 'Add Gunpowder for Splash form.'
+    },
+    tip: 'Great for traveling long distances across overworld biomes.'
+},
+{
+    name: 'Potion of Water Breathing',
+    effect: 'Prevents oxygen bar depletion while submerged in water.',
+    tier: 'Positive',
+    ingredients: ['Awkward Potion', 'Pufferfish'],
+    steps: [
+        'Prepare Awkward Potion in bottom slots.',
+        'Place Pufferfish in top slot.',
+        'Wait for brewing cycle.'
+    ],
+    upgrades: {
+        redstone: 'Extends duration from 3:00 to 8:00.',
+        glowstone: 'Not applicable.',
+        splash: 'Add Gunpowder for Splash form.'
+    },
+    tip: 'Combine with Night Vision for Ocean Monument raids.'
+},
+{
+    name: 'Potion of Harming',
+    effect: 'Instantly deals 6 damage (3 Hearts).',
+    tier: 'Negative',
+    ingredients: ['Potion of Healing OR Poison', 'Fermented Spider Eye'],
+    steps: [
+        'Brew a Potion of Healing or Potion of Poison.',
+        'Place potion in bottom slots.',
+        'Add Fermented Spider Eye into top slot.'
+    ],
+    upgrades: {
+        redstone: 'Not applicable.',
+        glowstone: 'Harming II: Deals 12 damage (6 Hearts).',
+        splash: 'Add Gunpowder to use as offensive thrown weapon.'
+    },
+    tip: 'Heals Undead mobs (Zombies, Skeletons) instead of damaging them.'
+},
+{
+    name: 'Potion of Infestation',
+    effect: 'Entities have a 10% chance to spawn 1-3 Silverfish when hurt.',
+    tier: 'Trial Potion',
+    ingredients: ['Awkward Potion', 'Stone Block'],
+    steps: [
+        'Prepare Awkward Potion in bottom slots.',
+        'Place Stone block into top slot.',
+        'Wait for brewing cycle.'
+    ],
+    upgrades: {
+        redstone: 'Extends duration from 3:00 to 8:00.',
+        glowstone: 'Not applicable.',
+        splash: 'Add Gunpowder for Splash form.'
+    },
+    tip: 'Found inside Trial Chambers or brewed for mob chaos.'
+},
+{
+    name: 'Potion of Oozing',
+    effect: 'Entities spawn 2 Slimes upon death.',
+    tier: 'Trial Potion',
+    ingredients: ['Awkward Potion', 'Slime Block'],
+    steps: [
+        'Prepare Awkward Potion in bottom slots.',
+        'Place Slime Block into top slot.',
+        'Wait for brewing cycle.'
+    ],
+    upgrades: {
+        redstone: 'Extends duration from 3:00 to 8:00.',
+        glowstone: 'Not applicable.',
+        splash: 'Add Gunpowder for Splash form.'
+    },
+    tip: 'Useful for farming slimeballs when applied to targets.'
+},
+{
+    name: 'Potion of Poison',
+    effect: 'Drains health over time down to 1 Health (0.5 Hearts).',
+    tier: 'Negative',
+    ingredients: ['Awkward Potion', 'Spider Eye'],
+    steps: [
+        'Prepare Awkward Potion in bottom slots.',
+        'Place Spider Eye into top slot.',
+        'Wait for brewing cycle.'
+    ],
+    upgrades: {
+        redstone: 'Extends duration from 0:45 to 1:30.',
+        glowstone: 'Poison II: Drains health twice as fast.',
+        splash: 'Add Gunpowder to throw at targets.'
+    },
+    tip: 'Does not affect Undead mobs or Spiders.'
+},
+{
+    name: 'Potion of Slowness',
+    effect: 'Reduces movement speed by -15%.',
+    tier: 'Negative',
+    ingredients: ['Potion of Swiftness OR Leaping', 'Fermented Spider Eye'],
+    steps: [
+        'Brew Potion of Swiftness or Leaping.',
+        'Place potion in bottom slots.',
+        'Add Fermented Spider Eye in top slot.'
+    ],
+    upgrades: {
+        redstone: 'Extends duration from 1:30 to 4:00.',
+        glowstone: 'Slowness IV: Reduces movement speed by -60%.',
+        splash: 'Add Gunpowder for Splash form.'
+    },
+    tip: 'Great for slowing down fleeing players or fast hostile mobs.'
+},
+{
+    name: 'Potion of the Turtle Master',
+    effect: 'Grants Slowness IV (-60% speed) and Resistance IV (-80% damage taken).',
+    tier: 'Negative',
+    ingredients: ['Awkward Potion', 'Turtle Shell'],
+    steps: [
+        'Prepare Awkward Potion in bottom slots.',
+        'Place Turtle Shell in top slot.',
+        'Wait for brewing cycle.'
+    ],
+    upgrades: {
+        redstone: 'Extends duration from 0:20 to 0:40.',
+        glowstone: 'Turtle Master II: Grants Resistance VI (-90% damage).',
+        splash: 'Add Gunpowder for Splash form.'
+    },
+    tip: 'Makes you nearly invincible at the cost of extreme slowness.'
+},
+{
+    name: 'Potion of Weakness',
+    effect: 'Reduces melee attack damage by 4.',
+    tier: 'Negative',
+    ingredients: ['Water Bottle', 'Fermented Spider Eye'],
+    steps: [
+        'Place Water Bottles into bottom slots (no Nether Wart needed).',
+        'Add Fermented Spider Eye into top slot.',
+        'Wait for brewing cycle.'
+    ],
+    upgrades: {
+        redstone: 'Extends duration from 1:30 to 4:00.',
+        glowstone: 'Not applicable.',
+        splash: 'Add Gunpowder to make Splash Potion.'
+    },
+    tip: 'Combine Splash Potion of Weakness with a Golden Apple to cure Zombie Villagers.'
+},
+{
+    name: 'Potion of Weaving',
+    effect: 'Entities spawn Cobwebs upon death and move faster through webs.',
+    tier: 'Trial Potion',
+    ingredients: ['Awkward Potion', 'Cobweb'],
+    steps: [
+        'Prepare Awkward Potion in bottom slots.',
+        'Place Cobweb into top slot.',
+        'Wait for brewing cycle.'
+    ],
+    upgrades: {
+        redstone: 'Extends duration from 3:00 to 8:00.',
+        glowstone: 'Not applicable.',
+        splash: 'Add Gunpowder for Splash form.'
+    },
+    tip: 'Traps surrounding enemies in webs when a target dies.'
+},
+{
+    name: 'Potion of Wind Charging',
+    effect: 'Entities emit a Wind Burst upon death.',
+    tier: 'Trial Potion',
+    ingredients: ['Awkward Potion', 'Breeze Rod'],
+    steps: [
+        'Prepare Awkward Potion in bottom slots.',
+        'Place Breeze Rod into top slot.',
+        'Wait for brewing cycle.'
+    ],
+    upgrades: {
+        redstone: 'Extends duration from 3:00 to 8:00.',
+        glowstone: 'Not applicable.',
+        splash: 'Add Gunpowder for Splash form.'
+    },
+    tip: 'Creates knockback explosions when targets are defeated.'
+}
+];
+
+const grid = document.getElementById('potionsGrid');
+const searchInput = document.getElementById('searchInput');
+let currentTierFilter = 'ALL';
+
+function renderPotions(list) {
+    grid.innerHTML = '';
+    list.forEach(potion => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+            <div>
+                <h2>${potion.name}</h2>
+                <p>${potion.effect}</p>
+            </div>
+            <div class="badge">${potion.tier}</div>
+        `;
+        card.onclick = () => openPotion(potion);
+        grid.appendChild(card);
+    });
+}
+
+function openPotion(potion) {
+    document.getElementById('modal').style.display = 'flex';
+    document.getElementById('modalTitle').innerText = potion.name;
+    document.getElementById('modalDescription').innerText = potion.effect;
+
+    const ingredientsList = document.getElementById('ingredientsList');
+    const stepsList = document.getElementById('stepsList');
+    const upgradesList = document.getElementById('upgradesList');
+
+    ingredientsList.innerHTML = '';
+    stepsList.innerHTML = '';
+    upgradesList.innerHTML = '';
+
+    potion.ingredients.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerText = '• ' + item;
+        ingredientsList.appendChild(div);
+    });
+
+    potion.steps.forEach((step, idx) => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerText = `${idx + 1}. ${step}`;
+        stepsList.appendChild(div);
+    });
+
+    if(potion.upgrades) {
+        upgradesList.innerHTML = `
+            <div class="item"><strong style="color:var(--red);">🔴 Redstone:</strong> ${potion.upgrades.redstone || 'N/A'}</div>
+            <div class="item"><strong style="color:#ffcc00;">🟡 Glowstone:</strong> ${potion.upgrades.glowstone || 'N/A'}</div>
+            <div class="item" style="grid-column: span 2;"><strong style="color:#ffffff;">💥 Splash / Area:</strong> ${potion.upgrades.splash || 'Add Gunpowder'}</div>
+        `;
+    }
+
+    document.getElementById('tipBox').innerHTML = '<strong>💡 TIP:</strong> ' + potion.tip;
+}
+
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+}
+
+function filterTier(tier, btn) {
+    currentTierFilter = tier;
+    document.querySelectorAll('.filter-group .pixel-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilters();
+}
+
+function applyFilters() {
+    const query = searchInput.value.toLowerCase();
+    const filtered = potions.filter(p => {
+        const matchesSearch = p.name.toLowerCase().includes(query) || p.effect.toLowerCase().includes(query);
+        const matchesTier = (currentTierFilter === 'ALL') || (p.tier === currentTierFilter);
+        return matchesSearch && matchesTier;
+    });
+    renderPotions(filtered);
+}
+
+searchInput.addEventListener('input', applyFilters);
+
+// Initial render
+renderPotions(potions);
+</script>
+
+</body>
+</html>
