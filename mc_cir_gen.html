@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minecraft Circle & Sphere Generator - AS BRO</title>
+
+<style>
+:root {
+  --bg: #0a0a0a;
+  --panel: #111111;
+  --panel-2: #161616;
+  --panel-border: #3a3a3a;
+  --red: #ff3333;
+  --red-hover: #cc0000;
+  --ink: #ffffff;
+  --ink-dim: #d1d5db;
+  --font-mono: 'Courier New', Courier, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--bg);
+  font-family: var(--font-mono);
+  color: var(--ink);
+  padding: 30px 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  background: var(--panel);
+  border: 4px solid var(--panel-border);
+  box-shadow: inset -4px -4px 0px 0px #000, inset 4px 4px 0px 0px #333;
+  padding: 2rem;
+}
+
+.header h1 {
+  font-size: 2.4rem;
+  color: var(--red);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 0px #000;
+}
+
+.header p {
+  color: var(--ink-dim);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Pixel Buttons */
+.pixel-btn {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: bold;
+  padding: 12px 18px;
+  background: var(--panel-2);
+  color: var(--ink);
+  border: 4px solid var(--panel-border);
+  box-shadow: inset -3px -3px 0px 0px #000, inset 3px 3px 0px 0px #444;
+  cursor: pointer;
+  text-align: center;
+  text-transform: uppercase;
+  transition: all 0.1s ease;
+  user-select: none;
+}
+
+.pixel-btn:hover {
+  background: #222;
+  border-color: #666;
+  color: #fff;
+}
+
+.pixel-btn:active {
+  box-shadow: inset 3px 3px 0px 0px #000, inset -3px -3px 0px 0px #333;
+  transform: translateY(2px);
+}
+
+.pixel-btn.primary {
+  background: var(--red);
+  border-color: #ff6666;
+  color: #fff;
+  box-shadow: inset -3px -3px 0px 0px #880000, inset 3px 3px 0px 0px #ff9999;
+}
+
+.pixel-btn.primary:hover {
+  background: var(--red-hover);
+}
+
+.pixel-btn.active {
+  background: var(--red);
+  border-color: #ff6666;
+  color: #fff;
+  box-shadow: inset -3px -3px 0px 0px #880000, inset 3px 3px 0px 0px #ff9999;
+}
+
+/* Main Layout Grid */
+.layout-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 24px;
+}
+
+/* Controls Side Panel */
+.controls-panel {
+  background: var(--panel);
+  border: 4px solid var(--panel-border);
+  box-shadow: inset -4px -4px 0px 0px #000, inset 4px 4px 0px 0px #333;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.section-title {
+  font-size: 15px;
+  color: #fff;
+  text-transform: uppercase;
+  border-bottom: 3px solid var(--panel-border);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+
+.btn-group {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-group .pixel-btn {
+  flex: 1;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-group label {
+  font-size: 13px;
+  color: var(--ink-dim);
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+}
+
+.control-group input[type="number"],
+.control-group select {
+  width: 100%;
+  padding: 12px;
+  border: 4px solid var(--panel-border);
+  box-shadow: inset 3px 3px 0px 0px #000;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  outline: none;
+}
+
+.control-group input[type="number"]:focus,
+.control-group select:focus {
+  border-color: var(--red);
+}
+
+/* Custom Range Slider */
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 12px;
+  background: var(--bg);
+  border: 3px solid var(--panel-border);
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 24px;
+  background: var(--red);
+  border: 2px solid #fff;
+  cursor: pointer;
+  box-shadow: inset -2px -2px 0px 0px #880000;
+}
+
+/* Checkbox Styling */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-label input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--red);
+  cursor: pointer;
+}
+
+/* Stats Box */
+.stats-card {
+  background: var(--panel-2);
+  border: 4px solid var(--panel-border);
+  box-shadow: inset -3px -3px 0px 0px #000, inset 3px 3px 0px 0px #222;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--ink-dim);
+}
+
+.stat-row strong {
+  color: var(--red);
+  font-size: 15px;
+}
+
+/* Preview Canvas Area */
+.canvas-panel {
+  background: var(--panel);
+  border: 4px solid var(--panel-border);
+  box-shadow: inset -4px -4px 0px 0px #000, inset 4px 4px 0px 0px #333;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 550px;
+}
+
+.canvas-toolbar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  background: var(--panel-2);
+  border: 3px solid var(--panel-border);
+  padding: 10px 14px;
+}
+
+.canvas-container {
+  width: 100%;
+  height: 520px;
+  overflow: hidden;
+  position: relative;
+  background: #050505;
+  border: 4px solid var(--panel-border);
+  box-shadow: inset 3px 3px 0px 0px #000;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.canvas-container:active {
+  cursor: grabbing;
+}
+
+canvas {
+  image-rendering: pixelated;
+  display: block;
+}
+
+.coord-tooltip {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: rgba(0,0,0,0.85);
+  border: 2px solid var(--panel-border);
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #fff;
+  pointer-events: none;
+}
+
+@media(max-width: 900px) {
+  .layout-grid {
+    grid-template-columns: 1fr;
+  }
+  .canvas-container {
+    height: 400px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>CIRCLE & SPHERE GENERATOR</h1>
+    <p>Generate exact pixel blueprints for Minecraft circles, ellipses, arches, and 3D spheres.</p>
+  </div>
+
+  <div class="layout-grid">
+
+    <!-- Left Controls Panel -->
+    <div class="controls-panel">
+
+      <!-- Mode Selector -->
+      <div>
+        <div class="section-title">1. SHAPE MODE</div>
+        <div class="btn-group">
+          <button class="pixel-btn active" id="btnCircle" onclick="setShapeMode('circle')">2D CIRCLE</button>
+          <button class="pixel-btn" id="btnSphere" onclick="setShapeMode('sphere')">3D SPHERE</button>
+        </div>
+      </div>
+
+      <!-- Dimensions -->
+      <div>
+        <div class="section-title">2. DIMENSIONS</div>
+        
+        <div class="control-group" style="margin-bottom: 12px;">
+          <label>WIDTH (BLOCKS): <span id="valW">15</span></label>
+          <div class="slider-container">
+            <input type="range" id="inputW" min="3" max="127" value="15" step="2" oninput="updateDimensions()">
+          </div>
+        </div>
+
+        <div class="control-group" id="heightGroup" style="margin-bottom: 12px;">
+          <label>
+            <span>HEIGHT (BLOCKS): <span id="valH">15</span></span>
+            <span><input type="checkbox" id="lockAspect" checked onclick="toggleAspectLock()"> LOCK</span>
+          </label>
+          <div class="slider-container">
+            <input type="range" id="inputH" min="3" max="127" value="15" step="2" disabled oninput="updateDimensions()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Style & Options -->
+      <div>
+        <div class="section-title">3. STYLE & TYPE</div>
+        
+        <div class="control-group" style="margin-bottom: 12px;">
+          <label>FILL TYPE</label>
+          <select id="selectFill" onchange="redraw()">
+            <option value="outline">Thin Outline</option>
+            <option value="thick">Thick Outline</option>
+            <option value="filled">Solid Filled</option>
+          </select>
+        </div>
+
+        <div class="control-group" style="margin-bottom: 12px;">
+          <label class="checkbox-label">
+            <input type="checkbox" id="checkArch" onchange="redraw()">
+            HALF SHAPE (ARCH / DOME)
+          </label>
+        </div>
+      </div>
+
+      <!-- 3D Layer Slider (Sphere Mode) -->
+      <div id="sphereControls" style="display: none;">
+        <div class="section-title">4. SPHERE LAYER SLIDER</div>
+        <div class="control-group">
+          <label>CURRENT LAYER (Y): <span id="valLayer">8 / 15</span></label>
+          <div class="slider-container">
+            <input type="range" id="inputLayer" min="1" max="15" value="8" oninput="redraw()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistics -->
+      <div>
+        <div class="section-title">BLUEPRINT METRICS</div>
+        <div class="stats-card">
+          <div class="stat-row">
+            <span>TOTAL BLOCKS:</span>
+            <strong id="statBlocks">0</strong>
+          </div>
+          <div class="stat-row" id="layerStatRow" style="display:none;">
+            <span>LAYER BLOCKS:</span>
+            <strong id="statLayerBlocks">0</strong>
+          </div>
+          <div class="stat-row">
+            <span>DIAMETER:</span>
+            <strong id="statDiameter">15 x 15</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <button class="pixel-btn primary" onclick="downloadPNG()">💾 DOWNLOAD PNG</button>
+      <button class="pixel-btn" onclick="resetView()">🔍 RESET ZOOM & PAN</button>
+
+    </div>
+
+    <!-- Right Preview Panel -->
+    <div class="canvas-panel">
+
+      <div class="canvas-toolbar">
+        <span style="font-size: 13px; font-weight: bold; color: var(--red);">[ GRID CANVAS PREVIEW ]</span>
+        <span style="font-size: 12px; color: var(--ink-dim);">Scroll to Zoom | Drag to Pan</span>
+      </div>
+
+      <div class="canvas-container" id="canvasContainer">
+        <canvas id="gridCanvas"></canvas>
+        <div class="coord-tooltip" id="coordTooltip">X: 0, Y: 0</div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+let shapeMode = 'circle';
+let width = 15;
+let height = 15;
+let lockAspect = true;
+
+// Canvas Pan & Zoom vars
+let zoom = 16;
+let panX = 0;
+let panY = 0;
+let isDragging = false;
+let startX = 0, startY = 0;
+
+const canvas = document.getElementById('gridCanvas');
+const ctx = canvas.getContext('2d');
+const container = document.getElementById('canvasContainer');
+const tooltip = document.getElementById('coordTooltip');
+
+function initCanvas() {
+  canvas.width = container.clientWidth;
+  canvas.height = container.clientHeight;
+  resetView();
+}
+
+window.addEventListener('resize', () => {
+  canvas.width = container.clientWidth;
+  canvas.height = container.clientHeight;
+  redraw();
+});
+
+function resetView() {
+  zoom = Math.min(canvas.width / (width + 6), canvas.height / (height + 6));
+  zoom = Math.max(8, Math.min(zoom, 32));
+  panX = canvas.width / 2;
+  panY = canvas.height / 2;
+  redraw();
+}
+
+function setShapeMode(mode) {
+  shapeMode = mode;
+  document.getElementById('btnCircle').classList.toggle('active', mode === 'circle');
+  document.getElementById('btnSphere').classList.toggle('active', mode === 'sphere');
+  
+  const sphereControls = document.getElementById('sphereControls');
+  const layerStatRow = document.getElementById('layerStatRow');
+  const heightSlider = document.getElementById('inputH');
+
+  if (mode === 'sphere') {
+    sphereControls.style.display = 'block';
+    layerStatRow.style.display = 'flex';
+    lockAspect = true;
+    document.getElementById('lockAspect').checked = true;
+    height = width;
+    heightSlider.value = width;
+    heightSlider.disabled = true;
+    document.getElementById('valH').innerText = height;
+    updateSphereLayerBounds();
+  } else {
+    sphereControls.style.display = 'none';
+    layerStatRow.style.display = 'none';
+    heightSlider.disabled = lockAspect;
+  }
+  redraw();
+}
+
+function toggleAspectLock() {
+  if (shapeMode === 'sphere') return;
+  lockAspect = document.getElementById('lockAspect').checked;
+  document.getElementById('inputH').disabled = lockAspect;
+  if (lockAspect) {
+    height = width;
+    document.getElementById('inputH').value = height;
+    document.getElementById('valH').innerText = height;
+  }
+  redraw();
+}
+
+function updateDimensions() {
+  width = parseInt(document.getElementById('inputW').value);
+  document.getElementById('valW').innerText = width;
+
+  if (lockAspect || shapeMode === 'sphere') {
+    height = width;
+    document.getElementById('inputH').value = height;
+    document.getElementById('valH').innerText = height;
+  } else {
+    height = parseInt(document.getElementById('inputH').value);
+    document.getElementById('valH').innerText = height;
+  }
+  
+  if (shapeMode === 'sphere') {
+    updateSphereLayerBounds();
+  }
+
+  redraw();
+}
+
+function updateSphereLayerBounds() {
+  const layerInput = document.getElementById('inputLayer');
+  layerInput.max = height;
+  layerInput.value = Math.ceil(height / 2);
+}
+
+// Generates 2D slice grid centered in total W x H bounds
+function generateSliceGrid(totalW, totalH, sliceW, sliceH, fillType, isArch) {
+  const grid = Array(totalH).fill(0).map(() => Array(totalW).fill(false));
+  if (sliceW <= 0 || sliceH <= 0) return grid;
+
+  const rx = sliceW / 2;
+  const ry = sliceH / 2;
+  const cx = totalW / 2 - 0.5;
+  const cy = totalH / 2 - 0.5;
+
+  for (let y = 0; y < totalH; y++) {
+    if (isArch && y < Math.floor(totalH / 2)) continue;
+    for (let x = 0; x < totalW; x++) {
+      const dx = x - cx;
+      const dy = y - cy;
+      
+      const val = (dx * dx) / (rx * rx) + (dy * dy) / (ry * ry);
+
+      if (fillType === 'filled') {
+        if (val <= 1.0) grid[y][x] = true;
+      } else if (fillType === 'outline') {
+        const innerVal = (dx * dx) / (Math.max(0.1, rx - 1) ** 2) + (dy * dy) / (Math.max(0.1, ry - 1) ** 2);
+        if (val <= 1.05 && innerVal >= 0.65) grid[y][x] = true;
+      } else if (fillType === 'thick') {
+        const innerVal = (dx * dx) / (Math.max(0.1, rx - 1.8) ** 2) + (dy * dy) / (Math.max(0.1, ry - 1.8) ** 2);
+        if (val <= 1.05 && innerVal >= 0.45) grid[y][x] = true;
+      }
+    }
+  }
+  return grid;
+}
+
+// Calculate slice diameter for a sphere at vertical index (1-based)
+function getSphereSliceDiameter(totalD, layerIdx) {
+  const r = totalD / 2;
+  const dy = (layerIdx - 0.5) - r;
+  const layerRadius = Math.sqrt(Math.max(0, r * r - dy * dy));
+  return Math.round(layerRadius * 2);
+}
+
+// Main Draw Loop
+function redraw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const fillType = document.getElementById('selectFill').value;
+  const isArch = document.getElementById('checkArch').checked;
+
+  let currentGrid = [];
+  let totalBlocks = 0;
+
+  if (shapeMode === 'circle') {
+    currentGrid = generateSliceGrid(width, height, width, height, fillType, isArch);
+    totalBlocks = countBlocks(currentGrid);
+    document.getElementById('statBlocks').innerText = totalBlocks;
+    document.getElementById('statDiameter').innerText = `${width} x ${height}`;
+  } else {
+    // 3D Sphere Mode
+    const layerIdx = parseInt(document.getElementById('inputLayer').value);
+    document.getElementById('valLayer').innerText = `${layerIdx} / ${height}`;
+
+    const sliceD = getSphereSliceDiameter(width, layerIdx);
+    currentGrid = generateSliceGrid(width, height, sliceD, sliceD, fillType, isArch);
+
+    const layerBlocks = countBlocks(currentGrid);
+    document.getElementById('statLayerBlocks').innerText = layerBlocks;
+
+    // Calculate total 3D sphere block count across all layers
+    let sphereTotal = 0;
+    for (let ly = 1; ly <= height; ly++) {
+      const sD = getSphereSliceDiameter(width, ly);
+      const g = generateSliceGrid(width, height, sD, sD, fillType, isArch);
+      sphereTotal += countBlocks(g);
+    }
+    document.getElementById('statBlocks').innerText = sphereTotal;
+    document.getElementById('statDiameter').innerText = `${width} x ${width} x ${height}`;
+  }
+
+  // Render Grid onto Canvas
+  const startX = panX - (width * zoom) / 2;
+  const startY = panY - (height * zoom) / 2;
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const bx = startX + x * zoom;
+      const by = startY + y * zoom;
+
+      if (currentGrid[y] && currentGrid[y][x]) {
+        ctx.fillStyle = '#ff3333';
+        ctx.fillRect(bx, by, zoom - 1, zoom - 1);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.fillRect(bx, by, zoom - 1, 2);
+      } else {
+        ctx.fillStyle = '#111111';
+        ctx.fillRect(bx, by, zoom - 1, zoom - 1);
+      }
+    }
+  }
+
+  // Draw Center Lines
+  ctx.strokeStyle = '#555555';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(panX, startY);
+  ctx.lineTo(panX, startY + height * zoom);
+  ctx.moveTo(startX, panY);
+  ctx.lineTo(startX + width * zoom, panY);
+  ctx.stroke();
+}
+
+function countBlocks(grid) {
+  let count = 0;
+  for (let y = 0; y < grid.length; y++) {
+    for (let x = 0; x < grid[y].length; x++) {
+      if (grid[y][x]) count++;
+    }
+  }
+  return count;
+}
+
+// Canvas Drag & Pan Handlers
+container.addEventListener('mousedown', (e) => {
+  isDragging = true;
+  startX = e.clientX - panX;
+  startY = e.clientY - panY;
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (isDragging) {
+    panX = e.clientX - startX;
+    panY = e.clientY - startY;
+    redraw();
+  }
+
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  const gridStartX = panX - (width * zoom) / 2;
+  const gridStartY = panY - (height * zoom) / 2;
+
+  const blockX = Math.floor((mouseX - gridStartX) / zoom);
+  const blockY = Math.floor((mouseY - gridStartY) / zoom);
+
+  if (blockX >= 0 && blockX < width && blockY >= 0 && blockY < height) {
+    tooltip.innerText = `X: ${blockX + 1}, Y: ${blockY + 1}`;
+  } else {
+    tooltip.innerText = `X: --, Y: --`;
+  }
+});
+
+window.addEventListener('mouseup', () => isDragging = false);
+
+// Zoom
+container.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const zoomFactor = 1.1;
+  if (e.deltaY < 0) {
+    zoom = Math.min(zoom * zoomFactor, 64);
+  } else {
+    zoom = Math.max(zoom / zoomFactor, 4);
+  }
+  redraw();
+});
+
+// Download PNG
+function downloadPNG() {
+  const exportCanvas = document.createElement('canvas');
+  const expCtx = exportCanvas.getContext('2d');
+  const scale = 20;
+
+  exportCanvas.width = width * scale;
+  exportCanvas.height = height * scale;
+
+  const fillType = document.getElementById('selectFill').value;
+  const isArch = document.getElementById('checkArch').checked;
+
+  let grid;
+  if (shapeMode === 'sphere') {
+    const layerIdx = parseInt(document.getElementById('inputLayer').value);
+    const sliceD = getSphereSliceDiameter(width, layerIdx);
+    grid = generateSliceGrid(width, height, sliceD, sliceD, fillType, isArch);
+  } else {
+    grid = generateSliceGrid(width, height, width, height, fillType, isArch);
+  }
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (grid[y][x]) {
+        expCtx.fillStyle = '#ff3333';
+        expCtx.fillRect(x * scale, y * scale, scale - 1, scale - 1);
+      } else {
+        expCtx.fillStyle = '#111111';
+        expCtx.fillRect(x * scale, y * scale, scale - 1, scale - 1);
+      }
+    }
+  }
+
+  const link = document.createElement('a');
+  link.download = `minecraft_${shapeMode}_${width}x${height}.png`;
+  link.href = exportCanvas.toDataURL();
+  link.click();
+}
+
+// Initial Boot
+initCanvas();
+</script>
+</body>
+</html>
