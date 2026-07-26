@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minecraft Resource Inventory Calculator - AS BRO</title>
+
+<style>
+:root {
+  --bg: #0a0a0a;
+  --panel: #111111;
+  --panel-2: #161616;
+  --panel-border: #3a3a3a;
+  --red: #ff3333;
+  --red-hover: #cc0000;
+  --gold: #fbc531;
+  --ink: #ffffff;
+  --ink-dim: #d1d5db;
+  --font-mono: 'Courier New', Courier, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--bg);
+  font-family: var(--font-mono);
+  color: var(--ink);
+  padding: 30px 20px;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 24px;
+  background: var(--panel);
+  border: 4px solid var(--panel-border);
+  box-shadow: inset -4px -4px 0px 0px #000, inset 4px 4px 0px 0px #333;
+  padding: 1.8rem;
+}
+
+.header h1 {
+  font-size: 2.2rem;
+  color: var(--red);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  text-shadow: 2px 2px 0px #000;
+}
+
+.header p {
+  color: var(--ink-dim);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Pixel Buttons */
+.pixel-btn {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: bold;
+  padding: 10px 14px;
+  background: var(--panel-2);
+  color: var(--ink);
+  border: 4px solid var(--panel-border);
+  box-shadow: inset -3px -3px 0px 0px #000, inset 3px 3px 0px 0px #444;
+  cursor: pointer;
+  text-align: center;
+  text-transform: uppercase;
+  transition: all 0.1s ease;
+  user-select: none;
+}
+
+.pixel-btn:hover {
+  background: #222;
+  border-color: #666;
+  color: #fff;
+}
+
+.pixel-btn:active {
+  box-shadow: inset 3px 3px 0px 0px #000, inset -3px -3px 0px 0px #333;
+  transform: translateY(2px);
+}
+
+.pixel-btn.primary {
+  background: var(--red);
+  border-color: #ff6666;
+  color: #fff;
+  box-shadow: inset -3px -3px 0px 0px #880000, inset 3px 3px 0px 0px #ff9999;
+}
+
+.pixel-btn.primary:hover {
+  background: var(--red-hover);
+}
+
+.pixel-btn.gold {
+  background: #c79200;
+  border-color: #ffe17d;
+  color: #000;
+  box-shadow: inset -3px -3px 0px 0px #664a00, inset 3px 3px 0px 0px #fff0aa;
+}
+
+/* Main Layout Grid */
+.layout-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 24px;
+}
+
+/* Side Panel */
+.controls-panel {
+  background: var(--panel);
+  border: 4px solid var(--panel-border);
+  box-shadow: inset -4px -4px 0px 0px #000, inset 4px 4px 0px 0px #333;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.section-title {
+  font-size: 14px;
+  color: #fff;
+  text-transform: uppercase;
+  border-bottom: 3px solid var(--panel-border);
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-group label {
+  font-size: 12px;
+  color: var(--ink-dim);
+  font-weight: bold;
+}
+
+.control-group input[type="text"],
+.control-group input[type="number"],
+.control-group select {
+  width: 100%;
+  padding: 10px;
+  border: 4px solid var(--panel-border);
+  box-shadow: inset 3px 3px 0px 0px #000;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  outline: none;
+}
+
+.control-group input:focus,
+.control-group select:focus {
+  border-color: var(--red);
+}
+
+/* Right Content Area */
+.display-panel {
+  background: var(--panel);
+  border: 4px solid var(--panel-border);
+  box-shadow: inset -4px -4px 0px 0px #000, inset 4px 4px 0px 0px #333;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Item List Table */
+.item-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--panel-2);
+  border: 3px solid var(--panel-border);
+}
+
+.item-table th, .item-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 2px solid var(--panel-border);
+  font-size: 13px;
+}
+
+.item-table th {
+  background: #000;
+  color: var(--red);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.item-table td strong {
+  color: var(--gold);
+}
+
+.action-btn-sm {
+  background: var(--red);
+  color: #fff;
+  border: 2px solid #ff6666;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+/* Logistics Metrics Dashboard */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+
+.metric-card {
+  background: var(--panel-2);
+  border: 3px solid var(--panel-border);
+  box-shadow: inset -2px -2px 0px 0px #000, inset 2px 2px 0px 0px #222;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metric-card span {
+  font-size: 11px;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+}
+
+.metric-card strong {
+  font-size: 18px;
+  color: var(--red);
+}
+
+/* Visual Container Grid (Shulker Box Display) */
+.container-visualizer {
+  background: #050505;
+  border: 4px solid var(--panel-border);
+  box-shadow: inset 3px 3px 0px 0px #000;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shulker-grid {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 6px;
+  max-width: 100%;
+}
+
+.grid-slot {
+  aspect-ratio: 1;
+  background: #111;
+  border: 2px solid #2a2a2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #666;
+  position: relative;
+}
+
+.grid-slot.filled {
+  background: #ff333322;
+  border-color: var(--red);
+  color: #fff;
+  font-weight: bold;
+}
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-row .pixel-btn {
+  flex: 1;
+}
+
+@media(max-width: 900px) {
+  .layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>📦 RESOURCE INVENTORY CALCULATOR</h1>
+    <p>Calculate exact stacks, shulker boxes, double chests, and raw mining requirements for Minecraft builds.</p>
+  </div>
+
+  <div class="layout-grid">
+
+    <!-- Left Controls Panel -->
+    <div class="controls-panel">
+
+      <!-- Add Material Form -->
+      <div>
+        <div class="section-title">1. ADD BUILD MATERIAL</div>
+        
+        <div class="control-group" style="margin-bottom: 10px;">
+          <label>ITEM / BLOCK NAME</label>
+          <input type="text" id="itemName" placeholder="e.g. Stone Bricks, Glass">
+        </div>
+
+        <div class="control-group" style="margin-bottom: 10px;">
+          <label>TOTAL COUNT REQUIRED</label>
+          <input type="number" id="itemCount" placeholder="e.g. 2500" min="1">
+        </div>
+
+        <div class="control-group" style="margin-bottom: 14px;">
+          <label>MAX STACK SIZE</label>
+          <select id="itemStack">
+            <option value="64">64 (Standard Blocks)</option>
+            <option value="16">16 (Ender Pearls, Signs, Snowballs)</option>
+            <option value="1">1 (Tools, Armor, Bed, Minecarts)</option>
+          </select>
+        </div>
+
+        <button class="pixel-btn primary" id="btnAdd" style="width:100%;">➕ ADD ITEM TO PROJECT</button>
+      </div>
+
+      <!-- Quick Presets -->
+      <div>
+        <div class="section-title">2. QUICK BUILD PRESETS</div>
+        <div class="control-group">
+          <select id="presetSelect">
+            <option value="">-- Choose Build Template --</option>
+            <option value="mega_base">Mega Base Skeleton (15,000 Blocks)</option>
+            <option value="nether_hub">Nether Hub Tunnel (4,200 Blocks)</option>
+            <option value="concrete_vault">Concrete Vault (1,280 Concrete)</option>
+            <option value="redstone">Survival Redstone Setup</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Raw Material Conversion Options -->
+      <div>
+        <div class="section-title">3. RAW RESOURCE ESTIMATOR</div>
+        <p style="font-size: 11px; color: var(--ink-dim); margin-bottom: 10px;">
+          Calculates base mining materials for items like Concrete, Glass, or Quartz Bricks.
+        </p>
+        <button class="pixel-btn" id="btnRaw" style="width: 100%;">⛏️ CALCULATE RAW MINING LIST</button>
+      </div>
+
+      <!-- Actions -->
+      <div class="btn-row">
+        <button class="pixel-btn gold" id="btnDiscord">📋 COPY DISCORD</button>
+        <button class="pixel-btn" id="btnClear">🗑️ CLEAR ALL</button>
+      </div>
+
+    </div>
+
+    <!-- Right Display Panel -->
+    <div class="display-panel">
+
+      <!-- Overall Inventory Totals -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span>Total Blocks</span>
+          <strong id="metricTotal">0</strong>
+        </div>
+        <div class="metric-card">
+          <span>Total Stacks</span>
+          <strong id="metricStacks">0 Stacks</strong>
+        </div>
+        <div class="metric-card">
+          <span>Shulker Boxes (27s)</span>
+          <strong id="metricShulkers" style="color:var(--gold);">0.0 Boxes</strong>
+        </div>
+        <div class="metric-card">
+          <span>Double Chests (54s)</span>
+          <strong id="metricChests">0.0 Chests</strong>
+        </div>
+      </div>
+
+      <!-- Items Table -->
+      <div>
+        <div class="section-title">PROJECT MATERIAL MANIFEST</div>
+        <table class="item-table">
+          <thead>
+            <tr>
+              <th>Item Name</th>
+              <th>Count</th>
+              <th>Stacks + Remainder</th>
+              <th>Shulkers</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="itemTableBody">
+            <tr>
+              <td colspan="5" style="text-align:center; color:#666; padding: 20px;">No items added yet. Add items on the left panel or choose a preset!</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Visual Shulker Storage Map -->
+      <div>
+        <div class="section-title">SHULKER BOX STORAGE VISUALIZER (SLOTS NEEDED)</div>
+        <div class="container-visualizer">
+          <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--ink-dim);">
+            <span>1 Shulker Box Grid (27 Item Slots)</span>
+            <span id="slotTracker">0 / 27 Slots Filled</span>
+          </div>
+          <div class="shulker-grid" id="shulkerGrid">
+            <!-- Slots generated dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Raw Mining Breakdown Output -->
+      <div id="rawOutputSection" style="display:none;">
+        <div class="section-title" style="color: var(--gold);">⛏️ RAW MINING & CRAFTING REQUIREMENTS</div>
+        <div id="rawOutputContent" style="background:var(--panel-2); border:3px solid var(--panel-border); padding:12px; font-size:13px; line-height:1.6; color: var(--ink-dim);">
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+let items = [];
+
+// Initialize Event Listeners safely on load
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('btnAdd').addEventListener('click', addItem);
+  document.getElementById('btnRaw').addEventListener('click', calculateRawIngredients);
+  document.getElementById('btnDiscord').addEventListener('click', copyDiscordManifest);
+  document.getElementById('btnClear').addEventListener('click', clearAll);
+  document.getElementById('presetSelect').addEventListener('change', loadPreset);
+
+  // Allow pressing Enter in inputs
+  document.getElementById('itemName').addEventListener('keypress', (e) => { if(e.key === 'Enter') addItem(); });
+  document.getElementById('itemCount').addEventListener('keypress', (e) => { if(e.key === 'Enter') addItem(); });
+
+  renderShulkerGrid(0);
+});
+
+function addItem() {
+  const nameInput = document.getElementById('itemName');
+  const countInput = document.getElementById('itemCount');
+  const stackInput = document.getElementById('itemStack');
+
+  const name = nameInput.value.trim();
+  let count = parseInt(countInput.value);
+  const maxStack = parseInt(stackInput.value) || 64;
+
+  if (!name) {
+    alert("Please enter an item or block name!");
+    return;
+  }
+
+  if (isNaN(count) || count <= 0) {
+    count = 1; // Default to 1 if blank or invalid
+  }
+
+  // Check if item already exists
+  const existing = items.find(i => i.name.toLowerCase() === name.toLowerCase());
+  if (existing) {
+    existing.count += count;
+  } else {
+    items.push({ name, count, maxStack });
+  }
+
+  nameInput.value = '';
+  countInput.value = '';
+  nameInput.focus();
+  updateUI();
+}
+
+function removeItem(index) {
+  items.splice(index, 1);
+  updateUI();
+}
+
+function clearAll() {
+  items = [];
+  document.getElementById('rawOutputSection').style.display = 'none';
+  document.getElementById('presetSelect').value = '';
+  updateUI();
+}
+
+function updateUI() {
+  const tbody = document.getElementById('itemTableBody');
+  tbody.innerHTML = '';
+
+  if (items.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#666; padding: 20px;">No items added yet. Add items on the left panel or choose a preset!</td></tr>`;
+    resetMetrics();
+    return;
+  }
+
+  let grandTotal = 0;
+  let totalStackCount = 0;
+
+  items.forEach((item, idx) => {
+    grandTotal += item.count;
+    const stacks = Math.floor(item.count / item.maxStack);
+    const rem = item.count % item.maxStack;
+    const itemStacksFraction = item.count / item.maxStack;
+    totalStackCount += itemStacksFraction;
+
+    const shulkers = (item.count / (item.maxStack * 27)).toFixed(2);
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${item.name}</strong></td>
+      <td>${item.count.toLocaleString()}</td>
+      <td>${stacks} Stacks ${rem > 0 ? '+ ' + rem : ''}</td>
+      <td>${shulkers} Boxes</td>
+      <td><button class="action-btn-sm" onclick="removeItem(${idx})">X</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Calculate Metrics
+  const totalShulkers = (totalStackCount / 27).toFixed(1);
+  const totalChests = (totalStackCount / 54).toFixed(1);
+
+  document.getElementById('metricTotal').innerText = grandTotal.toLocaleString();
+  document.getElementById('metricStacks').innerText = `${Math.ceil(totalStackCount)} Stacks`;
+  document.getElementById('metricShulkers').innerText = `${totalShulkers} Boxes`;
+  document.getElementById('metricChests').innerText = `${totalChests} Chests`;
+
+  renderShulkerGrid(totalStackCount);
+}
+
+function resetMetrics() {
+  document.getElementById('metricTotal').innerText = '0';
+  document.getElementById('metricStacks').innerText = '0 Stacks';
+  document.getElementById('metricShulkers').innerText = '0.0 Boxes';
+  document.getElementById('metricChests').innerText = '0.0 Chests';
+  renderShulkerGrid(0);
+}
+
+function renderShulkerGrid(totalStackCount) {
+  const gridContainer = document.getElementById('shulkerGrid');
+  gridContainer.innerHTML = '';
+  
+  const filledSlotsCount = Math.min(27, Math.ceil(totalStackCount));
+  document.getElementById('slotTracker').innerText = `${filledSlotsCount} / 27 Slots Filled ${totalStackCount > 27 ? '(+' + (Math.ceil(totalStackCount) - 27) + ' extra slots)' : ''}`;
+
+  for (let i = 1; i <= 27; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'grid-slot' + (i <= filledSlotsCount ? ' filled' : '');
+    slot.innerText = i <= filledSlotsCount ? '📦' : i;
+    gridContainer.appendChild(slot);
+  }
+}
+
+function loadPreset() {
+  const val = document.getElementById('presetSelect').value;
+  if (!val) return;
+
+  items = [];
+  if (val === 'mega_base') {
+    items = [
+      { name: 'Smooth Stone', count: 8000, maxStack: 64 },
+      { name: 'Glass', count: 4500, maxStack: 64 },
+      { name: 'Sea Lanterns', count: 1200, maxStack: 64 },
+      { name: 'Deepslate Tiles', count: 1300, maxStack: 64 }
+    ];
+  } else if (val === 'nether_hub') {
+    items = [
+      { name: 'Obsidian', count: 1200, maxStack: 64 },
+      { name: 'Blackstone Bricks', count: 2400, maxStack: 64 },
+      { name: 'Soul Lanterns', count: 600, maxStack: 64 }
+    ];
+  } else if (val === 'concrete_vault') {
+    items = [
+      { name: 'White Concrete', count: 800, maxStack: 64 },
+      { name: 'Gray Concrete', count: 480, maxStack: 64 }
+    ];
+  } else if (val === 'redstone') {
+    items = [
+      { name: 'Redstone Dust', count: 1280, maxStack: 64 },
+      { name: 'Redstone Repeaters', count: 128, maxStack: 64 },
+      { name: 'Redstone Comparators', count: 64, maxStack: 64 },
+      { name: 'Pistons', count: 256, maxStack: 64 },
+      { name: 'Sticky Pistons', count: 128, maxStack: 64 },
+      { name: 'Ender Pearls', count: 64, maxStack: 16 }
+    ];
+  }
+
+  updateUI();
+}
+
+function calculateRawIngredients() {
+  if (items.length === 0) {
+    alert("Add some items first!");
+    return;
+  }
+
+  let report = [];
+
+  items.forEach(item => {
+    const lname = item.name.toLowerCase();
+    
+    // Concrete Check
+    if (lname.includes('concrete') && !lname.includes('powder')) {
+      const sandNeeded = Math.ceil(item.count * 0.5);
+      const gravelNeeded = Math.ceil(item.count * 0.5);
+      report.push(`• <strong>${item.name} (${item.count})</strong> requires approx <strong>${sandNeeded} Sand</strong> + <strong>${gravelNeeded} Gravel</strong> + Dye.`);
+    } 
+    // Glass Check
+    else if (lname.includes('glass')) {
+      report.push(`• <strong>${item.name} (${item.count})</strong> requires smelting <strong>${item.count} Sand</strong> in a Furnace (Uses approx ${Math.ceil(item.count / 8)} Coal).`);
+    }
+    // Stone Bricks / Smooth Stone
+    else if (lname.includes('smooth stone') || lname.includes('stone brick')) {
+      report.push(`• <strong>${item.name} (${item.count})</strong> requires smelting <strong>${item.count} Cobblestone</strong>.`);
+    }
+  });
+
+  const outSection = document.getElementById('rawOutputSection');
+  const outContent = document.getElementById('rawOutputContent');
+
+  if (report.length === 0) {
+    outContent.innerHTML = "No special craftable raw recipes detected for the current list. Simple blocks can be mined directly!";
+  } else {
+    outContent.innerHTML = report.join('<br>');
+  }
+
+  outSection.style.display = 'block';
+}
+
+function copyDiscordManifest() {
+  if (items.length === 0) {
+    alert("No items to copy!");
+    return;
+  }
+
+  let text = "```yaml\n=== MINECRAFT BUILD MATERIAL ORDER ===\n\n";
+  let totalBlocks = 0;
+
+  items.forEach(item => {
+    totalBlocks += item.count;
+    const stacks = Math.floor(item.count / item.maxStack);
+    const rem = item.count % item.maxStack;
+    text += `- ${item.name}: ${item.count} total (${stacks} Stacks ${rem > 0 ? '+ ' + rem : ''})\n`;
+  });
+
+  const grandStacks = Math.ceil(totalBlocks / 64);
+  const shulkers = (grandStacks / 27).toFixed(1);
+
+  text += `\n--------------------------------------\nTOTAL BLOCKS: ${totalBlocks.toLocaleString()}\nTOTAL SHULKERS: ${shulkers} Boxes\n======================================\n\`\`\``;
+
+  navigator.clipboard.writeText(text).then(() => {
+    alert("Discord resource order copied to clipboard!");
+  }).catch(() => {
+    alert("Failed to copy automatically. Check browser permissions.");
+  });
+}
+</script>
+</body>
+</html>
