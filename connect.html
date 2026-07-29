@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixel Redstone Wire - Disconnected Start</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;700&display=swap');
+
+body {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="2" stroke-linecap="square"><path fill="%23000000" d="M3 3v16l4-4 3 7 4-2-3-7 6-1L3 3z"/></svg>') 0 0, auto;
+}
+
+button, .tile {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ffaa00" stroke-width="2" stroke-linecap="square"><path fill="%23ffaa00" d="M3 3v16l4-4 3 7 4-2-3-7 6-1L3 3z"/></svg>') 0 0, pointer;
+}
+
+:root {
+  --void: #0a0a0a;
+  --panel: #141414;
+  --panel-2: #1c1c1c;
+  --panel-border: #3a3a3a;
+  --red-off: #440000;
+  --red-on: #ff0033;
+  --red-glow: #ff4d4d;
+  --gold: #ffcc00;
+  --ink: #f5f5f0;
+  --ink-dim: #a4a49c;
+  --online: #3ddc84;
+  --font-display: 'Press Start 2P', monospace;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--void);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
+}
+
+.game-container {
+  background: var(--panel);
+  border: 4px solid var(--panel-border);
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,0.06), inset -3px -3px 0 rgba(0,0,0,0.55), 6px 6px 0 rgba(0,0,0,0.5);
+  padding: 32px 24px;
+  width: 100%;
+  max-width: 580px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game-title {
+  font-family: var(--font-display);
+  font-size: clamp(14px, 3.8vw, 20px);
+  color: var(--red-on);
+  text-shadow: 2px 2px #000;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.game-subtitle {
+  font-size: 12.5px;
+  color: var(--ink-dim);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.controls {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stats {
+  display: flex;
+  gap: 10px;
+}
+
+.stat-box {
+  background: var(--panel-2);
+  border: 2px solid var(--panel-border);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stat-box span { color: var(--gold); }
+
+.button-group {
+  display: flex;
+  gap: 8px;
+}
+
+.pixel-btn {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  border: 3px solid;
+  background: var(--panel-2);
+  color: var(--ink);
+  border-color: var(--panel-border);
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,0.06), inset -3px -3px 0 rgba(0,0,0,0.5), 3px 3px 0 rgba(0,0,0,0.4);
+  transition: transform 0.08s ease;
+}
+
+.pixel-btn:hover { transform: translate(-2px, -2px); }
+
+.pixel-btn.primary {
+  background: var(--red-on);
+  color: #fff;
+  border-color: #ff5c7a;
+}
+
+.pixel-btn.gold {
+  background: var(--gold);
+  color: #1a1400;
+  border-color: #ffe680;
+}
+
+.puzzle-grid {
+  display: grid;
+  gap: 6px;
+  justify-content: center;
+  background: #0d0d0d;
+  padding: 12px;
+  border: 3px solid var(--panel-border);
+  box-shadow: inset 2px 2px 0 rgba(0,0,0,0.8);
+  width: 100%;
+  max-width: 440px;
+}
+
+.puzzle-grid.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.puzzle-grid.grid-5 { grid-template-columns: repeat(5, 1fr); }
+
+.tile {
+  aspect-ratio: 1 / 1;
+  background: #181818;
+  border: 2px solid #2a2a2a;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.05), inset -2px -2px 0 rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  user-select: none;
+}
+
+.tile-svg {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.2s ease-in-out;
+}
+
+.wire {
+  stroke: var(--red-off);
+  stroke-width: 6;
+  stroke-linecap: square;
+  fill: none;
+  transition: stroke 0.2s ease, filter 0.2s ease;
+}
+
+.wire.powered {
+  stroke: var(--red-on);
+  filter: drop-shadow(0 0 3px var(--red-glow));
+}
+
+.source-icon {
+  fill: var(--red-on);
+  filter: drop-shadow(0 0 4px var(--red-glow));
+}
+
+.lamp-icon {
+  fill: #332200;
+  stroke: #664400;
+  stroke-width: 2;
+  transition: fill 0.3s ease, filter 0.3s ease;
+}
+
+.lamp-icon.powered {
+  fill: var(--gold);
+  stroke: #ffff66;
+  filter: drop-shadow(0 0 8px var(--gold));
+}
+
+.win-banner {
+  display: none;
+  margin-top: 18px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  color: var(--online);
+  text-shadow: 2px 2px #000;
+  text-align: center;
+  animation: bounce 0.6s ease infinite alternate;
+}
+
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-4px); }
+}
+</style>
+</head>
+<body>
+
+<div class="game-container">
+  <h1 class="game-title">REDSTONE PUZZLE</h1>
+  <p class="game-subtitle">Rotate wire tiles to complete the circuit!</p>
+
+  <div class="controls">
+    <div class="stats">
+      <div class="stat-box">LEVEL: <span id="lbl-level">1</span></div>
+      <div class="stat-box">MOVES: <span id="lbl-moves">0</span></div>
+    </div>
+    <div class="button-group">
+      <button class="pixel-btn primary" id="btn-4x4" onclick="selectDifficulty(4)">4x4</button>
+      <button class="pixel-btn" id="btn-5x5" onclick="selectDifficulty(5)">5x5</button>
+      <button class="pixel-btn gold" onclick="resetLevel()">Reset</button>
+    </div>
+  </div>
+
+  <div class="puzzle-grid grid-4" id="puzzle-grid"></div>
+
+  <div class="win-banner" id="win-banner">
+    ⚡ CIRCUIT CONNECTED! ⚡<br><br>
+    <button class="pixel-btn gold" onclick="nextLevel()" style="margin-top: 4px;">Next Level</button>
+  </div>
+</div>
+
+<script>
+const BASE_PORTS = {
+  'line':   [1, 0, 1, 0], // N-S
+  'corner': [1, 1, 0, 0], // N-E
+  'tee':    [1, 1, 1, 0], // N-E-S
+  'cross':  [1, 1, 1, 1], // N-E-S-W
+  'source': [0, 1, 0, 0], // East
+  'lamp':   [0, 0, 0, 1]  // West
+};
+
+let gridSize = 4;
+let level = 1;
+let moves = 0;
+let gridData = [];
+let isSolved = false;
+
+function selectDifficulty(size) {
+  gridSize = size;
+  level = 1;
+  document.getElementById("btn-4x4").className = `pixel-btn ${size === 4 ? 'primary' : ''}`;
+  document.getElementById("btn-5x5").className = `pixel-btn ${size === 5 ? 'primary' : ''}`;
+  startLevel();
+}
+
+function startLevel() {
+  moves = 0;
+  isSolved = false;
+  document.getElementById("lbl-moves").textContent = moves;
+  document.getElementById("lbl-level").textContent = level;
+  document.getElementById("win-banner").style.display = "none";
+  
+  generateLogicalPuzzle();
+  scrambleBoardCompletely();
+  renderGrid();
+  updatePowerState();
+}
+
+function resetLevel() {
+  moves = 0;
+  isSolved = false;
+  document.getElementById("lbl-moves").textContent = moves;
+  document.getElementById("win-banner").style.display = "none";
+
+  scrambleBoardCompletely();
+  renderGrid();
+  updatePowerState();
+}
+
+function nextLevel() {
+  level++;
+  startLevel();
+}
+
+function generateLogicalPuzzle() {
+  gridData = Array.from({ length: gridSize * gridSize }, () => ({ type: 'empty', rotation: 0, powered: false }));
+
+  const sourceIdx = 0;
+  const lampIdx = gridSize * gridSize - 1;
+
+  gridData[sourceIdx] = { type: 'source', rotation: 0, targetRotation: 0, powered: true };
+  gridData[lampIdx] = { type: 'lamp', rotation: 0, targetRotation: 0, powered: false };
+
+  let path = null;
+  while (!path) {
+    path = findRandomPath(sourceIdx, lampIdx);
+  }
+
+  let pathConnections = {};
+  for (let i = 0; i < path.length; i++) {
+    pathConnections[path[i]] = [];
+  }
+
+  pathConnections[sourceIdx].push(1); // East output
+
+  for (let i = 0; i < path.length - 1; i++) {
+    let curr = path[i];
+    let next = path[i + 1];
+    let dirToNext = getDirection(curr, next);
+    let dirFromCurr = (dirToNext + 2) % 4;
+
+    if (curr !== sourceIdx) pathConnections[curr].push(dirToNext);
+    if (next !== lampIdx) pathConnections[next].push(dirFromCurr);
+  }
+
+  pathConnections[lampIdx].push(3); // West input
+
+  for (let idx of path) {
+    if (idx === sourceIdx || idx === lampIdx) continue;
+
+    let ports = pathConnections[idx];
+    let tileConfig = fitTileToPorts(ports);
+    
+    gridData[idx] = {
+      type: tileConfig.type,
+      targetRotation: tileConfig.rotation,
+      rotation: 0,
+      powered: false
+    };
+  }
+
+  const fillTypes = ['line', 'corner', 'tee', 'cross'];
+  for (let i = 0; i < gridData.length; i++) {
+    if (gridData[i].type === 'empty') {
+      gridData[i] = {
+        type: fillTypes[Math.floor(Math.random() * fillTypes.length)],
+        targetRotation: Math.floor(Math.random() * 4),
+        rotation: 0,
+        powered: false
+      };
+    }
+  }
+}
+
+// Guarantees tile 1 (immediately next to torch) is rotated so it disconnects the circuit
+function scrambleBoardCompletely() {
+  const sourceIdx = 0;
+  const nextToSourceIdx = 1; // Tile directly east of source torch
+
+  gridData.forEach((tile, idx) => {
+    if (tile.type !== 'source' && tile.type !== 'lamp') {
+      let randomRot = Math.floor(Math.random() * 4);
+      tile.rotation = randomRot;
+    }
+  });
+
+  // Specifically ensure Tile 1 does NOT connect West back to the Torch at game start
+  const firstWireTile = gridData[nextToSourceIdx];
+  let ports = getEffectivePorts(firstWireTile);
+  
+  // Keep rotating until the West port (3) is closed (0)
+  while (ports[3] === 1) {
+    firstWireTile.rotation = (firstWireTile.rotation + 1) % 4;
+    ports = getEffectivePorts(firstWireTile);
+  }
+}
+
+function getDirection(fromIdx, toIdx) {
+  let r1 = Math.floor(fromIdx / gridSize), c1 = fromIdx % gridSize;
+  let r2 = Math.floor(toIdx / gridSize), c2 = toIdx % gridSize;
+
+  if (r2 < r1) return 0; // North
+  if (c2 > c1) return 1; // East
+  if (r2 > r1) return 2; // South
+  if (c2 < c1) return 3; // West
+  return 0;
+}
+
+function fitTileToPorts(requiredPorts) {
+  let req = [0, 0, 0, 0];
+  requiredPorts.forEach(p => req[p] = 1);
+
+  for (let type of ['line', 'corner', 'tee', 'cross']) {
+    let base = BASE_PORTS[type];
+    for (let rot = 0; rot < 4; rot++) {
+      let active = getRotatedPorts(base, rot);
+      if (req.every((val, idx) => val === 0 || active[idx] === 1)) {
+        return { type, rotation: rot };
+      }
+    }
+  }
+  return { type: 'cross', rotation: 0 };
+}
+
+function getRotatedPorts(basePorts, rotation) {
+  let shift = rotation % 4;
+  return [
+    basePorts[(4 - shift) % 4],
+    basePorts[(5 - shift) % 4],
+    basePorts[(6 - shift) % 4],
+    basePorts[(7 - shift) % 4]
+  ];
+}
+
+function findRandomPath(start, end) {
+  let visited = new Set([start]);
+  let path = [start];
+
+  function dfs(curr) {
+    if (curr === end) return true;
+
+    let r = Math.floor(curr / gridSize);
+    let c = curr % gridSize;
+    let neighbors = [];
+
+    if (r > 0) neighbors.push(curr - gridSize);
+    if (c < gridSize - 1) neighbors.push(curr + 1);
+    if (r < gridSize - 1) neighbors.push(curr + gridSize);
+    if (c > 0) neighbors.push(curr - 1);
+
+    neighbors.sort(() => Math.random() - 0.5);
+
+    for (let n of neighbors) {
+      if (!visited.has(n)) {
+        visited.add(n);
+        path.push(n);
+        if (dfs(n)) return true;
+        path.pop();
+      }
+    }
+    return false;
+  }
+
+  return dfs(start) ? path : null;
+}
+
+function getEffectivePorts(tile) {
+  let base = BASE_PORTS[tile.type] || [0, 0, 0, 0];
+  return getRotatedPorts(base, tile.rotation);
+}
+
+function updatePowerState() {
+  gridData.forEach(t => t.powered = false);
+
+  const sourceIdx = 0;
+  gridData[sourceIdx].powered = true;
+
+  let queue = [sourceIdx];
+  let visited = new Set([sourceIdx]);
+
+  while (queue.length > 0) {
+    let currIdx = queue.shift();
+    let r = Math.floor(currIdx / gridSize);
+    let c = currIdx % gridSize;
+    let currPorts = getEffectivePorts(gridData[currIdx]);
+
+    const neighbors = [
+      { idx: currIdx - gridSize, dir: 0, oppDir: 2, valid: r > 0 },            // North
+      { idx: currIdx + 1,        dir: 1, oppDir: 3, valid: c < gridSize - 1 }, // East
+      { idx: currIdx + gridSize, dir: 2, oppDir: 0, valid: r < gridSize - 1 }, // South
+      { idx: currIdx - 1,        dir: 3, oppDir: 1, valid: c > 0 }             // West
+    ];
+
+    neighbors.forEach(n => {
+      if (n.valid && !visited.has(n.idx) && currPorts[n.dir] === 1) {
+        let neighborPorts = getEffectivePorts(gridData[n.idx]);
+        if (neighborPorts[n.oppDir] === 1) {
+          gridData[n.idx].powered = true;
+          visited.add(n.idx);
+          queue.push(n.idx);
+        }
+      }
+    });
+  }
+
+  renderPowerVisuals();
+
+  const lampIdx = gridData.length - 1;
+  if (gridData[lampIdx].powered && !isSolved) {
+    isSolved = true;
+    document.getElementById("win-banner").style.display = "block";
+  }
+}
+
+function rotateTile(index) {
+  if (isSolved || gridData[index].type === 'source' || gridData[index].type === 'lamp') return;
+
+  gridData[index].rotation = (gridData[index].rotation + 1) % 4;
+  moves++;
+  document.getElementById("lbl-moves").textContent = moves;
+
+  const svgEl = document.getElementById(`tile-svg-${index}`);
+  if (svgEl) {
+    svgEl.style.transform = `rotate(${gridData[index].rotation * 90}deg)`;
+  }
+
+  updatePowerState();
+}
+
+function renderGrid() {
+  const gridEl = document.getElementById("puzzle-grid");
+  gridEl.className = `puzzle-grid grid-${gridSize}`;
+  gridEl.innerHTML = "";
+
+  gridData.forEach((tile, idx) => {
+    const tileDiv = document.createElement("div");
+    tileDiv.className = "tile";
+    tileDiv.onclick = () => rotateTile(idx);
+
+    tileDiv.innerHTML = `
+      <svg id="tile-svg-${idx}" class="tile-svg" viewBox="0 0 40 40" style="transform: rotate(${tile.rotation * 90}deg)">
+        ${getTileSVGContent(tile.type)}
+      </svg>
+    `;
+    gridEl.appendChild(tileDiv);
+  });
+}
+
+function renderPowerVisuals() {
+  gridData.forEach((tile, idx) => {
+    const svgEl = document.getElementById(`tile-svg-${idx}`);
+    if (!svgEl) return;
+
+    const wires = svgEl.querySelectorAll('.wire');
+    wires.forEach(w => {
+      if (tile.powered) w.classList.add('powered');
+      else w.classList.remove('powered');
+    });
+
+    const lamp = svgEl.querySelector('.lamp-icon');
+    if (lamp) {
+      if (tile.powered) lamp.classList.add('powered');
+      else lamp.classList.remove('powered');
+    }
+  });
+}
+
+function getTileSVGContent(type) {
+  switch (type) {
+    case 'source':
+      return `
+        <path class="wire powered" d="M20 20 L40 20" />
+        <rect class="source-icon" x="12" y="12" width="16" height="16" rx="2" />
+        <rect x="17" y="17" width="6" height="6" fill="#fff" />
+      `;
+    case 'lamp':
+      return `
+        <path class="wire" d="M0 20 L20 20" />
+        <circle class="lamp-icon" cx="20" cy="20" r="10" />
+      `;
+    case 'line':
+      return `<path class="wire" d="M20 0 L20 40" />`;
+    case 'corner':
+      return `<path class="wire" d="M20 0 L20 20 L40 20" />`;
+    case 'tee':
+      return `<path class="wire" d="M20 0 L20 40 M20 20 L40 20" />`;
+    case 'cross':
+      return `<path class="wire" d="M20 0 L20 40 M0 20 L40 20" />`;
+    default:
+      return '';
+  }
+}
+
+// Start Game
+startLevel();
+</script>
+</body>
+</html>

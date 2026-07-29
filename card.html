@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minecraft Memory Card Match</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;700&display=swap');
+
+/* Minecraft Pixel Cursor */
+body {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="2" stroke-linecap="square"><path fill="%23000000" d="M3 3v16l4-4 3 7 4-2-3-7 6-1L3 3z"/></svg>') 0 0, auto;
+}
+
+button, .memory-card {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ffaa00" stroke-width="2" stroke-linecap="square"><path fill="%23ffaa00" d="M3 3v16l4-4 3 7 4-2-3-7 6-1L3 3z"/></svg>') 0 0, pointer;
+}
+
+:root {
+  --void: #0a0a0a;
+  --panel: #141414;
+  --panel-2: #1c1c1c;
+  --panel-border: #3a3a3a;
+  --red: #ff0033;
+  --gold: #ffcc00;
+  --ink: #f5f5f0;
+  --ink-dim: #a4a49c;
+  --online: #3ddc84;
+  --font-display: 'Press Start 2P', monospace;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--void);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
+}
+
+.game-container {
+  background: var(--panel);
+  border: 4px solid var(--panel-border);
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,0.06), inset -3px -3px 0 rgba(0,0,0,0.55), 6px 6px 0 rgba(0,0,0,0.5);
+  padding: 32px 24px;
+  width: 100%;
+  max-width: 620px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game-title {
+  font-family: var(--font-display);
+  font-size: clamp(16px, 4vw, 22px);
+  color: var(--gold);
+  text-shadow: 2px 2px #000;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.game-subtitle {
+  font-size: 13px;
+  color: var(--ink-dim);
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+/* Controls Header */
+.memory-controls {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.memory-stats {
+  display: flex;
+  gap: 12px;
+}
+
+.stat-box {
+  background: var(--panel-2);
+  border: 2px solid var(--panel-border);
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.stat-box span { color: var(--gold); }
+
+.memory-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.pixel-btn {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  border: 3px solid;
+  background: var(--panel-2);
+  color: var(--ink);
+  border-color: var(--panel-border);
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,0.06), inset -3px -3px 0 rgba(0,0,0,0.5), 3px 3px 0 rgba(0,0,0,0.4);
+  transition: transform 0.08s ease;
+}
+
+.pixel-btn:hover { transform: translate(-2px, -2px); }
+
+.pixel-btn.primary {
+  background: var(--red);
+  color: #fff;
+  border-color: #ff5c7a;
+}
+
+.pixel-btn.gold {
+  background: var(--gold);
+  color: #1a1400;
+  border-color: #ffe680;
+}
+
+/* Board Grid */
+.memory-grid {
+  display: grid;
+  gap: 10px;
+  justify-content: center;
+  perspective: 1000px;
+  width: 100%;
+}
+
+.memory-grid.grid-4 {
+  grid-template-columns: repeat(4, clamp(60px, 18vw, 95px));
+}
+
+.memory-grid.grid-6 {
+  grid-template-columns: repeat(6, clamp(42px, 12vw, 75px));
+}
+
+/* Cards */
+.memory-card {
+  aspect-ratio: 1 / 1;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.4s ease;
+}
+
+.memory-card.flipped {
+  transform: rotateY(180deg);
+}
+
+.memory-card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--panel-border);
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,0.08), inset -3px -3px 0 rgba(0,0,0,0.6);
+}
+
+.memory-card-front {
+  background: var(--panel-2);
+  color: var(--red);
+  font-family: var(--font-display);
+  font-size: clamp(16px, 3.5vw, 24px);
+  user-select: none;
+}
+
+.memory-card-front::after {
+  content: "?";
+}
+
+.memory-card-back {
+  background: #222222;
+  transform: rotateY(180deg);
+  border-color: var(--gold);
+}
+
+.memory-card-back svg {
+  width: 60%;
+  height: 60%;
+}
+
+.memory-card.matched .memory-card-back {
+  border-color: var(--online);
+  background: #142e18;
+  animation: pulse 0.3s ease;
+}
+
+@keyframes pulse {
+  0% { transform: rotateY(180deg) scale(1); }
+  50% { transform: rotateY(180deg) scale(1.08); }
+  100% { transform: rotateY(180deg) scale(1); }
+}
+
+/* Win Banner */
+.win-message {
+  display: none;
+  margin-top: 20px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  color: var(--online);
+  text-shadow: 2px 2px #000;
+  text-align: center;
+  animation: bounce 0.6s ease infinite alternate;
+}
+
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-4px); }
+}
+</style>
+</head>
+<body>
+
+<div class="game-container">
+  <h1 class="game-title">ITEM MATCH</h1>
+  <p class="game-subtitle">Match all pixelated Minecraft item pairs!</p>
+
+  <div class="memory-controls">
+    <div class="memory-stats">
+      <div class="stat-box">MOVES: <span id="mem-moves">0</span></div>
+      <div class="stat-box">TIME: <span id="mem-timer">00:00</span></div>
+    </div>
+    <div class="memory-buttons">
+      <button class="pixel-btn primary" id="btn-4x4" onclick="initGame(4)">4x4</button>
+      <button class="pixel-btn" id="btn-6x6" onclick="initGame(6)">6x6</button>
+      <button class="pixel-btn gold" onclick="resetGame()">Restart</button>
+    </div>
+  </div>
+
+  <div class="memory-grid grid-4" id="memory-grid"></div>
+
+  <div class="win-message" id="win-message">🎉 VICTORY! ALL ITEMS MATCHED! 🎉</div>
+</div>
+
+<script>
+const ITEM_ICONS = [
+  { id: 'pickaxe', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#ffcc00" stroke-width="2"><path d="M14.5 4.5L19.5 9.5M10 9L15 14M4 20L13 11"/></svg>' },
+  { id: 'diamond', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#00ffff" stroke-width="2"><polygon points="6,9 12,3 18,9 12,21"/></svg>' },
+  { id: 'sword',   svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"><path d="M19 5L12 12M5 19L7 17M12 12L7 17M12 12L17 7"/></svg>' },
+  { id: 'apple',   svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#ffaa00" stroke-width="2"><circle cx="12" cy="14" r="7"/><path d="M12 7C12 4 14 3 15 3"/></svg>' },
+  { id: 'tnt',     svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#ff0033" stroke-width="2"><rect x="5" y="5" width="14" height="14"/><path d="M9 10h6M12 10v4"/></svg>' },
+  { id: 'eye',     svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#3ddc84" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>' },
+  { id: 'axe',     svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#ff9900" stroke-width="2"><path d="M14 4c0 4 3 6 3 6l-5 5s-2-3-6-3l8-8z"/><path d="M4 20l7-7"/></svg>' },
+  { id: 'chest',   svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#cc9933" stroke-width="2"><rect x="4" y="6" width="16" height="12"/><path d="M4 10h16M11 10v2h2v-2"/></svg>' },
+  { id: 'potion',  svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#ff00cc" stroke-width="2"><path d="M10 4h4v3l4 6v5a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-5l4-6V4z"/></svg>' },
+  { id: 'bow',     svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#00ffcc" stroke-width="2"><path d="M5 3c8 0 14 6 14 14M5 3v14h14"/></svg>' },
+  { id: 'book',    svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#9966cc" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' },
+  { id: 'star',    svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#ffff00" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' },
+  { id: 'shield',  svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#6699ff" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' },
+  { id: 'emerald', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#00ff66" stroke-width="2"><polygon points="12 2 19 7 19 17 12 22 5 17 5 7"/></svg>' },
+  { id: 'bed',     svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#ff3366" stroke-width="2"><path d="M2 4v16M2 11h20v9M22 17v3M6 11V7a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v4"/></svg>' },
+  { id: 'compass', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#ff6600" stroke-width="2"><circle cx="12" cy="12" r="9"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>' },
+  { id: 'clock',   svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#ffff66" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>' },
+  { id: 'helmet',  svg: '<svg viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2"><path d="M4 14v-3a8 8 0 1 1 16 0v3H4z"/><rect x="7" y="14" width="10" height="3"/></svg>' }
+];
+
+let gridSize = 4;
+let flippedCards = [];
+let matchedPairs = 0;
+let moves = 0;
+let timerInterval = null;
+let seconds = 0;
+let gameStarted = false;
+
+function createElement(html) {
+  const t = document.createElement("template");
+  t.innerHTML = html.trim();
+  return t.content.firstElementChild;
+}
+
+function initGame(size = 4) {
+  gridSize = size;
+  const totalCards = size * size;
+  const neededPairs = totalCards / 2;
+
+  document.getElementById("btn-4x4").className = `pixel-btn ${size === 4 ? 'primary' : ''}`;
+  document.getElementById("btn-6x6").className = `pixel-btn ${size === 6 ? 'primary' : ''}`;
+
+  const gridEl = document.getElementById("memory-grid");
+  gridEl.className = `memory-grid grid-${size}`;
+  gridEl.innerHTML = "";
+
+  document.getElementById("win-message").style.display = "none";
+
+  moves = 0;
+  matchedPairs = 0;
+  seconds = 0;
+  gameStarted = false;
+  clearInterval(timerInterval);
+  timerInterval = null;
+
+  document.getElementById("mem-moves").textContent = moves;
+  document.getElementById("mem-timer").textContent = "00:00";
+
+  const selectedIcons = ITEM_ICONS.slice(0, neededPairs);
+  const deck = [...selectedIcons, ...selectedIcons].sort(() => Math.random() - 0.5);
+
+  deck.forEach((item, idx) => {
+    const card = createElement(`
+      <div class="memory-card" data-id="${item.id}">
+        <div class="memory-card-face memory-card-front"></div>
+        <div class="memory-card-face memory-card-back">${item.svg}</div>
+      </div>
+    `);
+    card.addEventListener("click", () => handleCardClick(card));
+    gridEl.appendChild(card);
+  });
+}
+
+function handleCardClick(card) {
+  if (!gameStarted && moves === 0 && flippedCards.length === 0) {
+    startTimer();
+    gameStarted = true;
+  }
+
+  if (flippedCards.length >= 2 || card.classList.contains("flipped") || card.classList.contains("matched")) {
+    return;
+  }
+
+  card.classList.add("flipped");
+  flippedCards.push(card);
+
+  if (flippedCards.length === 2) {
+    moves++;
+    document.getElementById("mem-moves").textContent = moves;
+    checkMatch();
+  }
+}
+
+function checkMatch() {
+  const [card1, card2] = flippedCards;
+  const isMatch = card1.dataset.id === card2.dataset.id;
+
+  if (isMatch) {
+    card1.classList.add("matched");
+    card2.classList.add("matched");
+    matchedPairs++;
+    flippedCards = [];
+
+    if (matchedPairs === (gridSize * gridSize) / 2) {
+      clearInterval(timerInterval);
+      gameStarted = false;
+      document.getElementById("win-message").style.display = "block";
+    }
+  } else {
+    setTimeout(() => {
+      card1.classList.remove("flipped");
+      card2.classList.remove("flipped");
+      flippedCards = [];
+    }, 800);
+  }
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  seconds = 0;
+  timerInterval = setInterval(() => {
+    seconds++;
+    const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const s = String(seconds % 60).padStart(2, '0');
+    document.getElementById("mem-timer").textContent = `${m}:${s}`;
+  }, 1000);
+}
+
+function resetGame() {
+  initGame(gridSize);
+}
+
+// Start Game
+initGame(4);
+</script>
+</body>
+</html>

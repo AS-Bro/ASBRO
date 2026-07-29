@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AS BRO — Web Tools Hub</title>
+<title>AS BRO — Web Tools & Games Hub</title>
 <link id="favicon-link" rel="icon" href="">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
@@ -212,6 +212,10 @@ img{display:block; max-width:100%;}
 
 /* ---------- Layout ---------- */
 main{ max-width:1100px; margin:0 auto; padding:48px 20px 0; }
+.section-divider {
+  margin: 60px 0 40px;
+  border-top: 3px dashed var(--panel-border);
+}
 .eyebrow{
   font-family:var(--font-mono);
   font-size:12px;
@@ -220,7 +224,7 @@ main{ max-width:1100px; margin:0 auto; padding:48px 20px 0; }
   color:var(--red);
   margin-bottom:10px;
 }
-h1.display{
+h1.display, h2.display{
   font-family:var(--font-display);
   font-size:clamp(22px, 4.4vw, 38px);
   line-height:1.6;
@@ -276,37 +280,37 @@ h1.display{
   opacity: 0.7;
 }
 
-/* ---------- Tools Directory Grid ---------- */
-.tools-grid{
+/* ---------- Directory Grids (Tools & Games) ---------- */
+.tools-grid, .games-grid{
   display:grid;
   grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
   gap:22px;
   margin-bottom:40px;
 }
-.tool-card{
+.tool-card, .game-card{
   padding:22px;
   display:flex;
   flex-direction:column;
   gap:12px;
   transition:transform 0.1s ease;
 }
-.tool-card:hover{ transform:translate(-3px,-3px); }
-.tool-header{ display:flex; align-items:center; gap:12px; }
-.tool-icon-box{
+.tool-card:hover, .game-card:hover{ transform:translate(-3px,-3px); }
+.tool-header, .game-header{ display:flex; align-items:center; gap:12px; }
+.tool-icon-box, .game-icon-box{
   width:44px; height:44px;
   background:var(--panel-2);
   border:2px solid var(--panel-border);
   display:flex; align-items:center; justify-content:center;
 }
-.tool-icon-box svg{ width:24px; height:24px; stroke:var(--gold); fill:none; stroke-width:2; }
-.tool-title{
+.tool-icon-box svg, .game-icon-box svg{ width:24px; height:24px; stroke:var(--gold); fill:none; stroke-width:2; }
+.tool-title, .game-title{
   font-family:var(--font-mono);
   font-weight:700;
   font-size:15px;
   line-height:1.4;
   color:var(--ink);
 }
-.tool-tag{
+.tool-tag, .game-tag{
   display:inline-block;
   align-self:flex-start;
   font-family:var(--font-mono);
@@ -317,13 +321,13 @@ h1.display{
   padding:2px 6px;
   color:var(--gold);
 }
-.tool-desc{
+.tool-desc, .game-desc{
   color:var(--ink-dim);
   font-size:13.5px;
   line-height:1.6;
   flex:1;
 }
-.tool-actions{ margin-top:8px; }
+.tool-actions, .game-actions{ margin-top:8px; }
 
 /* ---------- Coming Soon Banner ---------- */
 .coming-soon-banner {
@@ -375,25 +379,43 @@ footer{
 </header>
 
 <main>
-  <div class="eyebrow">// Central Directory</div>
-  <h1 class="display">Tools Hub</h1>
-  <p class="subheading">Your central map for custom web tools, utilities, generators, and mini-apps created by AS BRO.</p>
-
-  <!-- Instant Search Bar -->
+  <!-- Global Search Bar -->
   <div class="search-container">
     <div class="search-input-wrap">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <input type="text" id="tool-search" class="search-input" placeholder="Search tools here..." autocomplete="off">
+      <input type="text" id="tool-search" class="search-input" placeholder="Search tools and games here..." autocomplete="off">
     </div>
   </div>
 
-  <div class="tools-grid" id="tools-grid"></div>
+  <!-- TOOLS SECTION -->
+  <section id="tools-section">
+    <div class="eyebrow">// Central Directory</div>
+    <h1 class="display">Tools Hub</h1>
+    <p class="subheading">Your central map for custom web tools, utilities, generators, and mini-apps created by AS BRO.</p>
 
-  <!-- More Tools Coming Soon Banner -->
-  <div class="coming-soon-banner pixel-panel">
-    <h3>⚡ MORE TOOLS COMING SOON...</h3>
-    <p>Stay tuned for exciting new tools and utilities!</p>
-  </div>
+    <div class="tools-grid" id="tools-grid"></div>
+
+    <div class="coming-soon-banner pixel-panel">
+      <h3>⚡ MORE TOOLS COMING SOON...</h3>
+      <p>Stay tuned for exciting new tools and utilities!</p>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- GAMES SECTION -->
+  <section id="games-section">
+    <div class="eyebrow">// Arcade Zone</div>
+    <h2 class="display">Games Hub</h2>
+    <p class="subheading">Play custom browser-based mini-games created directly for the AS BRO community.</p>
+
+    <div class="games-grid" id="games-grid"></div>
+
+    <div class="coming-soon-banner pixel-panel">
+      <h3>🎮 MORE GAMES COMING SOON...</h3>
+      <p>We're building more arcade games! Check back soon for updates.</p>
+    </div>
+  </section>
 </main>
 
 <footer>
@@ -447,6 +469,30 @@ const WebsiteConfig = {
             url: "res_calc.html",
             btnLabel: "Launch Tool"
         }
+    ],
+
+    gamesDirectory: [
+        {
+            title: "Flappy Bro",
+            category: "Arcade",
+            description: "Dodge obstacles and score high in this fast-paced infinite runner.",
+            url: "flappy.html",
+            btnLabel: "Play Game"
+        },
+        {
+            title: "Memory Match",
+            category: "Arcade",
+            description: "Match pairs of cards in this classic memory game.",
+            url: "card.html",
+            btnLabel: "Play Game"
+        },
+        {
+            title: "Wire connect",
+            category: "Arcade",
+            description: "Connect wires in this logic puzzle game.",
+            url: "connect.html",
+            btnLabel: "Play Game"
+        }
     ]
 };
 
@@ -456,7 +502,8 @@ const NAV_ICONS = {
   servers:       '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6"/><rect x="3" y="14" width="18" height="6"/><circle cx="7" cy="7" r="0.6"/><circle cx="7" cy="17" r="0.6"/></svg>',
   files:         '<svg viewBox="0 0 24 24"><path d="M4 4h9l3 3h4v13H4z"/><path d="M12 11v6M9 14h6"/></svg>',
   worldDownload: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a15.3 15.3 0 0 1 4 9 15.3 15.3 0 0 1-4 9 15.3 15.3 0 0 1-4-9z"/><path d="M12 8v8M9 13l3 3 3-3"/></svg>',
-  tools:         '<svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>'
+  tools:         '<svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+  games:         '<svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 12h4M8 10v4M15 11h.01M18 13h.01"/></svg>'
 };
 
 const PAGES = [
@@ -465,7 +512,7 @@ const PAGES = [
   { id: "servers",  label: "Servers", icon: NAV_ICONS.servers,       url: "index.html#servers" },
   { id: "mc-world", label: "World",   icon: NAV_ICONS.worldDownload, url: "index.html#mc-world" },
   { id: "mc-files", label: "Files",   icon: NAV_ICONS.files,         url: "index.html#mc-files" },
-  { id: "tools",    label: "Tools",   icon: NAV_ICONS.tools,         url: "tools.html" }
+  { id: "tools",    label: "Utility",   icon: NAV_ICONS.tools,         url: "tools.html" }
 ];
 
 function el(html){
@@ -475,7 +522,7 @@ function el(html){
 }
 
 function renderChrome(){
-  document.title = WebsiteConfig.brand.channelName + " — Web Tools Hub";
+  document.title = WebsiteConfig.brand.channelName + " — Web Tools & Games Hub";
   document.getElementById("favicon-link").href = WebsiteConfig.brand.favicon;
   document.getElementById("brand-logo").src = WebsiteConfig.brand.siteLogo;
   document.getElementById("brand-logo").alt = WebsiteConfig.brand.channelName + " logo";
@@ -503,34 +550,24 @@ function renderChrome(){
   });
 }
 
-/**
- * Weighted search scoring function:
- * Higher priority given to Title matching over Description matching.
- */
-function calculateSearchScore(tool, query) {
+function calculateSearchScore(item, query) {
   if (!query) return 1;
 
   const q = query.toLowerCase().trim();
-  const title = (tool.title || "").toLowerCase();
-  const desc = (tool.description || "").toLowerCase();
-  const cat = (tool.category || "").toLowerCase();
+  const title = (item.title || "").toLowerCase();
+  const desc = (item.description || "").toLowerCase();
+  const cat = (item.category || "").toLowerCase();
 
   let score = 0;
 
-  // Exact title match
   if (title === q) score += 100;
-  // Title starts with query (highest priority for first letters typed)
   else if (title.startsWith(q)) score += 80;
-  // Title contains query as a distinct word boundary
   else if (new RegExp(`\\b${q}`, 'i').test(title)) score += 50;
-  // Title includes query anywhere
   else if (title.includes(q)) score += 30;
 
-  // Category matching
   if (cat.startsWith(q)) score += 20;
   else if (cat.includes(q)) score += 10;
 
-  // Description matching (weighted lower so title hits always stay on top)
   if (desc.startsWith(q)) score += 15;
   else if (new RegExp(`\\b${q}`, 'i').test(desc)) score += 10;
   else if (desc.includes(q)) score += 5;
@@ -560,7 +597,6 @@ function renderToolsHub(searchQuery = ""){
     return;
   }
 
-  // Rank and filter tools based on relevance score
   const searchResults = tools
     .map(t => ({ tool: t, score: calculateSearchScore(t, searchQuery) }))
     .filter(item => item.score > 0)
@@ -576,7 +612,7 @@ function renderToolsHub(searchQuery = ""){
             <span class="tool-tag">Search</span>
           </div>
         </div>
-        <div class="tool-desc">No tools found matching "${searchQuery}". Try searching with different keywords.</div>
+        <div class="tool-desc">No tools found matching "${searchQuery}".</div>
       </div>
     `));
     return;
@@ -602,9 +638,74 @@ function renderToolsHub(searchQuery = ""){
   });
 }
 
-// Attach Instant Update Listener
+function renderGamesHub(searchQuery = ""){
+  const grid = document.getElementById("games-grid");
+  grid.innerHTML = "";
+
+  const games = WebsiteConfig.gamesDirectory || [];
+
+  if (games.length === 0) {
+    grid.appendChild(el(`
+      <div class="game-card pixel-panel" style="grid-column: 1 / -1;">
+        <div class="game-header">
+          <div class="game-icon-box">${NAV_ICONS.games}</div>
+          <div>
+            <div class="game-title">Arcade Ready</div>
+            <span class="game-tag">Status</span>
+          </div>
+        </div>
+        <div class="game-desc">No games published yet. New browser games will be listed here soon!</div>
+      </div>
+    `));
+    return;
+  }
+
+  const searchResults = games
+    .map(g => ({ game: g, score: calculateSearchScore(g, searchQuery) }))
+    .filter(item => item.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  if (searchResults.length === 0) {
+    grid.appendChild(el(`
+      <div class="game-card pixel-panel" style="grid-column: 1 / -1;">
+        <div class="game-header">
+          <div class="game-icon-box">${NAV_ICONS.games}</div>
+          <div>
+            <div class="game-title">No Matching Games</div>
+            <span class="game-tag">Search</span>
+          </div>
+        </div>
+        <div class="game-desc">No games found matching "${searchQuery}".</div>
+      </div>
+    `));
+    return;
+  }
+
+  searchResults.forEach(item => {
+    const g = item.game;
+    grid.appendChild(el(`
+      <div class="game-card pixel-panel">
+        <div class="game-header">
+          <div class="game-icon-box">${NAV_ICONS.games}</div>
+          <div>
+            <div class="game-title">${g.title}</div>
+            <span class="game-tag">${g.category || 'Arcade'}</span>
+          </div>
+        </div>
+        <div class="game-desc">${g.description}</div>
+        <div class="game-actions">
+          <a class="pixel-btn gold" href="${g.url}">${g.btnLabel || 'Play Game'}</a>
+        </div>
+      </div>
+    `));
+  });
+}
+
+// Attach Instant Search Listener for both Tools & Games
 document.getElementById("tool-search").addEventListener("input", (e) => {
-  renderToolsHub(e.target.value);
+  const query = e.target.value;
+  renderToolsHub(query);
+  renderGamesHub(query);
 });
 
 window.addEventListener("keydown", (e)=>{
@@ -616,6 +717,7 @@ window.addEventListener("keydown", (e)=>{
 
 renderChrome();
 renderToolsHub();
+renderGamesHub();
 </script>
 </body>
 </html>
