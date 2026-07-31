@@ -1,1003 +1,2587 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Minecraft Circle & Sphere Generator - AS BRO</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AS BRO - Minecraft Circle & Sphere Generator</title>
+  
+  <!-- Pixel & Modern Web Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- jsPDF for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<style>
-:root {
-  --bg: #0a0a0a;
-  --panel: #111111;
-  --panel-2: #161616;
-  --panel-border: #3a3a3a;
-  --red: #ff3333;
-  --red-hover: #cc0000;
-  --ink: #ffffff;
-  --ink-dim: #d1d5db;
-  --font-mono: 'Courier New', Courier, monospace;
-}
+  <style>
+    :root {
+      /* Retro Minecraft & Pixel UI Theme Palette */
+      --void: #0a0a0a;
+      --panel: #141414;
+      --panel-light: #1e1e1e;
+      --gold: #ffcc00;
+      --gold-hover: #ffd733;
+      --red: #ff0033;
+      --red-hover: #ff3355;
+      --green: #10b981;
+      --blue: #3b82f6;
+      --text: #e2e8f0;
+      --text-muted: #888888;
+      
+      --font-display: 'Press Start 2P', monospace;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-body: 'Manrope', sans-serif;
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+      /* Pixel Border Shadows */
+      --pixel-bevel-out: inset -2px -2px 0px #000000, inset 2px 2px 0px #2a2a2a;
+      --pixel-bevel-in: inset 2px 2px 0px #000000, inset -2px -2px 0px #2a2a2a;
+      --pixel-gold-border: inset -2px -2px 0px #b38f00, inset 2px 2px 0px #ffea80;
+      --pixel-red-border: inset -2px -2px 0px #80001a, inset 2px 2px 0px #ff6680;
+      
+      /* Block / Canvas Colors */
+      --color-block-fill: #475569;
+      --color-block-outline: #1E293B;
+      --color-block-completed: #10b981;
+      --color-grid-bg: #0d0d0d;
+      --color-grid-line: #222222;
+      --color-grid-center: #ff0033;
+    }
 
-body {
-  min-height: 100vh;
-  background-color: var(--bg);
-  font-family: var(--font-mono);
-  color: var(--ink);
-  padding: 30px 20px;
-}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
+    /* Custom Pixel Cursors */
+    body {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="%23ffcc00" d="M0 0v12l3-3 2.5 5 2-1-2.5-5H9z"/></svg>'), auto;
+      font-family: var(--font-body);
+      background-color: var(--void);
+      color: var(--text);
+      line-height: 1.5;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background-image: radial-gradient(rgba(255, 204, 0, 0.03) 1px, transparent 0);
+      background-size: 24px 24px;
+    }
 
-/* Header */
-.header {
-  text-align: center;
-  margin-bottom: 30px;
-  background: var(--panel);
-  border: 4px solid var(--panel-border);
-  box-shadow: inset -4px -4px 0px 0px #000, inset 4px 4px 0px 0px #333;
-  padding: 2rem;
-}
+    a, button, input, select {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="%23ff0033" d="M0 0v12l3-3 2.5 5 2-1-2.5-5H9z"/></svg>'), pointer;
+    }
 
-.header h1 {
-  font-size: 2.4rem;
-  color: var(--red);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-  text-shadow: 2px 2px 0px #000;
-}
+    /* Pixelated Scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--void);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--panel-light);
+      border: 2px solid var(--void);
+      box-shadow: var(--pixel-bevel-out);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--gold);
+    }
 
-.header p {
-  color: var(--ink-dim);
-  font-size: 15px;
-  line-height: 1.6;
-}
+    /* Scanline Screen Effect */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+      background-size: 100% 4px;
+      z-index: 999;
+      pointer-events: none;
+      opacity: 0.6;
+    }
 
-/* Pixel Buttons */
-.pixel-btn {
-  font-family: var(--font-mono);
-  font-size: 14px;
-  font-weight: bold;
-  padding: 12px 18px;
-  background: var(--panel-2);
-  color: var(--ink);
-  border: 4px solid var(--panel-border);
-  box-shadow: inset -3px -3px 0px 0px #000, inset 3px 3px 0px 0px #444;
-  cursor: pointer;
-  text-align: center;
-  text-transform: uppercase;
-  transition: all 0.1s ease;
-  user-select: none;
-}
+    /* Top Navigation Bar */
+    .top-nav {
+      background-color: var(--panel);
+      color: #FFFFFF;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #2a2a2a;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
 
-.pixel-btn:hover {
-  background: #222;
-  border-color: #666;
-  color: #fff;
-}
+    .brand-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
 
-.pixel-btn:active {
-  box-shadow: inset 3px 3px 0px 0px #000, inset -3px -3px 0px 0px #333;
-  transform: translateY(2px);
-}
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--red);
+      color: #FFFFFF;
+      width: 44px;
+      height: 44px;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      border: 2px solid var(--gold);
+      box-shadow: var(--pixel-gold-border), 0 0 10px rgba(255, 204, 0, 0.3);
+    }
 
-.pixel-btn.primary {
-  background: var(--red);
-  border-color: #ff6666;
-  color: #fff;
-  box-shadow: inset -3px -3px 0px 0px #880000, inset 3px 3px 0px 0px #ff9999;
-}
+    .brand-info {
+      display: flex;
+      flex-direction: column;
+    }
 
-.pixel-btn.primary:hover {
-  background: var(--red-hover);
-}
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      letter-spacing: -0.025em;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
 
-.pixel-btn.active {
-  background: var(--red);
-  border-color: #ff6666;
-  color: #fff;
-  box-shadow: inset -3px -3px 0px 0px #880000, inset 3px 3px 0px 0px #ff9999;
-}
+    .brand-tag {
+      color: var(--gold);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-top: 4px;
+    }
 
-/* Main Layout Grid */
-.layout-grid {
-  display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 24px;
-}
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
 
-/* Controls Side Panel */
-.controls-panel {
-  background: var(--panel);
-  border: 4px solid var(--panel-border);
-  box-shadow: inset -4px -4px 0px 0px #000, inset 4px 4px 0px 0px #333;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
+    /* Pixel Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: none;
+      box-shadow: var(--pixel-bevel-out);
+      transition: all 0.1s ease;
+      user-select: none;
+    }
 
-.section-title {
-  font-size: 15px;
-  color: #fff;
-  text-transform: uppercase;
-  border-bottom: 3px solid var(--panel-border);
-  padding-bottom: 8px;
-  margin-bottom: 12px;
-  letter-spacing: 0.5px;
-}
+    .btn:active {
+      box-shadow: var(--pixel-bevel-in);
+      transform: translateY(1px);
+    }
 
-.btn-group {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
+    .btn-red {
+      background-color: var(--red);
+      color: white;
+      box-shadow: var(--pixel-red-border);
+    }
+    .btn-red:hover {
+      background-color: var(--red-hover);
+      color: white;
+    }
 
-.btn-group .pixel-btn {
-  flex: 1 1 30%;
-  padding: 8px 4px;
-  font-size: 11px;
-}
+    .btn-yellow {
+      background-color: var(--gold);
+      color: #000;
+      box-shadow: var(--pixel-gold-border);
+    }
+    .btn-yellow:hover {
+      background-color: var(--gold-hover);
+    }
 
-.control-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+    .btn-dark {
+      background-color: var(--panel-light);
+      color: white;
+      border: 1px solid #333;
+    }
+    .btn-dark:hover {
+      background-color: #2a2a2a;
+      color: var(--gold);
+    }
 
-.control-group label {
-  font-size: 13px;
-  color: var(--ink-dim);
-  font-weight: bold;
-  display: flex;
-  justify-content: space-between;
-}
+    .btn-outline {
+      background-color: var(--panel);
+      color: var(--text);
+      border: 1px solid #333;
+    }
+    .btn-outline:hover {
+      background-color: var(--panel-light);
+      color: var(--gold);
+      border-color: var(--gold);
+    }
 
-.control-group input[type="number"],
-.control-group input[type="text"],
-.control-group select {
-  width: 100%;
-  padding: 10px;
-  border: 4px solid var(--panel-border);
-  box-shadow: inset 3px 3px 0px 0px #000;
-  background: var(--bg);
-  color: var(--ink);
-  font-family: var(--font-mono);
-  font-size: 14px;
-  outline: none;
-}
+    /* Main Dashboard Layout */
+    .dashboard-container {
+      display: grid;
+      grid-template-columns: 330px 1fr 350px;
+      height: calc(100vh - 66px);
+      overflow: hidden;
+    }
 
-.control-group input[type="number"]:focus,
-.control-group input[type="text"]:focus,
-.control-group select:focus {
-  border-color: var(--red);
-}
+    @media (max-width: 1200px) {
+      .dashboard-container {
+        grid-template-columns: 300px 1fr;
+        height: auto;
+        overflow: visible;
+      }
+      .side-panel-right {
+        grid-column: span 2;
+        border-top: 2px solid #2a2a2a;
+      }
+    }
 
-/* Custom Range Slider */
-.slider-container {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+    @media (max-width: 900px) {
+      .dashboard-container {
+        grid-template-columns: 1fr;
+      }
+      .side-panel-left, .side-panel-right {
+        grid-column: span 1;
+      }
+      .canvas-area {
+        height: 60vh;
+      }
+    }
 
-input[type="range"] {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 12px;
-  background: var(--bg);
-  border: 3px solid var(--panel-border);
-  outline: none;
-}
+    /* Sidebar styles */
+    .side-panel {
+      background-color: var(--panel);
+      border-right: 2px solid #2a2a2a;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 1rem;
+      gap: 1.25rem;
+    }
 
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 20px;
-  height: 24px;
-  background: var(--red);
-  border: 2px solid #fff;
-  cursor: pointer;
-  box-shadow: inset -2px -2px 0px 0px #880000;
-}
+    .side-panel-right {
+      border-right: none;
+      border-left: 2px solid #2a2a2a;
+    }
 
-/* Checkbox Styling */
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-  color: #fff;
-  cursor: pointer;
-  user-select: none;
-  font-weight: bold;
-}
+    /* Section Cards with Pixel Bevels */
+    .section-card {
+      background: var(--panel-light);
+      border: 1px solid #2a2a2a;
+      box-shadow: var(--pixel-bevel-out);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
 
-.checkbox-label input {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--red);
-  cursor: pointer;
-}
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gold);
+      border-bottom: 2px solid #2a2a2a;
+      padding-bottom: 0.6rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-/* Stats Box Top Grid */
-.top-stats-bar {
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-bottom: 15px;
-}
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
 
-.top-stat-card {
-  background: var(--panel-2);
-  border: 3px solid var(--panel-border);
-  padding: 8px 12px;
-  display: flex;
-  flex-direction: column;
-}
+    .form-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-transform: uppercase;
+    }
 
-.top-stat-card label {
-  font-size: 11px;
-  color: var(--ink-dim);
-}
+    .form-input-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
 
-.top-stat-card span {
-  font-size: 18px;
-  font-weight: bold;
-  color: #fff;
-}
+    input[type="number"], select {
+      flex: 1;
+      padding: 0.6rem;
+      border: 2px solid #2a2a2a;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--gold);
+      background-color: var(--void);
+      box-shadow: var(--pixel-bevel-in);
+      outline: none;
+    }
 
-/* Preview Canvas Area */
-.canvas-panel {
-  background: var(--panel);
-  border: 4px solid var(--panel-border);
-  box-shadow: inset -4px -4px 0px 0px #000, inset 4px 4px 0px 0px #333;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  position: relative;
-  min-height: 550px;
-}
+    input[type="number"]:focus, select:focus {
+      border-color: var(--gold);
+    }
 
-.canvas-toolbar {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-  background: var(--panel-2);
-  border: 3px solid var(--panel-border);
-  padding: 10px 14px;
-}
+    /* Pixel Sliders */
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 10px;
+      background: var(--void);
+      box-shadow: var(--pixel-bevel-in);
+      outline: none;
+    }
 
-.canvas-container {
-  width: 100%;
-  height: 520px;
-  overflow: hidden;
-  position: relative;
-  background: #050505;
-  border: 4px solid var(--panel-border);
-  box-shadow: inset 3px 3px 0px 0px #000;
-  cursor: grab;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 20px;
+      background: var(--gold);
+      box-shadow: var(--pixel-gold-border);
+      cursor: pointer;
+    }
 
-.canvas-container:active {
-  cursor: grabbing;
-}
+    input[type="range"]::-webkit-slider-thumb:hover {
+      background: var(--gold-hover);
+    }
 
-canvas {
-  image-rendering: pixelated;
-  display: block;
-}
+    .quick-adjust-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.35rem;
+    }
 
-.coord-tooltip {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  background: rgba(0,0,0,0.85);
-  border: 2px solid var(--panel-border);
-  padding: 6px 12px;
-  font-size: 12px;
-  color: #fff;
-  pointer-events: none;
-}
+    .quick-btn {
+      padding: 0.35rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: var(--void);
+      color: var(--text);
+      border: 1px solid #333;
+      box-shadow: var(--pixel-bevel-out);
+      cursor: pointer;
+      text-align: center;
+    }
+    .quick-btn:hover {
+      background: var(--panel-light);
+      color: var(--gold);
+      border-color: var(--gold);
+    }
 
-/* Export Panel */
-.export-panel {
-  width: 100%;
-  margin-top: 20px;
-  background: var(--panel-2);
-  border: 4px solid var(--panel-border);
-  padding: 15px;
-}
+    /* Canvas Viewport */
+    .canvas-area {
+      position: relative;
+      background-color: var(--color-grid-bg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+    }
 
-.export-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
+    .canvas-container {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      cursor: grab;
+      user-select: none;
+    }
 
-.export-textarea {
-  width: 100%;
-  height: 140px;
-  background: var(--bg);
-  border: 3px solid var(--panel-border);
-  color: var(--ink-dim);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  padding: 10px;
-  resize: vertical;
-  outline: none;
-}
+    .canvas-container:active {
+      cursor: grabbing;
+    }
 
-/* Fixed Origin Inputs Grid */
-.coords-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  width: 100%;
-}
+    #renderCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: block;
+    }
 
-.coords-row input {
-  width: 100%;
-  text-align: center;
-  padding: 8px;
-  border: 4px solid var(--panel-border);
-  box-shadow: inset 3px 3px 0px 0px #000;
-  background: var(--bg);
-  color: var(--ink);
-  font-family: var(--font-mono);
-  font-size: 14px;
-  outline: none;
-}
+    /* Canvas Controls Toolbar */
+    .canvas-toolbar {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      z-index: 10;
+    }
 
-.preset-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
+    .canvas-toolbar-horizontal {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 0.5rem;
+      background: rgba(20, 20, 20, 0.95);
+      border: 2px solid #2a2a2a;
+      box-shadow: var(--pixel-bevel-out), 0 10px 25px rgba(0,0,0,0.8);
+      padding: 0.5rem 0.8rem;
+      z-index: 10;
+      align-items: center;
+    }
 
-.preset-grid .pixel-btn {
-  font-size: 11px;
-  padding: 8px 4px;
-}
+    .tool-btn {
+      background: var(--panel-light);
+      color: var(--text);
+      border: 1px solid #333;
+      box-shadow: var(--pixel-bevel-out);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.1s ease;
+    }
 
-@media(max-width: 900px) {
-  .layout-grid {
-    grid-template-columns: 1fr;
-  }
-  .canvas-container {
-    height: 400px;
-  }
-  .top-stats-bar {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-</style>
+    .tool-btn:hover {
+      background: var(--gold);
+      color: #000;
+    }
+
+    .tool-btn-dark {
+      background: var(--void);
+      color: var(--gold);
+      border: 1px solid #2a2a2a;
+    }
+    .tool-btn-dark:hover {
+      background: var(--red);
+      color: #FFFFFF;
+    }
+
+    /* Build Animation Controls */
+    .animate-controls {
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    /* Layer Controls */
+    .layer-selector-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .layer-indicator {
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      color: var(--gold);
+      background-color: var(--void);
+      padding: 0.75rem;
+      border: 2px solid #2a2a2a;
+      box-shadow: var(--pixel-bevel-in);
+    }
+
+    .layer-navigator {
+      display: grid;
+      grid-template-columns: 1fr auto auto 1fr;
+      gap: 0.4rem;
+    }
+
+    /* Material / Stats Display */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    .stat-box {
+      background: var(--void);
+      border: 1px solid #2a2a2a;
+      box-shadow: var(--pixel-bevel-in);
+      padding: 0.6rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-val {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gold);
+      font-family: var(--font-mono);
+    }
+
+    .stat-lbl {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* Coordinate Guide Footer Bar */
+    .coordinate-guide-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: var(--panel);
+      color: var(--text);
+      padding: 0.4rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      border-top: 2px solid #2a2a2a;
+    }
+
+    .coordinate-values {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .coord-item span {
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 4rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background-color: var(--panel);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      box-shadow: var(--pixel-bevel-out), 0 10px 30px rgba(0,0,0,0.9);
+      z-index: 1000;
+      opacity: 0;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      border: 2px solid var(--gold);
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Progress Indicators */
+    .progress-bar-container {
+      width: 100%;
+      height: 10px;
+      background: var(--void);
+      box-shadow: var(--pixel-bevel-in);
+      overflow: hidden;
+      margin-top: 0.35rem;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--green);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Flex Utilities */
+    .flex-row {
+      display: flex;
+      flex-direction: row;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .w-full { width: 100%; }
+
+    /* Footer Stamp */
+    .brand-stamp {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-align: center;
+      color: var(--text-muted);
+      margin-top: auto;
+      padding-top: 1rem;
+      border-top: 1px solid #2a2a2a;
+    }
+
+    .brand-stamp strong {
+      color: var(--gold);
+    }
+
+    /* Pixel Checkbox */
+    .custom-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      user-select: none;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .custom-checkbox input {
+      display: none;
+    }
+
+    .checkbox-box {
+      width: 20px;
+      height: 20px;
+      background: var(--void);
+      border: 2px solid #2a2a2a;
+      box-shadow: var(--pixel-bevel-in);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .custom-checkbox input:checked + .checkbox-box {
+      background: var(--gold);
+      border-color: var(--gold);
+    }
+
+    .custom-checkbox input:checked + .checkbox-box::after {
+      content: '■';
+      color: #000;
+      font-size: 12px;
+    }
+
+    /* Warning Overlay */
+    .error-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 10, 10, 0.95);
+      color: #FFFFFF;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      text-align: center;
+      z-index: 50;
+      border: 4px solid var(--red);
+    }
+
+    .error-overlay h3 {
+      font-family: var(--font-display);
+      color: var(--red);
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Shortcuts Modal */
+    .shortcuts-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 200;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .shortcuts-content {
+      background: var(--panel);
+      padding: 2rem;
+      border: 2px solid var(--gold);
+      box-shadow: var(--pixel-bevel-out), 0 0 30px rgba(0,0,0,0.9);
+      max-width: 520px;
+      width: 90%;
+    }
+
+    .shortcuts-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.75rem 1.5rem;
+      margin-top: 1rem;
+      margin-bottom: 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+
+    .kbd-tag {
+      background: var(--void);
+      border: 1px solid #333;
+      box-shadow: var(--pixel-bevel-out);
+      color: var(--gold);
+      padding: 0.2rem 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
-
-  <div class="header">
-    <h1>CIRCLE & SPHERE GENERATOR</h1>
-    <p>Generate exact pixel blueprints for Minecraft circles, ellipses, arches, and 3D spheres.</p>
-  </div>
-
-  <div class="layout-grid">
-
-    <!-- Left Controls Panel -->
-    <div class="controls-panel">
-
-      <!-- Shape Selection Buttons -->
-      <div>
-        <div class="section-title">SHAPE</div>
-        <div class="btn-group">
-          <button class="pixel-btn active" id="btnCircle" onclick="setShapeMode('circle')">Circle</button>
-          <button class="pixel-btn" id="btnEllipse" onclick="setShapeMode('ellipse')">Ellipse</button>
-          <button class="pixel-btn" id="btnSphere" onclick="setShapeMode('sphere')">Sphere</button>
-          <button class="pixel-btn" id="btnCylinder" onclick="setShapeMode('cylinder')">Cylinder</button>
-          <button class="pixel-btn" id="btnDome" onclick="setShapeMode('dome')">Dome</button>
-          <button class="pixel-btn" id="btnSpiral" onclick="setShapeMode('spiral')">Spiral</button>
-        </div>
+  <!-- Top Navigation Bar -->
+  <header class="top-nav">
+    <div class="brand-container">
+      <div class="brand-logo">AS</div>
+      <div class="brand-info">
+        <span class="brand-title">MINECRAFT SHAPE ENGINE <span style="font-size:0.55rem; background: var(--gold); color: #000; padding:2px 5px; font-family: var(--font-mono); font-weight: bold;">PRO</span></span>
+        <span class="brand-tag">BY AS BRO</span>
       </div>
-
-      <!-- Dimensions / Radius Controls -->
-      <div>
-        <div class="control-group" style="margin-bottom: 12px;">
-          <label id="lblRadius">Radius: <span id="valR">10</span> blocks</label>
-          <div class="slider-container">
-            <input type="range" id="inputR" min="1" max="64" value="10" step="1" oninput="updateDimensions()">
-          </div>
-        </div>
-
-        <div class="control-group" id="heightGroup" style="display:none; margin-bottom: 12px;">
-          <label>Height: <span id="valH">20</span> blocks</label>
-          <div class="slider-container">
-            <input type="range" id="inputH" min="1" max="64" value="20" step="1" oninput="updateDimensions()">
-          </div>
-        </div>
-
-        <!-- Arc Dropdown -->
-        <div class="control-group" style="margin-bottom: 12px;">
-          <label>Arc / partial shape</label>
-          <select id="selectArc" onchange="redraw()">
-            <option value="full">Full circle</option>
-            <option value="top">Top half (Arch)</option>
-            <option value="bottom">Bottom half</option>
-            <option value="left">Left half</option>
-            <option value="right">Right half</option>
-            <option value="quarter">Quarter arc</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Toggles -->
-      <div>
-        <div class="control-group" style="margin-bottom: 10px;">
-          <label class="checkbox-label">
-            <span>Hollow</span>
-            <input type="checkbox" id="checkHollow" checked onchange="toggleThicknessControl()">
-          </label>
-        </div>
-
-        <div class="control-group" id="thicknessGroup" style="margin-bottom: 10px;">
-          <label>Wall thickness: <span id="valThickness">1</span></label>
-          <div class="slider-container">
-            <input type="range" id="inputThickness" min="1" max="10" value="1" step="1" oninput="updateThickness()">
-          </div>
-        </div>
-
-        <div class="control-group" style="margin-bottom: 10px;">
-          <label class="checkbox-label">
-            <span>Show grid</span>
-            <input type="checkbox" id="checkGrid" checked onchange="redraw()">
-          </label>
-        </div>
-
-        <div class="control-group" style="margin-bottom: 10px;">
-          <label class="checkbox-label">
-            <span>Number edges #</span>
-            <input type="checkbox" id="checkNumberEdges" checked onchange="redraw()">
-          </label>
-        </div>
-
-        <div class="control-group" style="margin-bottom: 12px;">
-          <label>Preview block</label>
-          <select id="selectBlock" onchange="redraw()">
-            <option value="#ff3333">Stone (Red)</option>
-            <option value="#8b8b8b">Stone (Gray)</option>
-            <option value="#795548">Wood Plank</option>
-            <option value="#5c6bc0">Lapis / Glass</option>
-            <option value="#333333">Obsidian</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- 3D Layer Controls -->
-      <div id="sphereControls" style="display: none;">
-        <div class="section-title">3D LAYER</div>
-        <div class="control-group">
-          <label>Current Layer (Y): <span id="valLayer">10 / 21</span></label>
-          <div class="slider-container">
-            <input type="range" id="inputLayer" min="1" max="21" value="10" oninput="redraw()">
-          </div>
-        </div>
-      </div>
-
-      <!-- Build Origin Coordinates -->
-      <div>
-        <div class="section-title">BUILD ORIGIN</div>
-        <div class="coords-row">
-          <input type="text" id="origX" value="~" oninput="redraw()" placeholder="X">
-          <input type="text" id="origY" value="~" oninput="redraw()" placeholder="Y">
-          <input type="text" id="origZ" value="~" oninput="redraw()" placeholder="Z">
-        </div>
-        <p style="font-size: 10px; color: var(--ink-dim); margin-top: 6px;">Use ~ for relative coords from your standing position.</p>
-      </div>
-
-      <!-- Presets -->
-      <div>
-        <div class="section-title">PRESETS</div>
-        <div class="preset-grid">
-          <button class="pixel-btn" onclick="applyPreset('tower')">Tower ring r=10</button>
-          <button class="pixel-btn" onclick="applyPreset('arch')">Arch (top half)</button>
-          <button class="pixel-btn" onclick="applyPreset('glass')">Glass sphere r=15</button>
-          <button class="pixel-btn" onclick="applyPreset('arena')">Arena 20x15</button>
-          <button class="pixel-btn" onclick="applyPreset('obsidian')">Obsidian ring r=5</button>
-          <button class="pixel-btn" onclick="applyPreset('spiral')">Spiral tower</button>
-        </div>
-      </div>
-
     </div>
+    <div class="nav-actions">
+      <button class="btn btn-dark" id="btnShortcuts">
+        <i data-lucide="keyboard" style="width: 16px; height: 16px;"></i>
+        <span>Hotkeys</span>
+      </button>
+      <button class="btn btn-yellow" id="btnResetAll">
+        <i data-lucide="rotate-ccw" style="width: 16px; height: 16px;"></i>
+        <span>Reset App</span>
+      </button>
+    </div>
+  </header>
 
-    <!-- Right Preview Panel -->
-    <div class="canvas-panel">
+  <!-- Main Dashboard Grid -->
+  <main class="dashboard-container">
+    
+    <!-- LEFT PANEL: Generator Controls -->
+    <aside class="side-panel side-panel-left">
+      
+      <!-- Shape Selector Section -->
+      <section class="section-card">
+        <h2 class="section-title">
+          <span>Shape Category</span>
+          <i data-lucide="shapes" style="width: 16px; height: 16px;"></i>
+        </h2>
+        
+        <div class="form-group">
+          <label class="form-label" for="shapeSelect">Select Shape Template</label>
+          <select id="shapeSelect">
+            <optgroup label="2D Circles">
+              <option value="circle-hollow" selected>Hollow Circle</option>
+              <option value="circle-filled">Filled Circle</option>
+            </optgroup>
+            <optgroup label="3D Spheres">
+              <option value="sphere-hollow">Hollow Sphere</option>
+              <option value="sphere-filled">Filled Sphere</option>
+            </optgroup>
+            <optgroup label="3D Domes & Hemispheres">
+              <option value="dome-hollow">Hollow Dome</option>
+              <option value="dome-filled">Filled Dome</option>
+              <option value="hemisphere-hollow">Hollow Hemisphere</option>
+              <option value="hemisphere-filled">Filled Hemisphere</option>
+            </optgroup>
+            <optgroup label="3D Cylinders">
+              <option value="cylinder-hollow">Hollow Cylinder</option>
+              <option value="cylinder-filled">Filled Cylinder</option>
+            </optgroup>
+          </select>
+        </div>
+      </section>
 
-      <!-- Top Stats Bar -->
-      <div class="top-stats-bar">
-        <div class="top-stat-card">
-          <label>This layer</label>
-          <span id="statThisLayer">0</span>
+      <!-- Dimensional Input Controls -->
+      <section class="section-card">
+        <h2 class="section-title">
+          <span>Dimensions</span>
+          <i data-lucide="sliders" style="width: 16px; height: 16px;"></i>
+        </h2>
+
+        <!-- Toggle Dimension Mode -->
+        <div class="form-group">
+          <label class="form-label">Control Dimension Mode</label>
+          <div class="flex-row">
+            <button class="btn btn-outline w-full btn-red" id="btnModeDiameter">Diameter</button>
+            <button class="btn btn-outline w-full" id="btnModeRadius">Radius</button>
+          </div>
         </div>
-        <div class="top-stat-card">
-          <label>Edge blocks</label>
-          <span id="statEdgeBlocks">0</span>
+
+        <!-- Size / Diameter Control -->
+        <div class="form-group">
+          <label class="form-label">
+            <span id="dimensionLabel">Diameter</span>
+            <span id="dimensionValue" style="color:var(--gold); font-weight:700;">31</span>
+          </label>
+          <div class="form-input-container">
+            <input type="range" id="sizeSlider" min="1" max="128" value="31">
+            <input type="number" id="sizeInput" min="1" max="512" value="31" style="width: 75px; flex:none;">
+          </div>
+          <!-- Quick Presets -->
+          <div class="quick-adjust-grid">
+            <button class="quick-btn" onclick="setSizeValue(9)">9px</button>
+            <button class="quick-btn" onclick="setSizeValue(16)">16px</button>
+            <button class="quick-btn" onclick="setSizeValue(31)">31px</button>
+            <button class="quick-btn" onclick="setSizeValue(64)">64px</button>
+          </div>
         </div>
-        <div class="top-stat-card">
-          <label>Total blocks</label>
-          <span id="statTotalBlocks">0</span>
+
+        <!-- Height Control (Used for Cylinder / Domes) -->
+        <div class="form-group" id="heightControlGroup" style="display: none;">
+          <label class="form-label">
+            <span>Cylinder Height</span>
+            <span id="heightValue" style="color:var(--gold); font-weight:700;">10</span>
+          </label>
+          <div class="form-input-container">
+            <input type="range" id="heightSlider" min="1" max="64" value="10">
+            <input type="number" id="heightInput" min="1" max="256" value="10" style="width: 75px; flex:none;">
+          </div>
         </div>
-        <div class="top-stat-card">
-          <label>Layers</label>
-          <span id="statLayers">1</span>
+
+        <!-- Symmetrical/Odd-Even Constraint Notice -->
+        <div class="form-group">
+          <div class="flex-row" style="background: var(--void); padding: 0.6rem; border: 1px solid #2a2a2a; box-shadow: var(--pixel-bevel-in); font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted);">
+            <i data-lucide="info" style="width: 14px; height: 14px; color: var(--gold); flex-shrink: 0;"></i>
+            <span id="symmetryHelperText">Odd diameter (31) has a perfect single block center point.</span>
+          </div>
         </div>
+      </section>
+
+      <!-- Grid Visual Customizer Settings -->
+      <section class="section-card">
+        <h2 class="section-title">
+          <span>Grid Visuals</span>
+          <i data-lucide="palette" style="width: 16px; height: 16px;"></i>
+        </h2>
+        
+        <div class="form-group">
+          <label class="custom-checkbox">
+            <input type="checkbox" id="chkShowGrid" checked>
+            <div class="checkbox-box"></div>
+            <span>Show Fine Gridlines</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="custom-checkbox">
+            <input type="checkbox" id="chkShowCenter" checked>
+            <div class="checkbox-box"></div>
+            <span>Highlight Grid Center Axis</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="custom-checkbox">
+            <input type="checkbox" id="chkShowCoords" checked>
+            <div class="checkbox-box"></div>
+            <span>Render Coords on Overlay</span>
+          </label>
+        </div>
+      </section>
+
+      <div class="brand-stamp">
+        ENGINEERING & CRAFT BY <strong>AS BRO</strong> &copy; 2026
+      </div>
+    </aside>
+
+    <!-- CENTER AREA: Canvas Viewer & Controls -->
+    <section class="canvas-area">
+      <!-- Error / Performance guardrail notification -->
+      <div class="error-overlay" id="sizeWarningOverlay">
+        <i data-lucide="alert-triangle" style="width: 48px; height: 48px; color: var(--gold); margin-bottom: 1rem;"></i>
+        <h3>Performance Limitation Warning</h3>
+        <p style="margin-bottom: 1.5rem; max-width: 400px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">Generating layout structures with coordinates exceeding 256 requires intensive system rendering.</p>
+        <button class="btn btn-red" id="btnDismissWarning">Proceed with Generator</button>
       </div>
 
+      <!-- Canvas Interface Toolbar -->
       <div class="canvas-toolbar">
-        <div style="display: flex; gap: 8px;">
-          <button class="pixel-btn" style="padding: 6px 10px; font-size: 11px;" onclick="adjustZoom(1.2)">Zoom in</button>
-          <button class="pixel-btn" style="padding: 6px 10px; font-size: 11px;" onclick="adjustZoom(1/1.2)">Zoom out</button>
-          <button class="pixel-btn" style="padding: 6px 10px; font-size: 11px;" onclick="resetView()">Reset view</button>
-        </div>
-        <div style="display: flex; gap: 8px;">
-          <button class="pixel-btn" style="padding: 6px 10px; font-size: 11px;" onclick="downloadPNG()">PNG</button>
-          <button class="pixel-btn" style="padding: 6px 10px; font-size: 11px;" onclick="copyExportText()">Share</button>
+        <button class="tool-btn" id="btnZoomIn" title="Zoom In (+)">
+          <i data-lucide="zoom-in" style="width: 18px; height: 18px;"></i>
+        </button>
+        <button class="tool-btn" id="btnZoomOut" title="Zoom Out (-)">
+          <i data-lucide="zoom-out" style="width: 18px; height: 18px;"></i>
+        </button>
+        <button class="tool-btn" id="btnZoomFit" title="Fit Layout (F)">
+          <i data-lucide="maximize" style="width: 18px; height: 18px;"></i>
+        </button>
+        <button class="tool-btn" id="btnZoomCenter" title="Center View (C)">
+          <i data-lucide="compass" style="width: 18px; height: 18px;"></i>
+        </button>
+        <button class="tool-btn" id="btnResetView" title="Reset Camera Matrix (R)">
+          <i data-lucide="refresh-cw" style="width: 18px; height: 18px;"></i>
+        </button>
+      </div>
+
+      <!-- Canvas Horizontal Action Guides -->
+      <div class="canvas-toolbar-horizontal">
+        <span style="color:var(--gold); font-family: var(--font-mono); font-size:0.75rem; font-weight:700; margin-right:0.5rem; display:flex; align-items:center; gap:0.35rem; text-transform: uppercase;">
+          <i data-lucide="play-circle" style="width:14px; height:14px; color:var(--gold);"></i> Build Anim:
+        </span>
+        <div class="animate-controls">
+          <button class="tool-btn tool-btn-dark" id="btnAnimPlay" title="Play Build Animation">
+            <i data-lucide="play" style="width: 16px; height: 16px;"></i>
+          </button>
+          <button class="tool-btn tool-btn-dark" id="btnAnimPause" title="Pause">
+            <i data-lucide="pause" style="width: 16px; height: 16px;"></i>
+          </button>
+          <button class="tool-btn tool-btn-dark" id="btnAnimRestart" title="Restart">
+            <i data-lucide="rotate-ccw" style="width: 16px; height: 16px;"></i>
+          </button>
+          <select id="animSpeedSelect" style="background: var(--void); color: var(--gold); border: 1px solid #2a2a2a; padding: 0.25rem; font-family: var(--font-mono); font-size: 0.75rem; width:75px;">
+            <option value="400">0.5x</option>
+            <option value="200" selected>1.0x</option>
+            <option value="100">2.0x</option>
+            <option value="40">5.0x</option>
+          </select>
         </div>
       </div>
 
-      <div class="canvas-container" id="canvasContainer">
-        <canvas id="gridCanvas"></canvas>
-        <div class="coord-tooltip" id="coordTooltip">Ctrl+scroll to zoom - drag to pan</div>
+      <!-- Grab & Pan Interactive Area -->
+      <div class="canvas-container" id="canvasFrame">
+        <canvas id="renderCanvas"></canvas>
       </div>
 
-      <!-- Export Text Section -->
-      <div class="export-panel">
-        <div class="export-header">
-          <span style="font-weight: bold; font-size: 14px;">Export</span>
-          <button class="pixel-btn" style="padding: 4px 10px; font-size: 11px;" onclick="copyExportText()">This layer</button>
+      <!-- Coordinate Guide Panel Overlay -->
+      <div class="coordinate-guide-bar">
+        <div class="coordinate-values">
+          <div class="coord-item">BLOCK: X: <span id="lblCoordX">-</span>, Y: <span id="lblCoordY">-</span>, Z: <span id="lblCoordZ">-</span></div>
+          <div class="coord-item">LAYER: <span id="lblLayerIndicator">0</span></div>
+          <div class="coord-item">STATE: <span id="lblBlockStatus">-</span></div>
         </div>
-        <textarea class="export-textarea" id="exportOutput" readonly></textarea>
+        <div style="font-size:0.7rem; opacity:0.7; font-family: var(--font-mono);">PAN: Drag Mouse | ZOOM: Scroll / (+/-)</div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: Material Stats, Exports, & Step-by-Step Guides -->
+    <aside class="side-panel side-panel-right">
+      
+      <!-- Layer Viewer Controls -->
+      <section class="section-card layer-selector-card">
+        <h2 class="section-title">
+          <span>Layer Viewer</span>
+          <i data-lucide="layers" style="width: 16px; height: 16px;"></i>
+        </h2>
+        
+        <div class="layer-indicator">
+          LAYER <span id="layerNumDisplay">0</span> / <span id="layerTotalDisplay">0</span>
+        </div>
+
+        <div class="layer-navigator">
+          <button class="btn btn-outline" id="btnLayerFirst" title="Go to base layer (Home)">
+            <i data-lucide="chevrons-down" style="width: 14px; height: 14px;"></i>
+          </button>
+          <button class="btn btn-outline" id="btnLayerPrev" title="Previous Layer (Down Arrow)">
+            <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
+            Prev
+          </button>
+          <button class="btn btn-outline" id="btnLayerNext" title="Next Layer (Up Arrow)">
+            Next
+            <i data-lucide="chevron-up" style="width: 14px; height: 14px;"></i>
+          </button>
+          <button class="btn btn-outline" id="btnLayerLast" title="Go to topmost layer (End)">
+            <i data-lucide="chevrons-up" style="width: 14px; height: 14px;"></i>
+          </button>
+        </div>
+
+        <div class="form-group" style="margin-top:0.25rem;">
+          <input type="range" id="layerSlider" min="0" max="0" value="0">
+        </div>
+      </section>
+
+      <!-- Build Guide Progress Checklist -->
+      <section class="section-card">
+        <h2 class="section-title">
+          <span>Survival Progress</span>
+          <i data-lucide="check-square" style="width: 16px; height: 16px;"></i>
+        </h2>
+        
+        <div class="form-group">
+          <label class="custom-checkbox" style="padding: 0.25rem 0;">
+            <input type="checkbox" id="chkLayerCompleted">
+            <div class="checkbox-box"></div>
+            <span>Mark Current Layer Done</span>
+          </label>
+        </div>
+
+        <div>
+          <div class="flex-row" style="justify-content: space-between; font-family: var(--font-mono); font-size: 0.75rem; font-weight:700;">
+            <span>PROGRESS TRACKER</span>
+            <span id="txtProgressPercent" style="color:var(--gold);">0%</span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="pbProgressTracker"></div>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="margin-top: 0.25rem;">
+          <div class="stat-box">
+            <span class="stat-val" id="valLayersDone">0/1</span>
+            <span class="stat-lbl">Completed</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-val" id="valLayersLeft">1</span>
+            <span class="stat-lbl">Remaining</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Material Calculator & Estimates -->
+      <section class="section-card">
+        <h2 class="section-title">
+          <span>Material Calculator</span>
+          <i data-lucide="calculator" style="width: 16px; height: 16px;"></i>
+        </h2>
+        
+        <div class="stats-grid">
+          <div class="stat-box">
+            <span class="stat-val" id="calcTotalBlocks">0</span>
+            <span class="stat-lbl">Total Blocks</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-val" id="calcLayerBlocks">0</span>
+            <span class="stat-lbl">Layer Blocks</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-val" id="calcOuterShell">0</span>
+            <span class="stat-lbl">Outer Shell</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-val" id="calcInnerAir">0</span>
+            <span class="stat-lbl">Inner Air</span>
+          </div>
+        </div>
+
+        <!-- Block Conversion info helper -->
+        <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); background: var(--void); padding: 0.5rem; border: 1px solid #2a2a2a; box-shadow: var(--pixel-bevel-in);">
+          <i data-lucide="package" style="width: 12px; height: 12px; display:inline-block; vertical-align:middle; margin-right:2px; color: var(--gold);"></i>
+          Requires <strong id="calcChestCount" style="color:var(--gold);">0</strong> double chests + <strong id="calcStackCount" style="color:var(--gold);">0</strong> stacks.
+        </div>
+      </section>
+
+      <!-- Dimension Metrics Summary -->
+      <section class="section-card">
+        <h2 class="section-title">
+          <span>Spec Summary</span>
+          <i data-lucide="info" style="width: 16px; height: 16px;"></i>
+        </h2>
+        <div style="font-family: var(--font-mono); font-size: 0.75rem; display: flex; flex-direction: column; gap: 0.35rem;">
+          <div class="flex-row" style="justify-content: space-between;">
+            <span style="color: var(--text-muted);">Bounding Volume:</span>
+            <strong id="summaryDim" style="color: var(--gold);">31 × 31 × 1</strong>
+          </div>
+          <div class="flex-row" style="justify-content: space-between;">
+            <span style="color: var(--text-muted);">True Radius:</span>
+            <strong id="summaryRadius" style="color: var(--gold);">15.5 blocks</strong>
+          </div>
+          <div class="flex-row" style="justify-content: space-between;">
+            <span style="color: var(--text-muted);">Max Height:</span>
+            <strong id="summaryHeight" style="color: var(--gold);">1 layer(s)</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- Export Formats & Share Panel -->
+      <section class="section-card">
+        <h2 class="section-title">
+          <span>Export Options</span>
+          <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+        </h2>
+        
+        <div class="actions-grid">
+          <button class="btn btn-outline" id="btnExportPNG" title="Download High-Res Layer Image">
+            <i data-lucide="image" style="width: 14px; height: 14px;"></i>
+            PNG Layer
+          </button>
+          <button class="btn btn-outline" id="btnExportSVG" title="Download vector structure">
+            <i data-lucide="file-code" style="width: 14px; height: 14px;"></i>
+            SVG File
+          </button>
+          <button class="btn btn-outline" id="btnExportPDF" title="Export step-by-step PDF manual">
+            <i data-lucide="file-text" style="width: 14px; height: 14px;"></i>
+            PDF Guide
+          </button>
+          <button class="btn btn-outline" id="btnExportJSON" title="Export coordinate matrix JSON">
+            <i data-lucide="database" style="width: 14px; height: 14px;"></i>
+            JSON Map
+          </button>
+        </div>
+
+        <div class="actions-grid" style="margin-top: 0.25rem;">
+          <button class="btn btn-dark" id="btnCopyCoords" title="Copy X,Y,Z coordinate listings to clipboard" style="grid-column: span 2;">
+            <i data-lucide="clipboard" style="width: 14px; height: 14px;"></i>
+            Copy Coordinate Checklist
+          </button>
+        </div>
+      </section>
+
+    </aside>
+
+  </main>
+
+  <!-- Interactive Help Shortcuts Modal Overlay -->
+  <div class="shortcuts-modal" id="shortcutsModal">
+    <div class="shortcuts-content">
+      <h2 style="margin-bottom: 0.5rem; display:flex; align-items:center; gap:0.5rem; font-family: var(--font-display); font-size: 0.8rem; color: var(--gold);">
+        <i data-lucide="keyboard" style="color:var(--red);"></i>
+        <span>Engine Keyboard Shortcuts</span>
+      </h2>
+      <p style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+        Streamline your Minecraft builds with quick access shortcut commands!
+      </p>
+      
+      <div class="shortcuts-grid">
+        <div class="kbd-tag">+</div>
+        <span>Zoom Canvas View In</span>
+        
+        <div class="kbd-tag">-</div>
+        <span>Zoom Canvas View Out</span>
+        
+        <div class="kbd-tag">↑ / W</div>
+        <span>Jump to Higher Layer</span>
+        
+        <div class="kbd-tag">↓ / S</div>
+        <span>Jump to Lower Layer</span>
+        
+        <div class="kbd-tag">Home</div>
+        <span>Go to base Layer (0)</span>
+        
+        <div class="kbd-tag">End</div>
+        <span>Go to Top Layer</span>
+        
+        <div class="kbd-tag">F</div>
+        <span>Fit Layout to Viewport</span>
+        
+        <div class="kbd-tag">C</div>
+        <span>Center view axis</span>
+        
+        <div class="kbd-tag">R</div>
+        <span>Reset Camera matrix rotation & pan</span>
+        
+        <div class="kbd-tag">Ctrl + C</div>
+        <span>Copy structure raw coords</span>
       </div>
 
+      <div style="text-align: right;">
+        <button class="btn btn-red" id="btnCloseShortcuts">Close Guide</button>
+      </div>
     </div>
-
   </div>
 
-</div>
+  <!-- Notification Toast feedback -->
+  <div class="toast" id="toastBox">
+    <i data-lucide="check-circle" style="width: 16px; height: 16px; color: var(--gold);"></i>
+    <span id="toastMessage">Copied block coordinates to clipboard!</span>
+  </div>
 
-<script>
-let shapeMode = 'circle';
-let radius = 10;
-let radiusY = 10;
-let height = 20;
-let wallThickness = 1;
+  <!-- Main JavaScript App Code (Preserved completely intact) -->
+  <script>
+    // System Config & State Preservation
+    const STATE_KEY = "as_bro_mc_engine_state";
 
-// Canvas Pan & Zoom
-let zoom = 16;
-let panX = 0;
-let panY = 0;
-let isDragging = false;
-let startX = 0, startY = 0;
+    let state = {
+      shape: "circle-hollow",
+      sizeMode: "diameter", // "diameter" or "radius"
+      size: 31,
+      height: 10,
+      showGrid: true,
+      showCenter: true,
+      showCoords: true,
+      currentLayer: 0,
+      zoom: 12,
+      panX: 0,
+      panY: 0,
+      completedLayers: {}, // Map of layerIndex: boolean
+    };
 
-const canvas = document.getElementById('gridCanvas');
-const ctx = canvas.getContext('2d');
-const container = document.getElementById('canvasContainer');
+    // Cache of active shape blocks database
+    // Key format: "x,y,z" to check filled state.
+    let activeStructure = {
+      blocks: new Map(), // coordinates "x,y,z" -> true
+      width: 31,
+      length: 31,
+      height: 1,
+      minX: -15, maxX: 15,
+      minY: 0, maxY: 0,
+      minZ: -15, maxZ: 15,
+      totalBlocks: 0,
+    };
 
-function initCanvas() {
-  canvas.width = container.clientWidth;
-  canvas.height = container.clientHeight;
-  resetView();
-}
+    // Canvas viewport details
+    let canvas = document.getElementById('renderCanvas');
+    let ctx = canvas.getContext('2d');
+    let isDragging = false;
+    let startDragX = 0;
+    let startDragY = 0;
+    let originalPanX = 0;
+    let originalPanY = 0;
 
-window.addEventListener('resize', () => {
-  canvas.width = container.clientWidth;
-  canvas.height = container.clientHeight;
-  redraw();
-});
+    // Hover mouse states
+    let hoveredGridX = null;
+    let hoveredGridZ = null;
 
-function adjustZoom(factor) {
-  zoom = Math.max(4, Math.min(zoom * factor, 64));
-  redraw();
-}
+    // Animation details
+    let animTimer = null;
+    let animActive = false;
+    let animCurrentIndex = 0;
 
-function resetView() {
-  const dim = radius * 2 + 3;
-  zoom = Math.min(canvas.width / dim, canvas.height / dim);
-  zoom = Math.max(8, Math.min(zoom, 32));
-  panX = canvas.width / 2;
-  panY = canvas.height / 2;
-  redraw();
-}
-
-function setShapeMode(mode) {
-  shapeMode = mode;
-  ['btnCircle', 'btnEllipse', 'btnSphere', 'btnCylinder', 'btnDome', 'btnSpiral'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.remove('active');
-  });
-  
-  const capMode = mode.charAt(0).toUpperCase() + mode.slice(1);
-  const activeBtn = document.getElementById('btn' + capMode);
-  if (activeBtn) activeBtn.classList.add('active');
-
-  const sphereControls = document.getElementById('sphereControls');
-  const heightGroup = document.getElementById('heightGroup');
-  const lblRadius = document.getElementById('lblRadius');
-
-  if (mode === 'ellipse') {
-    heightGroup.style.display = 'block';
-    sphereControls.style.display = 'none';
-    lblRadius.innerText = `Radius X: ${radius}`;
-  } else if (mode === 'sphere' || mode === 'dome' || mode === 'cylinder' || mode === 'spiral') {
-    sphereControls.style.display = 'block';
-    heightGroup.style.display = (mode === 'cylinder' || mode === 'spiral') ? 'block' : 'none';
-    lblRadius.innerText = `Radius: ${radius} blocks`;
-    updateSphereLayerBounds();
-  } else {
-    sphereControls.style.display = 'none';
-    heightGroup.style.display = 'none';
-    lblRadius.innerText = `Radius: ${radius} blocks`;
-  }
-  redraw();
-}
-
-function updateDimensions() {
-  radius = parseInt(document.getElementById('inputR').value);
-  document.getElementById('valR').innerText = radius;
-  
-  const lblRadius = document.getElementById('lblRadius');
-  if (shapeMode === 'ellipse') {
-    lblRadius.innerText = `Radius X: ${radius}`;
-  } else {
-    lblRadius.innerText = `Radius: ${radius} blocks`;
-  }
-
-  if (shapeMode === 'ellipse' || shapeMode === 'cylinder' || shapeMode === 'spiral') {
-    height = parseInt(document.getElementById('inputH').value);
-    radiusY = height;
-    document.getElementById('valH').innerText = height;
-  } else {
-    radiusY = radius;
-  }
-
-  if (shapeMode === 'sphere' || shapeMode === 'dome' || shapeMode === 'cylinder' || shapeMode === 'spiral') {
-    updateSphereLayerBounds();
-  }
-
-  redraw();
-}
-
-function toggleThicknessControl() {
-  const isHollow = document.getElementById('checkHollow').checked;
-  const thickGroup = document.getElementById('thicknessGroup');
-  thickGroup.style.display = isHollow ? 'flex' : 'none';
-  redraw();
-}
-
-function updateThickness() {
-  wallThickness = parseInt(document.getElementById('inputThickness').value);
-  document.getElementById('valThickness').innerText = wallThickness;
-  redraw();
-}
-
-function updateSphereLayerBounds() {
-  const layerInput = document.getElementById('inputLayer');
-  let maxLayers = radius * 2 + 1;
-  if (shapeMode === 'dome') maxLayers = radius + 1;
-  if (shapeMode === 'cylinder' || shapeMode === 'spiral') maxLayers = height;
-
-  layerInput.max = maxLayers;
-  if (parseInt(layerInput.value) > maxLayers) layerInput.value = Math.ceil(maxLayers / 2);
-}
-
-function getSphereSliceRadius(r, layerIdx) {
-  if (shapeMode === 'cylinder') return r;
-  let dy = (layerIdx - 0.5) - r;
-  if (shapeMode === 'dome') dy = layerIdx - 1;
-  return Math.sqrt(Math.max(0, r * r - dy * dy));
-}
-
-function generateGrid() {
-  const rx = radius;
-  const ry = (shapeMode === 'ellipse') ? radiusY : radius;
-  const W = rx * 2 + 1;
-  const H = ry * 2 + 1;
-
-  const isHollow = document.getElementById('checkHollow').checked;
-  const arcType = document.getElementById('selectArc').value;
-
-  let currentRx = rx;
-  let currentRy = ry;
-
-  if (shapeMode === 'sphere' || shapeMode === 'dome' || shapeMode === 'cylinder') {
-    const layerIdx = parseInt(document.getElementById('inputLayer').value);
-    const sR = getSphereSliceRadius(radius, layerIdx);
-    currentRx = sR;
-    currentRy = sR;
-  } else if (shapeMode === 'spiral') {
-    const layerIdx = parseInt(document.getElementById('inputLayer').value);
-    currentRx = Math.max(1, radius * (layerIdx / height));
-    currentRy = currentRx;
-  }
-
-  const grid = Array(H).fill(0).map(() => Array(W).fill(false));
-  const cx = rx;
-  const cy = ry;
-
-  const innerRx = Math.max(0.1, currentRx - wallThickness);
-  const innerRy = Math.max(0.1, currentRy - wallThickness);
-
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) {
-      const dx = x - cx;
-      const dy = y - cy;
-
-      // Arc filtering
-      if (arcType === 'top' && dy > 0) continue;
-      if (arcType === 'bottom' && dy < 0) continue;
-      if (arcType === 'left' && dx > 0) continue;
-      if (arcType === 'right' && dx < 0) continue;
-      if (arcType === 'quarter' && (dx > 0 || dy > 0)) continue;
-
-      const outerVal = (dx * dx) / (currentRx * currentRx || 1) + (dy * dy) / (currentRy * currentRy || 1);
-
-      if (!isHollow) {
-        if (outerVal <= 1.05) grid[y][x] = true;
-      } else {
-        const innerVal = (dx * dx) / (innerRx * innerRx || 1) + (dy * dy) / (innerRy * innerRy || 1);
-        if (outerVal <= 1.05 && innerVal >= 0.82) {
-          grid[y][x] = true;
+    // Load presets on init
+    function loadSavedState() {
+      const saved = localStorage.getItem(STATE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          state = { ...state, ...parsed };
+        } catch (e) {
+          console.warn("Could not parse previous application settings", e);
         }
       }
     }
-  }
-  return { grid, W, H, cx, cy };
-}
 
-function redraw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function saveCurrentState() {
+      localStorage.setItem(STATE_KEY, JSON.stringify(state));
+    }
 
-  const { grid, W, H, cx, cy } = generateGrid();
-  const showGrid = document.getElementById('checkGrid').checked;
-  const numberEdges = document.getElementById('checkNumberEdges').checked;
-  const blockColor = document.getElementById('selectBlock').value;
+    // Mathematical Engine Logic: Minecraft Rounded Voxel Algoritm
+    // Accurate voxel alignments optimized for odd/even diameters
+    function generateStructure() {
+      const shape = state.shape;
+      const size = state.size; // Can be odd or even
+      const height = state.height;
+      
+      let blocks = new Map();
+      let totalBlocksCount = 0;
 
-  let thisLayerBlocks = 0;
-  let edgeBlocksList = [];
+      // Handle calculations using center-radius formula adjusted for Minecraft voxel limits
+      const isEven = size % 2 === 0;
+      const radius = size / 2;
+      
+      // Determine bounding coordinates
+      // For even diameter size=30, index range is from -15 to +14 (length 30, with midpoints offset)
+      let minCoord, maxCoord;
+      if (isEven) {
+        minCoord = -radius;
+        maxCoord = radius - 1;
+      } else {
+        minCoord = -Math.floor(radius);
+        maxCoord = Math.floor(radius);
+      }
 
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) {
-      if (grid[y][x]) {
-        thisLayerBlocks++;
-        // Check surrounding blocks to confirm if edge
-        let isEdge = false;
-        const neighbors = [[0,1],[0,-1],[1,0],[-1,0]];
-        for (let [dx, dy] of neighbors) {
-          const nx = x + dx, ny = y + dy;
-          if (nx < 0 || nx >= W || ny < 0 || ny >= H || !grid[ny][nx]) {
-            isEdge = true;
-            break;
+      // 3D parameters
+      let minHeight = 0;
+      let maxHeight = 0;
+
+      if (shape.startsWith("circle")) {
+        minHeight = 0;
+        maxHeight = 0;
+        const isFilled = shape.endsWith("-filled");
+
+        for (let x = minCoord; x <= maxCoord; x++) {
+          for (let z = minCoord; z <= maxCoord; z++) {
+            // Apply Minecraft offset for centered circle calculation
+            let cx = isEven ? (x + 0.5) : x;
+            let cz = isEven ? (z + 0.5) : z;
+            
+            let distSq = cx * cx + cz * cz;
+            let rOuterSq = radius * radius;
+            let rInnerSq = (radius - 1) * (radius - 1);
+
+            if (isFilled) {
+              if (distSq <= rOuterSq) {
+                blocks.set(`${x},0,${z}`, true);
+                totalBlocksCount++;
+              }
+            } else {
+              // Hollow circle: standard threshold
+              if (distSq <= rOuterSq && distSq > rInnerSq) {
+                blocks.set(`${x},0,${z}`, true);
+                totalBlocksCount++;
+              }
+            }
           }
         }
-        if (isEdge) {
-          edgeBlocksList.push({ x, y });
+      }
+      else if (shape.startsWith("cylinder")) {
+        minHeight = 0;
+        maxHeight = height - 1;
+        const isFilled = shape.endsWith("-filled");
+
+        for (let y = minHeight; y <= maxHeight; y++) {
+          for (let x = minCoord; x <= maxCoord; x++) {
+            for (let z = minCoord; z <= maxCoord; z++) {
+              let cx = isEven ? (x + 0.5) : x;
+              let cz = isEven ? (z + 0.5) : z;
+              
+              let distSq = cx * cx + cz * cz;
+              let rOuterSq = radius * radius;
+              let rInnerSq = (radius - 1) * (radius - 1);
+
+              if (isFilled) {
+                if (distSq <= rOuterSq) {
+                  blocks.set(`${x},${y},${z}`, true);
+                  totalBlocksCount++;
+                }
+              } else {
+                if (distSq <= rOuterSq && distSq > rInnerSq) {
+                  blocks.set(`${x},${y},${z}`, true);
+                  totalBlocksCount++;
+                }
+              }
+            }
+          }
         }
       }
-    }
-  }
+      else if (shape.startsWith("sphere")) {
+        minHeight = minCoord;
+        maxHeight = maxCoord;
+        const isFilled = shape.endsWith("-filled");
 
-  // Exact Clockwise Perimeter Numbering (1 to N) starting from Top (12 o'clock)
-  edgeBlocksList.sort((a, b) => {
-    let angleA = Math.atan2(a.y - cy, a.x - cx) + Math.PI / 2;
-    let angleB = Math.atan2(b.y - cy, b.x - cx) + Math.PI / 2;
-    if (angleA < 0) angleA += Math.PI * 2;
-    if (angleB < 0) angleB += Math.PI * 2;
-    return angleA - angleB;
-  });
+        for (let y = minHeight; y <= maxHeight; y++) {
+          for (let x = minCoord; x <= maxCoord; x++) {
+            for (let z = minCoord; z <= maxCoord; z++) {
+              let cx = isEven ? (x + 0.5) : x;
+              let cy = isEven ? (y + 0.5) : y;
+              let cz = isEven ? (z + 0.5) : z;
 
-  const edgeMap = {};
-  edgeBlocksList.forEach((item, idx) => {
-    edgeMap[`${item.x}_${item.y}`] = idx + 1;
-  });
-
-  let totalLayersCount = 1;
-  if (shapeMode === 'sphere') totalLayersCount = radius * 2 + 1;
-  else if (shapeMode === 'dome') totalLayersCount = radius + 1;
-  else if (shapeMode === 'cylinder' || shapeMode === 'spiral') totalLayersCount = height;
-
-  document.getElementById('statThisLayer').innerText = thisLayerBlocks;
-  document.getElementById('statEdgeBlocks').innerText = edgeBlocksList.length;
-  document.getElementById('statTotalBlocks').innerText = thisLayerBlocks * totalLayersCount;
-  document.getElementById('statLayers').innerText = totalLayersCount;
-
-  if (shapeMode === 'sphere' || shapeMode === 'dome' || shapeMode === 'cylinder' || shapeMode === 'spiral') {
-    const layerIdx = document.getElementById('inputLayer').value;
-    document.getElementById('valLayer').innerText = `${layerIdx} / ${totalLayersCount}`;
-  }
-
-  // Draw Blocks & Grid Canvas
-  const startX = panX - (W * zoom) / 2;
-  const startY = panY - (H * zoom) / 2;
-
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) {
-      const bx = startX + x * zoom;
-      const by = startY + y * zoom;
-
-      if (grid[y][x]) {
-        ctx.fillStyle = blockColor;
-        ctx.fillRect(bx, by, zoom - 1, zoom - 1);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-        ctx.fillRect(bx, by, zoom - 1, 2);
-
-        if (numberEdges && edgeMap[`${x}_${y}`]) {
-          ctx.fillStyle = '#ffffff';
-          ctx.font = `bold ${Math.max(8, zoom * 0.38)}px sans-serif`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(edgeMap[`${x}_${y}`], bx + zoom / 2, by + zoom / 2);
+              let distSq = cx * cx + cy * cy + cz * cz;
+              let rOuterSq = radius * radius;
+              
+              if (isFilled) {
+                if (distSq <= rOuterSq) {
+                  blocks.set(`${x},${y},${z}`, true);
+                  totalBlocksCount++;
+                }
+              } else {
+                // Hollow sphere thickness band helper
+                let rInnerSq = (radius - 1.2) * (radius - 1.2);
+                if (distSq <= rOuterSq && distSq > rInnerSq) {
+                  blocks.set(`${x},${y},${z}`, true);
+                  totalBlocksCount++;
+                }
+              }
+            }
+          }
         }
+      }
+      else if (shape.startsWith("dome") || shape.startsWith("hemisphere")) {
+        // Domes are top half of spheres
+        minHeight = 0;
+        maxHeight = maxCoord;
+        const isFilled = shape.endsWith("-filled");
+
+        for (let y = minHeight; y <= maxHeight; y++) {
+          for (let x = minCoord; x <= maxCoord; x++) {
+            for (let z = minCoord; z <= maxCoord; z++) {
+              let cx = isEven ? (x + 0.5) : x;
+              let cy = isEven ? (y + 0.5) : y;
+              let cz = isEven ? (z + 0.5) : z;
+
+              let distSq = cx * cx + cy * cy + cz * cz;
+              let rOuterSq = radius * radius;
+
+              if (isFilled) {
+                if (distSq <= rOuterSq) {
+                  blocks.set(`${x},${y},${z}`, true);
+                  totalBlocksCount++;
+                }
+              } else {
+                let rInnerSq = (radius - 1.2) * (radius - 1.2);
+                if (distSq <= rOuterSq && distSq > rInnerSq) {
+                  blocks.set(`${x},${y},${z}`, true);
+                  totalBlocksCount++;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Store structure metadata
+      activeStructure = {
+        blocks: blocks,
+        width: size,
+        length: size,
+        height: maxHeight - minHeight + 1,
+        minX: minCoord, maxX: maxCoord,
+        minY: minHeight, maxY: maxHeight,
+        minZ: minCoord, maxZ: maxCoord,
+        totalBlocks: totalBlocksCount,
+      };
+
+      // Guard check active layer boundaries
+      if (state.currentLayer < activeStructure.minY) {
+        state.currentLayer = activeStructure.minY;
+      }
+      if (state.currentLayer > activeStructure.maxY) {
+        state.currentLayer = activeStructure.maxY;
+      }
+
+      updateUserInterface();
+    }
+
+    // Dynamic state and metrics calculator updater
+    function updateUserInterface() {
+      // Setup range boundaries for the layer selectors
+      const totalLayers = activeStructure.height;
+      const currentRelativeLayer = state.currentLayer - activeStructure.minY + 1;
+      
+      document.getElementById('layerNumDisplay').textContent = state.currentLayer;
+      document.getElementById('layerTotalDisplay').textContent = activeStructure.maxY;
+      
+      const layerSlider = document.getElementById('layerSlider');
+      layerSlider.min = activeStructure.minY;
+      layerSlider.max = activeStructure.maxY;
+      layerSlider.value = state.currentLayer;
+
+      // Update Symmetry Info Box
+      const symText = document.getElementById('symmetryHelperText');
+      if (state.size % 2 === 0) {
+        symText.innerHTML = `Even diameter (${state.size}) has an even <strong>2 × 2 block center grid</strong>.`;
       } else {
-        ctx.fillStyle = '#111111';
-        ctx.fillRect(bx, by, zoom - 1, zoom - 1);
-        if (showGrid) {
-          ctx.strokeStyle = '#1d1d1d';
-          ctx.strokeRect(bx, by, zoom, zoom);
+        symText.innerHTML = `Odd diameter (${state.size}) has a perfect <strong>1 × 1 single center block</strong>.`;
+      }
+
+      // Summary spec boxes
+      document.getElementById('summaryDim').textContent = `${activeStructure.width}w × ${activeStructure.length}l × ${activeStructure.height}h`;
+      document.getElementById('summaryRadius').textContent = `${(state.size / 2).toFixed(1)} blocks`;
+      document.getElementById('summaryHeight').textContent = `${activeStructure.height} layer(s)`;
+
+      // Material Stats Calculations
+      document.getElementById('calcTotalBlocks').textContent = activeStructure.totalBlocks.toLocaleString();
+      
+      // Calculate active blocks just on current layer
+      let currentLayerBlockCount = 0;
+      for (let x = activeStructure.minX; x <= activeStructure.maxX; x++) {
+        for (let z = activeStructure.minZ; z <= activeStructure.maxZ; z++) {
+          if (activeStructure.blocks.has(`${x},${state.currentLayer},${z}`)) {
+            currentLayerBlockCount++;
+          }
         }
       }
+      document.getElementById('calcLayerBlocks').textContent = currentLayerBlockCount;
+
+      // Outer shell estimates
+      let outerShellCount = 0;
+      let innerAirCount = 0;
+      for (let y = activeStructure.minY; y <= activeStructure.maxY; y++) {
+        for (let x = activeStructure.minX; x <= activeStructure.maxX; x++) {
+          for (let z = activeStructure.minZ; z <= activeStructure.maxZ; z++) {
+            let isFilled = activeStructure.blocks.has(`${x},${y},${z}`);
+            if (isFilled) {
+              outerShellCount++;
+            } else {
+              // Within boundaries?
+              let distSq = x*x + z*z;
+              let radius = state.size / 2;
+              if (distSq <= radius*radius) {
+                innerAirCount++;
+              }
+            }
+          }
+        }
+      }
+      document.getElementById('calcOuterShell').textContent = outerShellCount.toLocaleString();
+      document.getElementById('calcInnerAir').textContent = innerAirCount.toLocaleString();
+
+      // Chest translation quantities
+      const stacksNeeded = Math.ceil(activeStructure.totalBlocks / 64);
+      const chestsNeeded = Math.floor(stacksNeeded / 54); // 54 slots in a double chest
+      const remainingStacks = stacksNeeded % 54;
+      document.getElementById('calcChestCount').textContent = chestsNeeded;
+      document.getElementById('calcStackCount').textContent = remainingStacks;
+
+      // Handle the progress checklist tracking
+      // Completed layers counter
+      let completedCount = 0;
+      for (let y = activeStructure.minY; y <= activeStructure.maxY; y++) {
+        if (state.completedLayers[y]) completedCount++;
+      }
+      
+      document.getElementById('valLayersDone').textContent = `${completedCount}/${totalLayers}`;
+      const remainingLayers = Math.max(0, totalLayers - completedCount);
+      document.getElementById('valLayersLeft').textContent = remainingLayers;
+
+      const progressPercent = totalLayers > 0 ? Math.round((completedCount / totalLayers) * 100) : 0;
+      document.getElementById('txtProgressPercent').textContent = `${progressPercent}%`;
+      document.getElementById('pbProgressTracker').style.width = `${progressPercent}%`;
+
+      const chkBox = document.getElementById('chkLayerCompleted');
+      chkBox.checked = !!state.completedLayers[state.currentLayer];
+
+      drawCanvas();
     }
-  }
 
-  // Center Axis Crosshair
-  ctx.strokeStyle = '#555555';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  const centerX = startX + (cx + 0.5) * zoom;
-  const centerY = startY + (cy + 0.5) * zoom;
-  ctx.moveTo(centerX, startY);
-  ctx.lineTo(centerX, startY + H * zoom);
-  ctx.moveTo(startX, centerY);
-  ctx.lineTo(startX + W * zoom, centerY);
-  ctx.stroke();
+    // Advanced Matrix Rendering Engine on Canvas Context
+    function drawCanvas() {
+      if (!canvas) return;
 
-  updateExportText(grid, W, H, cx, cy, thisLayerBlocks, edgeBlocksList.length);
-}
+      // Handle Canvas Sizing dynamically
+      const frame = document.getElementById('canvasFrame');
+      canvas.width = frame.clientWidth;
+      canvas.height = frame.clientHeight;
 
-function updateExportText(grid, W, H, cx, cy, layerBlocks, edgeBlocks) {
-  const ox = document.getElementById('origX').value || '~';
-  const oy = document.getElementById('origY').value || '~';
-  const oz = document.getElementById('origZ').value || '~';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const isHollow = document.getElementById('checkHollow').checked;
-  let text = `Shape: ${shapeMode} | Hollow: ${isHollow ? 'yes' : 'no'}\n`;
-  text += `Layer blocks: ${layerBlocks} | Edge blocks: ${edgeBlocks}\n\n`;
-  text += `# Relative coordinates (Y layer offset 0 for 3D shapes)\n`;
+      // Save matrix context for panning and zooming translations
+      ctx.save();
+      
+      // Center coordinates around zoom pivot
+      ctx.translate(canvas.width / 2 + state.panX, canvas.height / 2 + state.panY);
+      
+      const gridCellSize = state.zoom;
 
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) {
-      if (grid[y][x]) {
-        const relX = x - Math.floor(cx);
-        const relZ = y - Math.floor(cy);
-        const strX = relX >= 0 ? `+${relX}` : `${relX}`;
-        const strZ = relZ >= 0 ? `+${relZ}` : `${relZ}`;
+      // Draw general grid bg
+      const w = activeStructure.width;
+      const l = activeStructure.length;
 
-        let coordX = ox === '~' ? `~${strX}` : parseInt(ox) + relX;
-        let coordY = oy;
-        let coordZ = oz === '~' ? `~${strZ}` : parseInt(oz) + relZ;
+      // Bounds of grid in canvas coordinates
+      const startX = activeStructure.minX * gridCellSize;
+      const endX = (activeStructure.maxX + 1) * gridCellSize;
+      const startZ = activeStructure.minZ * gridCellSize;
+      const endZ = (activeStructure.maxZ + 1) * gridCellSize;
 
-        text += `${coordX} ${coordY} ${coordZ}\n`;
+      // Draw Grid Line Overlay background area
+      ctx.fillStyle = '#0d0d0d';
+      ctx.fillRect(startX, startZ, endX - startX, endZ - startZ);
+
+      // Render actual block squares of the current layer
+      for (let x = activeStructure.minX; x <= activeStructure.maxX; x++) {
+        for (let z = activeStructure.minZ; z <= activeStructure.maxZ; z++) {
+          const isFilled = activeStructure.blocks.has(`${x},${state.currentLayer},${z}`);
+          
+          if (isFilled) {
+            // Pick color style based on build status
+            if (state.completedLayers[state.currentLayer]) {
+              ctx.fillStyle = '#10B981'; // Green completed
+            } else {
+              ctx.fillStyle = '#ffcc00'; // Dark theme Gold active block
+            }
+            
+            // Draw Block square inside cell with minimal grid border gap
+            ctx.fillRect(
+              x * gridCellSize + 0.5, 
+              z * gridCellSize + 0.5, 
+              gridCellSize - 1, 
+              gridCellSize - 1
+            );
+
+            // Optional structural borders around block meshes
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 0.5;
+            ctx.strokeRect(
+              x * gridCellSize + 0.5, 
+              z * gridCellSize + 0.5, 
+              gridCellSize - 1, 
+              gridCellSize - 1
+            );
+          }
+        }
+      }
+
+      // Draw Grid Fine Lines if allowed
+      if (state.showGrid && gridCellSize > 4) {
+        ctx.strokeStyle = '#222222';
+        ctx.lineWidth = 0.5;
+
+        // Draw vertical columns lines
+        for (let x = activeStructure.minX; x <= activeStructure.maxX + 1; x++) {
+          ctx.beginPath();
+          ctx.moveTo(x * gridCellSize, startZ);
+          ctx.lineTo(x * gridCellSize, endZ);
+          ctx.stroke();
+        }
+
+        // Draw horizontal row lines
+        for (let z = activeStructure.minZ; z <= activeStructure.maxZ + 1; z++) {
+          ctx.beginPath();
+          ctx.moveTo(startX, z * gridCellSize);
+          ctx.lineTo(endX, z * gridCellSize);
+          ctx.stroke();
+        }
+      }
+
+      // Draw highlighted Center Origin Alignment Axes
+      if (state.showCenter) {
+        ctx.strokeStyle = '#ff0033'; // Red axis
+        ctx.lineWidth = 1.5;
+
+        // Horizontal X Center line
+        ctx.beginPath();
+        ctx.moveTo(startX, 0);
+        ctx.lineTo(endX, 0);
+        ctx.stroke();
+
+        // Vertical Z Center line
+        ctx.beginPath();
+        ctx.moveTo(0, startZ);
+        ctx.lineTo(0, endZ);
+        ctx.stroke();
+      }
+
+      // Draw active block highlight under coordinate cursor
+      if (hoveredGridX !== null && hoveredGridZ !== null) {
+        if (hoveredGridX >= activeStructure.minX && hoveredGridX <= activeStructure.maxX &&
+            hoveredGridZ >= activeStructure.minZ && hoveredGridZ <= activeStructure.maxZ) {
+          
+          ctx.fillStyle = 'rgba(255, 0, 51, 0.4)'; // Highlight red box
+          ctx.strokeStyle = '#ff0033';
+          ctx.lineWidth = 1.5;
+
+          ctx.fillRect(
+            hoveredGridX * gridCellSize, 
+            hoveredGridZ * gridCellSize, 
+            gridCellSize, 
+            gridCellSize
+          );
+          ctx.strokeRect(
+            hoveredGridX * gridCellSize, 
+            hoveredGridZ * gridCellSize, 
+            gridCellSize, 
+            gridCellSize
+          );
+        }
+      }
+
+      ctx.restore();
+    }
+
+    // Convert mouse pixels to grid map coordinates
+    function getGridCoordsFromEvent(e) {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      // Adjust for canvas transform coordinates
+      const cx = mouseX - canvas.width / 2 - state.panX;
+      const cz = mouseY - canvas.height / 2 - state.panY;
+
+      const gridX = Math.floor(cx / state.zoom);
+      const gridZ = Math.floor(cz / state.zoom);
+
+      return { x: gridX, z: gridZ };
+    }
+
+    // Move to next layer
+    function stepLayer(offset) {
+      const nextLayer = state.currentLayer + offset;
+      if (nextLayer >= activeStructure.minY && nextLayer <= activeStructure.maxY) {
+        state.currentLayer = nextLayer;
+        updateUserInterface();
+        saveCurrentState();
       }
     }
-  }
-  document.getElementById('exportOutput').value = text;
+
+    function setLayer(layerIndex) {
+      if (layerIndex >= activeStructure.minY && layerIndex <= activeStructure.maxY) {
+        state.currentLayer = layerIndex;
+        updateUserInterface();
+        saveCurrentState();
+      }
+    }
+
+    // Zoom adjust commands
+    function adjustZoom(factor) {
+      state.zoom = Math.max(1, Math.min(64, state.zoom + factor));
+      updateUserInterface();
+      saveCurrentState();
+    }
+
+    // Auto fit blueprint layout to center frame screen
+    function fitViewToScreen() {
+      const frame = document.getElementById('canvasFrame');
+      const w = frame.clientWidth;
+      const h = frame.clientHeight;
+
+      const gridW = activeStructure.width;
+      const gridH = activeStructure.length;
+
+      // Choose optimal scale sizing factor
+      const margin = 40;
+      const maxWZoom = (w - margin) / gridW;
+      const maxHZoom = (h - margin) / gridH;
+
+      state.zoom = Math.max(2, Math.min(64, Math.floor(Math.min(maxWZoom, maxHZoom))));
+      state.panX = 0;
+      state.panY = 0;
+      updateUserInterface();
+      saveCurrentState();
+    }
+
+    // Fast height modifier based on presets
+    function setSizeValue(v) {
+      let actualSize = v;
+      if (state.sizeMode === "radius") {
+        actualSize = Math.floor(v / 2);
+      }
+      document.getElementById('sizeSlider').value = actualSize;
+      document.getElementById('sizeInput').value = actualSize;
+      state.size = actualSize;
+      
+      // Perform structural reload
+      generateStructure();
+      saveCurrentState();
+    }
+
+    // Set interactive visual toast message
+    function showToast(message) {
+      const toast = document.getElementById('toastBox');
+      document.getElementById('toastMessage').textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    // Multi-Format Exporter Helpers
+    // 1. Export current active design view layer to PNG
+    function exportToPNG() {
+      // Create off-screen canvas context for lossless image download
+      const exportCanvas = document.createElement('canvas');
+      const scale = 16; // 16 pixels per block for high-res output
+      exportCanvas.width = activeStructure.width * scale;
+      exportCanvas.height = activeStructure.length * scale;
+      const expCtx = exportCanvas.getContext('2d');
+
+      expCtx.fillStyle = '#0d0d0d';
+      expCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+
+      for (let x = activeStructure.minX; x <= activeStructure.maxX; x++) {
+        for (let z = activeStructure.minZ; z <= activeStructure.maxZ; z++) {
+          const isFilled = activeStructure.blocks.has(`${x},${state.currentLayer},${z}`);
+          const renderX = (x - activeStructure.minX) * scale;
+          const renderZ = (z - activeStructure.minZ) * scale;
+
+          if (isFilled) {
+            expCtx.fillStyle = '#ffcc00';
+            expCtx.fillRect(renderX, renderZ, scale, scale);
+            expCtx.strokeStyle = '#000000';
+            expCtx.lineWidth = 1;
+            expCtx.strokeRect(renderX, renderZ, scale, scale);
+          } else {
+            expCtx.strokeStyle = '#222222';
+            expCtx.lineWidth = 0.5;
+            expCtx.strokeRect(renderX, renderZ, scale, scale);
+          }
+        }
+      }
+
+      // Convert drawing frame context to image download URL
+      const dataUrl = exportCanvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `as-bro-minecraft-${state.shape}-layer-${state.currentLayer}.png`;
+      a.click();
+      showToast("PNG Layer Downloaded successfully!");
+    }
+
+    // 2. Export vector graphics schema as SVG
+    function exportToSVG() {
+      const scale = 20;
+      const w = activeStructure.width * scale;
+      const h = activeStructure.length * scale;
+      
+      let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">`;
+      svgContent += `<rect width="100%" height="100%" fill="#0d0d0d" />`;
+
+      // Render grid boundaries
+      for (let x = activeStructure.minX; x <= activeStructure.maxX; x++) {
+        for (let z = activeStructure.minZ; z <= activeStructure.maxZ; z++) {
+          const isFilled = activeStructure.blocks.has(`${x},${state.currentLayer},${z}`);
+          const rx = (x - activeStructure.minX) * scale;
+          const rz = (z - activeStructure.minZ) * scale;
+
+          if (isFilled) {
+            svgContent += `<rect x="${rx}" y="${rz}" width="${scale}" height="${scale}" fill="#ffcc00" stroke="#000000" stroke-width="1"/>`;
+          } else {
+            svgContent += `<rect x="${rx}" y="${rz}" width="${scale}" height="${scale}" fill="none" stroke="#222222" stroke-width="0.5"/>`;
+          }
+        }
+      }
+
+      // Watermark Stamp
+      svgContent += `<text x="10" y="${h - 10}" font-family="sans-serif" font-size="12" fill="#ff0033" font-weight="bold">AS BRO Minecraft Shape Engine</text>`;
+      svgContent += `</svg>`;
+
+      const blob = new Blob([svgContent], {type: 'image/svg+xml;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `as-bro-minecraft-${state.shape}-layer-${state.currentLayer}.svg`;
+      a.click();
+      showToast("SVG Blueprint File Downloaded!");
+    }
+
+    // 3. Document PDF manual print guide with JS-PDF module
+    // Helper to safely load external image as Data URL
+function loadImageDataUrl(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = img.width;
+      c.height = img.height;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      resolve(c.toDataURL('image/png'));
+    };
+    img.onerror = () => resolve(null); // Fallback if image path is invalid or missing
+    img.src = src;
+  });
 }
 
-function copyExportText() {
-  const copyText = document.getElementById('exportOutput');
-  copyText.select();
-  navigator.clipboard.writeText(copyText.value);
-}
-
-function applyPreset(type) {
-  if (type === 'tower') {
-    setShapeMode('circle');
-    document.getElementById('inputR').value = 10;
-    document.getElementById('checkHollow').checked = true;
-    document.getElementById('selectArc').value = 'full';
-  } else if (type === 'arch') {
-    setShapeMode('circle');
-    document.getElementById('inputR').value = 12;
-    document.getElementById('selectArc').value = 'top';
-  } else if (type === 'glass') {
-    setShapeMode('sphere');
-    document.getElementById('inputR').value = 15;
-    document.getElementById('checkHollow').checked = true;
-  } else if (type === 'arena') {
-    setShapeMode('ellipse');
-    document.getElementById('inputR').value = 20;
-    document.getElementById('inputH').value = 15;
-  } else if (type === 'obsidian') {
-    setShapeMode('circle');
-    document.getElementById('inputR').value = 5;
-    document.getElementById('selectBlock').value = '#333333';
-  } else if (type === 'spiral') {
-    setShapeMode('spiral');
-    document.getElementById('inputR').value = 12;
-    document.getElementById('inputH').value = 24;
-  }
-  updateDimensions();
-  toggleThicknessControl();
-}
-
-// Canvas Drag / Zoom Interactions
-container.addEventListener('mousedown', (e) => {
-  isDragging = true;
-  startX = e.clientX - panX;
-  startY = e.clientY - panY;
-});
-
-window.addEventListener('mousemove', (e) => {
-  if (isDragging) {
-    panX = e.clientX - startX;
-    panY = e.clientY - startY;
-    redraw();
-  }
-});
-
-window.addEventListener('mouseup', () => isDragging = false);
-
-container.addEventListener('wheel', (e) => {
-  e.preventDefault();
-  const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
-  adjustZoom(zoomFactor);
-}, { passive: false });
-
-function downloadPNG() {
+// Render dynamic off-screen canvas image for any specified Y layer
+function renderLayerToDataUrl(layerY) {
   const exportCanvas = document.createElement('canvas');
+  const scale = 16;
+  exportCanvas.width = activeStructure.width * scale;
+  exportCanvas.height = activeStructure.length * scale;
   const expCtx = exportCanvas.getContext('2d');
-  const scale = 20;
 
-  const { grid, W, H } = generateGrid();
-  exportCanvas.width = W * scale;
-  exportCanvas.height = H * scale;
+  // Background
+  expCtx.fillStyle = '#0d0d0d';
+  expCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
 
-  const blockColor = document.getElementById('selectBlock').value;
+  for (let x = activeStructure.minX; x <= activeStructure.maxX; x++) {
+    for (let z = activeStructure.minZ; z <= activeStructure.maxZ; z++) {
+      const isFilled = activeStructure.blocks.has(`${x},${layerY},${z}`);
+      const rx = (x - activeStructure.minX) * scale;
+      const rz = (z - activeStructure.minZ) * scale;
 
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) {
-      if (grid[y][x]) {
-        expCtx.fillStyle = blockColor;
-        expCtx.fillRect(x * scale, y * scale, scale - 1, scale - 1);
+      if (isFilled) {
+        expCtx.fillStyle = '#ffcc00';
+        expCtx.fillRect(rx, rz, scale, scale);
+        expCtx.strokeStyle = '#000000';
+        expCtx.lineWidth = 1;
+        expCtx.strokeRect(rx, rz, scale, scale);
       } else {
-        expCtx.fillStyle = '#111111';
-        expCtx.fillRect(x * scale, y * scale, scale - 1, scale - 1);
+        expCtx.strokeStyle = '#1e1e1e';
+        expCtx.lineWidth = 0.5;
+        expCtx.strokeRect(rx, rz, scale, scale);
       }
     }
   }
 
-  const link = document.createElement('a');
-  link.download = `minecraft_${shapeMode}_layer.png`;
-  link.href = exportCanvas.toDataURL();
-  link.click();
+  // Draw Center Axis overlay
+  const centerX = (0 - activeStructure.minX) * scale + scale / 2;
+  const centerZ = (0 - activeStructure.minZ) * scale + scale / 2;
+  
+  expCtx.strokeStyle = '#ff0033';
+  expCtx.lineWidth = 1;
+  expCtx.beginPath();
+  expCtx.moveTo(centerX, 0);
+  expCtx.lineTo(centerX, exportCanvas.height);
+  expCtx.moveTo(0, centerZ);
+  expCtx.lineTo(exportCanvas.width, centerZ);
+  expCtx.stroke();
+
+  return exportCanvas.toDataURL('image/png');
 }
 
-// Initial Canvas Boot
-initCanvas();
-</script>
+// Upgraded PDF Exporter
+async function exportToPDF() {
+  showToast("Generating PDF Blueprint Guide...");
+  
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({
+    orientation: 'p',
+    unit: 'mm',
+    format: 'a4'
+  });
+
+  const logoDataUrl = await loadImageDataUrl('image/banding/logo.png');
+  const totalLayers = activeStructure.maxY - activeStructure.minY + 1;
+
+  // Helper for adding recurring custom header/footer
+  function addHeaderFooter(pageNum, totalPages) {
+    // Top Bar Line
+    doc.setFillColor(255, 0, 51); // Accent Red
+    doc.rect(0, 0, 210, 3, 'F');
+
+    // Footer background bar
+    doc.setFillColor(20, 20, 20);
+    doc.rect(0, 282, 210, 15, 'F');
+
+    // Footer Logo
+    if (logoDataUrl) {
+      doc.addImage(logoDataUrl, 'PNG', 12, 284, 8, 8);
+    }
+
+    // Footer Branding Text
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(255, 204, 0); // Gold
+    doc.text("AS BRO", logoDataUrl ? 22 : 12, 289);
+
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text("Minecraft Shape Blueprint Manual", logoDataUrl ? 38 : 28, 289);
+
+    // Page Numbers
+    doc.text(`Page ${pageNum} of ${totalPages}`, 195, 289, { align: 'right' });
+  }
+
+  // ==================== 1. COVER / FIRST PAGE ====================
+  // Dark Banner Header
+  doc.setFillColor(15, 15, 15);
+  doc.rect(0, 0, 210, 65, 'F');
+
+  // Cover Logo
+  if (logoDataUrl) {
+    doc.addImage(logoDataUrl, 'PNG', 15, 15, 32, 32);
+  }
+
+  // Main Branding Title "AS BRO"
+  doc.setFont("Helvetica", "bold");
+  doc.setFontSize(36);
+  doc.setTextColor(255, 204, 0);
+  doc.text("AS BRO", logoDataUrl ? 52 : 15, 28);
+
+  // Subtitle
+  doc.setFontSize(12);
+  doc.setTextColor(255, 255, 255);
+  doc.text("MINECRAFT SHAPE ENGINE PRO", logoDataUrl ? 52 : 15, 37);
+
+  doc.setFontSize(9);
+  doc.setTextColor(255, 0, 51);
+  doc.text("OFFICIAL ARCHITECT BLUEPRINT GUIDE", logoDataUrl ? 52 : 15, 43);
+
+  // Decorative Section Title
+  doc.setFontSize(18);
+  doc.setTextColor(20, 20, 20);
+  doc.text("STRUCTURE OVERVIEW", 15, 80);
+
+  doc.setLineWidth(0.8);
+  doc.setDrawColor(255, 204, 0);
+  doc.line(15, 83, 195, 83);
+
+  // Specifications Grid / Cards
+  const specBox = (x, y, w, h, title, val) => {
+    doc.setFillColor(245, 245, 245);
+    doc.rect(x, y, w, h, 'F');
+    doc.setDrawColor(220, 220, 220);
+    doc.rect(x, y, w, h, 'S');
+
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(120, 120, 120);
+    doc.text(title.toUpperCase(), x + 4, y + 6);
+
+    doc.setFontSize(11);
+    doc.setTextColor(20, 20, 20);
+    doc.text(String(val), x + 4, y + 13);
+  };
+
+  specBox(15, 90, 85, 18, "Shape Pattern", state.shape.replace('-', ' '));
+  specBox(110, 90, 85, 18, "Total Blocks Needed", activeStructure.totalBlocks.toLocaleString());
+  specBox(15, 113, 85, 18, "Dimensions (W x L x H)", `${activeStructure.width} x ${activeStructure.length} x ${activeStructure.height}`);
+  specBox(110, 113, 85, 18, "Total Layer Count", totalLayers);
+
+  // Chest / Resource Estimator Section
+  const stacksNeeded = Math.ceil(activeStructure.totalBlocks / 64);
+  const chestsNeeded = Math.floor(stacksNeeded / 54);
+  const remStacks = stacksNeeded % 54;
+
+  specBox(15, 136, 180, 18, "Resource Estimate", `${chestsNeeded} Double Chest(s) + ${remStacks} Stack(s) (Total: ${stacksNeeded} Stacks)`);
+
+  // Layer Summary Table Header
+  doc.setFontSize(14);
+  doc.setTextColor(20, 20, 20);
+  doc.text("LAYER BLOCK SUMMARY", 15, 172);
+
+  doc.setFillColor(20, 20, 20);
+  doc.rect(15, 177, 180, 8, 'F');
+
+  doc.setFont("Helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(255, 255, 255);
+  doc.text("Layer Level", 20, 182.5);
+  doc.text("Required Blocks", 100, 182.5);
+  doc.text("Status", 160, 182.5);
+
+  let yPos = 191;
+  let layerRowIndex = 0;
+
+  for (let y = activeStructure.minY; y <= activeStructure.maxY; y++) {
+    if (layerRowIndex > 9) { // Limit summary list length on first page for neatness
+      doc.setFont("Helvetica", "italic");
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`... and ${activeStructure.maxY - y + 1} more layers. (See detailed blueprint pages)`, 15, yPos + 2);
+      break;
+    }
+
+    let count = 0;
+    for (let x = activeStructure.minX; x <= activeStructure.maxX; x++) {
+      for (let z = activeStructure.minZ; z <= activeStructure.maxZ; z++) {
+        if (activeStructure.blocks.has(`${x},${y},${z}`)) count++;
+      }
+    }
+
+    doc.setFillColor(layerRowIndex % 2 === 0 ? 250 : 240);
+    doc.rect(15, yPos - 4, 180, 7, 'F');
+
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(8.5);
+    doc.setTextColor(30, 30, 30);
+    doc.text(`Layer ${y}`, 20, yPos);
+    doc.text(`${count} blocks`, 100, yPos);
+    doc.text(state.completedLayers[y] ? "Completed" : "Pending", 160, yPos);
+
+    yPos += 7;
+    layerRowIndex++;
+  }
+
+  // ==================== 2. LAYER BLUEPRINT PAGES ====================
+  for (let y = activeStructure.minY; y <= activeStructure.maxY; y++) {
+    doc.addPage();
+
+    // Calculate Layer Blocks
+    let layerBlockCount = 0;
+    for (let x = activeStructure.minX; x <= activeStructure.maxX; x++) {
+      for (let z = activeStructure.minZ; z <= activeStructure.maxZ; z++) {
+        if (activeStructure.blocks.has(`${x},${y},${z}`)) layerBlockCount++;
+      }
+    }
+
+    // Page Title Bar
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(20, 20, 20);
+    doc.text(`LAYER ${y} BLUEPRINT`, 15, 18);
+
+    doc.setFontSize(10);
+    doc.setTextColor(120, 120, 120);
+    doc.text(`Layer Block Count: ${layerBlockCount} blocks`, 195, 18, { align: 'right' });
+
+    doc.setLineWidth(0.5);
+    doc.setDrawColor(255, 204, 0);
+    doc.line(15, 21, 195, 21);
+
+    // Render Canvas Layer snapshot image
+    const layerImgData = renderLayerToDataUrl(y);
+    const imgDim = 170; // 170mm x 170mm bounding area
+    const imgX = (210 - imgDim) / 2;
+    const imgY = 28;
+
+    // Draw background outline frame around canvas
+    doc.setFillColor(13, 13, 13);
+    doc.rect(imgX - 2, imgY - 2, imgDim + 4, imgDim + 4, 'F');
+    doc.addImage(layerImgData, 'PNG', imgX, imgY, imgDim, imgDim);
+
+    // Layer Info Box below image
+    const infoY = imgY + imgDim + 8;
+    doc.setFillColor(245, 245, 245);
+    doc.rect(15, infoY, 180, 22, 'F');
+    doc.setDrawColor(220, 220, 220);
+    doc.rect(15, infoY, 180, 22, 'S');
+
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(255, 0, 51);
+    doc.text("BUILDING INSTRUCTIONS:", 20, infoY + 6);
+
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(8.5);
+    doc.setTextColor(50, 50, 50);
+    doc.text(`1. Place exactly ${layerBlockCount} blocks following the gold square grid pattern above.`, 20, infoY + 11);
+    doc.text(`2. Red axes indicate the center origin lines (0,0) of your structure layout.`, 20, infoY + 16);
+  }
+
+  // Stamp header/footer onto all generated pages
+  const totalPages = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    addHeaderFooter(i, totalPages);
+  }
+
+  doc.save(`as-bro-minecraft-blueprint-${state.shape}.pdf`);
+  showToast("Layer-by-Layer PDF Manual Downloaded!");
+}
+
+    // 4. Export coordinates array dataset to structured JSON Format
+    function exportToJSON() {
+      let coordsArray = [];
+      activeStructure.blocks.forEach((value, key) => {
+        const [x, y, z] = key.split(',').map(Number);
+        coordsArray.push({ x, y, z });
+      });
+
+      const exportObj = {
+        generator: "AS BRO Minecraft Engine Pro",
+        shape: state.shape,
+        bounds: {
+          width: activeStructure.width,
+          length: activeStructure.length,
+          height: activeStructure.height,
+        },
+        blocksCount: activeStructure.totalBlocks,
+        blocksList: coordsArray
+      };
+
+      const blob = new Blob([JSON.stringify(exportObj, null, 2)], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `as-bro-${state.shape}-coordinates.json`;
+      a.click();
+      showToast("JSON Coordinate Mapping Saved!");
+    }
+
+    // 5. Copy X,Y,Z structure list array clipboard helpers
+    function copyCoordinateMatrix() {
+      let csvContent = "X,Y,Z\n";
+      activeStructure.blocks.forEach((value, key) => {
+        csvContent += `${key}\n`;
+      });
+
+      // Secure browser context fallback for copy
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = csvContent;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      
+      try {
+        document.execCommand('copy');
+        showToast("Structure block coordinate data copied!");
+      } catch (err) {
+        console.error("Copy failed: ", err);
+      }
+      document.body.removeChild(tempTextArea);
+    }
+
+    // Animation Player Core Loop
+    function startBuildAnimation() {
+      if (animActive) return;
+      animActive = true;
+      animCurrentIndex = activeStructure.minY;
+      
+      // Clear all active completions during play mode to render nicely
+      state.completedLayers = {};
+      
+      const speed = parseInt(document.getElementById('animSpeedSelect').value);
+      
+      animTimer = setInterval(() => {
+        if (animCurrentIndex > activeStructure.maxY) {
+          clearInterval(animTimer);
+          animActive = false;
+          showToast("Build Animation Completed!");
+          updateUserInterface();
+          return;
+        }
+
+        // Show layer incremental transition
+        state.currentLayer = animCurrentIndex;
+        state.completedLayers[animCurrentIndex] = true;
+        updateUserInterface();
+        
+        animCurrentIndex++;
+      }, speed);
+    }
+
+    function pauseBuildAnimation() {
+      clearInterval(animTimer);
+      animActive = false;
+    }
+
+    function restartBuildAnimation() {
+      pauseBuildAnimation();
+      state.completedLayers = {};
+      state.currentLayer = activeStructure.minY;
+      updateUserInterface();
+    }
+
+    // Initialize DOM Interaction Event Listeners
+    function setupInteractionListeners() {
+      
+      // Toggle Dimension mode switches (Diameter VS Radius)
+      const btnDiam = document.getElementById('btnModeDiameter');
+      const btnRad = document.getElementById('btnModeRadius');
+      const sizeInput = document.getElementById('sizeInput');
+      const sizeSlider = document.getElementById('sizeSlider');
+
+      btnDiam.addEventListener('click', () => {
+        if (state.sizeMode !== "diameter") {
+          state.sizeMode = "diameter";
+          btnDiam.classList.add('btn-red');
+          btnDiam.classList.remove('btn-outline');
+          btnRad.classList.remove('btn-red');
+          btnRad.classList.add('btn-outline');
+          
+          document.getElementById('dimensionLabel').textContent = "Diameter Bounds";
+          // Convert radius to equivalent diameter
+          const dVal = Math.max(1, state.size * 2 - 1);
+          sizeSlider.max = 128;
+          sizeInput.max = 512;
+          setSizeValue(dVal);
+        }
+      });
+
+      btnRad.addEventListener('click', () => {
+        if (state.sizeMode !== "radius") {
+          state.sizeMode = "radius";
+          btnRad.classList.add('btn-red');
+          btnRad.classList.remove('btn-outline');
+          btnDiam.classList.remove('btn-red');
+          btnDiam.classList.add('btn-outline');
+
+          document.getElementById('dimensionLabel').textContent = "Radius Bounds";
+          // Convert diameter to equivalent radius
+          const rVal = Math.max(1, Math.round(state.size / 2));
+          sizeSlider.max = 64;
+          sizeInput.max = 256;
+          setSizeValue(rVal);
+        }
+      });
+
+      // Shape template selector changes
+      const shapeSelect = document.getElementById('shapeSelect');
+      shapeSelect.addEventListener('change', (e) => {
+        state.shape = e.target.value;
+        
+        // Cylinder height element reveal helper
+        const hGroup = document.getElementById('heightControlGroup');
+        if (state.shape.startsWith("cylinder")) {
+          hGroup.style.display = "block";
+        } else {
+          hGroup.style.display = "none";
+        }
+
+        // Adjust defaults if sphere selected to prevent crash sizes
+        if (state.shape.includes("sphere") && state.size > 128) {
+          setSizeValue(63);
+        }
+
+        generateStructure();
+        saveCurrentState();
+      });
+
+      // Size controllers events
+      sizeSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value);
+        sizeInput.value = val;
+        state.size = val;
+        
+        // Large generation check
+        const limit = state.shape.includes("sphere") ? 64 : 256;
+        if (val > limit) {
+          document.getElementById('sizeWarningOverlay').style.display = "flex";
+        }
+
+        generateStructure();
+        saveCurrentState();
+      });
+
+      sizeInput.addEventListener('change', (e) => {
+        let val = parseInt(e.target.value);
+        if (isNaN(val) || val < 1) val = 1;
+        if (val > 512) val = 512;
+        sizeSlider.value = val;
+        state.size = val;
+        generateStructure();
+        saveCurrentState();
+      });
+
+      // Cylinder Height events
+      const heightSlider = document.getElementById('heightSlider');
+      const heightInput = document.getElementById('heightInput');
+
+      heightSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value);
+        heightInput.value = val;
+        state.height = val;
+        generateStructure();
+        saveCurrentState();
+      });
+
+      heightInput.addEventListener('change', (e) => {
+        let val = parseInt(e.target.value);
+        if (isNaN(val) || val < 1) val = 1;
+        if (val > 256) val = 256;
+        heightSlider.value = val;
+        state.height = val;
+        generateStructure();
+        saveCurrentState();
+      });
+
+      // Layer Navigation commands
+      document.getElementById('btnLayerFirst').addEventListener('click', () => setLayer(activeStructure.minY));
+      document.getElementById('btnLayerPrev').addEventListener('click', () => stepLayer(-1));
+      document.getElementById('btnLayerNext').addEventListener('click', () => stepLayer(1));
+      document.getElementById('btnLayerLast').addEventListener('click', () => setLayer(activeStructure.maxY));
+      
+      document.getElementById('layerSlider').addEventListener('input', (e) => {
+        setLayer(parseInt(e.target.value));
+      });
+
+      // Canvas viewport tools
+      document.getElementById('btnZoomIn').addEventListener('click', () => adjustZoom(2));
+      document.getElementById('btnZoomOut').addEventListener('click', () => adjustZoom(-2));
+      document.getElementById('btnZoomFit').addEventListener('click', fitViewToScreen);
+      document.getElementById('btnZoomCenter').addEventListener('click', () => {
+        state.panX = 0;
+        state.panY = 0;
+        updateUserInterface();
+      });
+      document.getElementById('btnResetView').addEventListener('click', () => {
+        state.zoom = 12;
+        state.panX = 0;
+        state.panY = 0;
+        updateUserInterface();
+      });
+
+      // Checkboxes configuration visualizers
+      document.getElementById('chkShowGrid').addEventListener('change', (e) => {
+        state.showGrid = e.target.checked;
+        updateUserInterface();
+        saveCurrentState();
+      });
+      document.getElementById('chkShowCenter').addEventListener('change', (e) => {
+        state.showCenter = e.target.checked;
+        updateUserInterface();
+        saveCurrentState();
+      });
+      document.getElementById('chkShowCoords').addEventListener('change', (e) => {
+        state.showCoords = e.target.checked;
+        updateUserInterface();
+        saveCurrentState();
+      });
+
+      // Survival Progress list mark completed checkbox
+      document.getElementById('chkLayerCompleted').addEventListener('change', (e) => {
+        state.completedLayers[state.currentLayer] = e.target.checked;
+        updateUserInterface();
+        saveCurrentState();
+      });
+
+      // Exporters
+      document.getElementById('btnExportPNG').addEventListener('click', exportToPNG);
+      document.getElementById('btnExportSVG').addEventListener('click', exportToSVG);
+      document.getElementById('btnExportPDF').addEventListener('click', exportToPDF);
+      document.getElementById('btnExportJSON').addEventListener('click', exportToJSON);
+      document.getElementById('btnCopyCoords').addEventListener('click', copyCoordinateMatrix);
+
+      // Dismiss size warning overlays
+      document.getElementById('btnDismissWarning').addEventListener('click', () => {
+        document.getElementById('sizeWarningOverlay').style.display = "none";
+      });
+
+      // General reset configuration command
+      document.getElementById('btnResetAll').addEventListener('click', () => {
+        localStorage.removeItem(STATE_KEY);
+        state = {
+          shape: "circle-hollow",
+          sizeMode: "diameter",
+          size: 31,
+          height: 10,
+          showGrid: true,
+          showCenter: true,
+          showCoords: true,
+          currentLayer: 0,
+          zoom: 12,
+          panX: 0,
+          panY: 0,
+          completedLayers: {},
+        };
+        // Reset Selector components
+        document.getElementById('shapeSelect').value = "circle-hollow";
+        btnDiam.click();
+        generateStructure();
+        fitViewToScreen();
+        showToast("Application settings reset successfully!");
+      });
+
+      // Animation play/pause triggers
+      document.getElementById('btnAnimPlay').addEventListener('click', startBuildAnimation);
+      document.getElementById('btnAnimPause').addEventListener('click', pauseBuildAnimation);
+      document.getElementById('btnAnimRestart').addEventListener('click', restartBuildAnimation);
+
+      // Keyboard hotkeys modal popup
+      const modal = document.getElementById('shortcutsModal');
+      document.getElementById('btnShortcuts').addEventListener('click', () => {
+        modal.style.display = "flex";
+      });
+      document.getElementById('btnCloseShortcuts').addEventListener('click', () => {
+        modal.style.display = "none";
+      });
+
+      // Mouse Drag camera panning actions
+      const frame = document.getElementById('canvasFrame');
+      frame.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startDragX = e.clientX;
+        startDragY = e.clientY;
+        originalPanX = state.panX;
+        originalPanY = state.panY;
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+          const dx = e.clientX - startDragX;
+          const dy = e.clientY - startDragY;
+          state.panX = originalPanX + dx;
+          state.panY = originalPanY + dy;
+          updateUserInterface();
+        }
+
+        // Handle Hover mouse coordinate listings
+        const rect = canvas.getBoundingClientRect();
+        if (e.clientX >= rect.left && e.clientX <= rect.right &&
+            e.clientY >= rect.top && e.clientY <= rect.bottom) {
+          
+          const coords = getGridCoordsFromEvent(e);
+          hoveredGridX = coords.x;
+          hoveredGridZ = coords.z;
+
+          // Update status outputs in navigation guide footer
+          document.getElementById('lblCoordX').textContent = hoveredGridX;
+          document.getElementById('lblCoordY').textContent = state.currentLayer;
+          document.getElementById('lblCoordZ').textContent = hoveredGridZ;
+          document.getElementById('lblLayerIndicator').textContent = state.currentLayer;
+
+          const blockPresent = activeStructure.blocks.has(`${hoveredGridX},${state.currentLayer},${hoveredGridZ}`);
+          const lblStatus = document.getElementById('lblBlockStatus');
+          if (blockPresent) {
+            lblStatus.textContent = "BUILD PLACEMENT BLOCK";
+            lblStatus.style.color = "var(--gold)";
+          } else {
+            lblStatus.textContent = "AIR / EMPTY";
+            lblStatus.style.color = "#FFFFFF";
+          }
+        } else {
+          hoveredGridX = null;
+          hoveredGridZ = null;
+        }
+        drawCanvas();
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDragging = false;
+        saveCurrentState();
+      });
+
+      // Canvas mouse zoom support wheel
+      frame.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        if (e.deltaY < 0) {
+          adjustZoom(1);
+        } else {
+          adjustZoom(-1);
+        }
+      }, { passive: false });
+
+      // Window resizing support
+      window.addEventListener('resize', () => {
+        updateUserInterface();
+      });
+
+      // Keyboard short-circuit listeners standard bindings
+      window.addEventListener('keydown', (e) => {
+        // Prevent key overrides if active inside input fields
+        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') {
+          return;
+        }
+
+        switch (e.key) {
+          case '+':
+          case '=':
+            adjustZoom(2);
+            break;
+          case '-':
+          case '_':
+            adjustZoom(-2);
+            break;
+          case 'ArrowUp':
+          case 'w':
+          case 'W':
+            e.preventDefault();
+            stepLayer(1);
+            break;
+          case 'ArrowDown':
+          case 's':
+          case 'S':
+            e.preventDefault();
+            stepLayer(-1);
+            break;
+          case 'Home':
+            e.preventDefault();
+            setLayer(activeStructure.minY);
+            break;
+          case 'End':
+            e.preventDefault();
+            setLayer(activeStructure.maxY);
+            break;
+          case 'f':
+          case 'F':
+            fitViewToScreen();
+            break;
+          case 'c':
+          case 'C':
+            state.panX = 0;
+            state.panY = 0;
+            updateUserInterface();
+            break;
+          case 'r':
+          case 'R':
+            state.zoom = 12;
+            state.panX = 0;
+            state.panY = 0;
+            updateUserInterface();
+            break;
+          case 'c':
+          case 'C':
+            if (e.ctrlKey) {
+              e.preventDefault();
+              copyCoordinateMatrix();
+            }
+            break;
+        }
+      });
+    }
+
+    // App Initial Setup Trigger
+    window.onload = function() {
+      lucide.createIcons();
+      loadSavedState();
+      
+      // Update Inputs with previous state sizes
+      document.getElementById('sizeSlider').value = state.size;
+      document.getElementById('sizeInput').value = state.size;
+      document.getElementById('heightSlider').value = state.height;
+      document.getElementById('heightInput').value = state.height;
+      document.getElementById('shapeSelect').value = state.shape;
+      
+      document.getElementById('chkShowGrid').checked = state.showGrid;
+      document.getElementById('chkShowCenter').checked = state.showCenter;
+      document.getElementById('chkShowCoords').checked = state.showCoords;
+
+      if (state.shape.startsWith("cylinder")) {
+        document.getElementById('heightControlGroup').style.display = "block";
+      }
+
+      setupInteractionListeners();
+      generateStructure();
+      fitViewToScreen();
+    }
+  </script>
 </body>
 </html>

@@ -239,16 +239,20 @@ h1.display, h2.display{
   margin-bottom:28px;
 }
 
-/* ---------- Search Bar ---------- */
+/* ---------- Search Bar & Categories ---------- */
 .search-container {
   margin-bottom: 32px;
-  position: relative;
-  max-width: 640px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
 }
 .search-input-wrap {
   position: relative;
   display: flex;
   align-items: center;
+  flex: 1;
+  min-width: 260px;
 }
 .search-input-wrap svg {
   position: absolute;
@@ -278,6 +282,22 @@ h1.display, h2.display{
 .search-input::placeholder {
   color: var(--ink-dim);
   opacity: 0.7;
+}
+
+.category-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.category-btn {
+  padding: 12px 16px;
+  font-size: 12px;
+}
+.category-btn.active {
+  background: var(--gold);
+  color: #1a1400;
+  border-color: #ffe680;
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,0.5), inset -3px -3px 0 rgba(0,0,0,0.3), 4px 4px 0 rgba(0,0,0,0.4);
 }
 
 /* ---------- Directory Grids (Tools & Games) ---------- */
@@ -379,11 +399,16 @@ footer{
 </header>
 
 <main>
-  <!-- Global Search Bar -->
+  <!-- Global Search Bar & Category Filters -->
   <div class="search-container">
     <div class="search-input-wrap">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
       <input type="text" id="tool-search" class="search-input" placeholder="Search tools and games here..." autocomplete="off">
+    </div>
+    <div class="category-buttons" id="category-buttons">
+      <button class="pixel-btn secondary category-btn active" data-category="all">All</button>
+      <button class="pixel-btn secondary category-btn" data-category="games">Games</button>
+      <button class="pixel-btn secondary category-btn" data-category="tools">Tools</button>
     </div>
   </div>
 
@@ -401,7 +426,7 @@ footer{
     </div>
   </section>
 
-  <div class="section-divider"></div>
+  <div class="section-divider" id="tools-divider"></div>
 
   <!-- GAMES SECTION -->
   <section id="games-section">
@@ -426,6 +451,8 @@ footer{
 <div class="hotbar-wrap" id="hotbar"></div>
 
 <script>
+let currentCategory = "all";
+
 const WebsiteConfig = {
     brand: {
         channelName: "AS BRO",
@@ -492,6 +519,13 @@ const WebsiteConfig = {
             description: "Connect wires in this logic puzzle game.",
             url: "connect.html",
             btnLabel: "Play Game"
+        },
+        {
+            title: "Tic Tac Toe",
+            category: "Arcade",
+            description: "Play the classic game of Tic Tac Toe against a friend or the computer.",
+            url: "tic_tac_toe.html",
+            btnLabel: "Play Game"
         }
     ]
 };
@@ -512,7 +546,7 @@ const PAGES = [
   { id: "servers",  label: "Servers", icon: NAV_ICONS.servers,       url: "index.html#servers" },
   { id: "mc-world", label: "World",   icon: NAV_ICONS.worldDownload, url: "index.html#mc-world" },
   { id: "mc-files", label: "Files",   icon: NAV_ICONS.files,         url: "index.html#mc-files" },
-  { id: "tools",    label: "Utility",   icon: NAV_ICONS.tools,         url: "tools.html" }
+  { id: "tools",    label: "Utility", icon: NAV_ICONS.tools,         url: "tools.html" }
 ];
 
 function el(html){
@@ -701,6 +735,38 @@ function renderGamesHub(searchQuery = ""){
   });
 }
 
+function updateCategoryFilter() {
+  const toolsSection = document.getElementById("tools-section");
+  const gamesSection = document.getElementById("games-section");
+  const divider = document.getElementById("tools-divider");
+
+  if (currentCategory === "all") {
+    toolsSection.style.display = "block";
+    gamesSection.style.display = "block";
+    divider.style.display = "block";
+  } else if (currentCategory === "tools") {
+    toolsSection.style.display = "block";
+    gamesSection.style.display = "none";
+    divider.style.display = "none";
+  } else if (currentCategory === "games") {
+    toolsSection.style.display = "none";
+    gamesSection.style.display = "block";
+    divider.style.display = "none";
+  }
+}
+
+// Category filter button listener
+document.getElementById("category-buttons").addEventListener("click", (e) => {
+  const btn = e.target.closest(".category-btn");
+  if (!btn) return;
+
+  document.querySelectorAll(".category-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+
+  currentCategory = btn.getAttribute("data-category");
+  updateCategoryFilter();
+});
+
 // Attach Instant Search Listener for both Tools & Games
 document.getElementById("tool-search").addEventListener("input", (e) => {
   const query = e.target.value;
@@ -718,6 +784,7 @@ window.addEventListener("keydown", (e)=>{
 renderChrome();
 renderToolsHub();
 renderGamesHub();
+updateCategoryFilter();
 </script>
 </body>
 </html>
