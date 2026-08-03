@@ -1959,7 +1959,7 @@ async function exportToPDF() {
   // Subtitle
   doc.setFontSize(12);
   doc.setTextColor(255, 255, 255);
-  doc.text("MINECRAFT SHAPE ENGINE PRO", logoDataUrl ? 52 : 15, 37);
+  doc.text("MINECRAFT SHAPE ENGINE", logoDataUrl ? 52 : 15, 37);
 
   doc.setFontSize(9);
   doc.setTextColor(255, 0, 51);
@@ -2127,7 +2127,7 @@ async function exportToPDF() {
       });
 
       const exportObj = {
-        generator: "AS BRO Minecraft Engine Pro",
+        generator: "AS BRO Minecraft Engine",
         shape: state.shape,
         bounds: {
           width: activeStructure.width,
