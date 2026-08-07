@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AS BRO — 3D Skin Studio & Pose Engine</title>
+
+<!-- skinview3d Library -->
+<script src="https://cdn.jsdelivr.net/npm/skinview3d@3.4.2/bundles/skinview3d.bundle.js"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* Minecraft-style Pixel Pointer Cursor */
+body {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="2" stroke-linecap="square"><path fill="%23000000" d="M3 3v16l4-4 3 7 4-2-3-7 6-1L3 3z"/></svg>') 0 0, auto;
+}
+
+/* Hover Pointer */
+a, button, .pixel-btn, input, select, label {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ffaa00" stroke-width="2" stroke-linecap="square"><path fill="%23ffaa00" d="M3 3v16l4-4 3 7 4-2-3-7 6-1L3 3z"/></svg>') 0 0, pointer;
+}
+
+:root{
+  --void:#0a0a0a;
+  --panel:#141414;
+  --panel-2:#1c1c1c;
+  --panel-border:#3a3a3a;
+  --red:#ff0033;
+  --red-dim:#7a0019;
+  --gold:#ffcc00;
+  --gold-dim:#8a6c00;
+  --ink:#f5f5f0;
+  --ink-dim:#a4a49c;
+  --font-display:'Press Start 2P', 'Courier New', monospace;
+  --font-body:'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:'JetBrains Mono', 'Courier New', monospace;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+
+html{scroll-behavior:smooth;}
+
+body{
+  background:var(--void);
+  color:var(--ink);
+  font-family:var(--font-body);
+  min-height:100vh;
+  padding: 24px 0;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
+}
+
+a{color:inherit; text-decoration:none;}
+img{display:block; max-width:100%;}
+
+::selection{background:var(--red); color:var(--ink);}
+
+:focus-visible{
+  outline:3px solid var(--gold);
+  outline-offset:2px;
+}
+
+/* ---------- Pixel bevel primitives ---------- */
+.pixel-panel{
+  background:var(--panel);
+  border:3px solid var(--panel-border);
+  box-shadow:
+    inset 2px 2px 0 rgba(255,255,255,0.06),
+    inset -3px -3px 0 rgba(0,0,0,0.55),
+    5px 5px 0 rgba(0,0,0,0.35);
+  border-radius:0;
+}
+
+.pixel-slot{
+  background:var(--panel-2);
+  border:3px solid var(--panel-border);
+  box-shadow:
+    inset 2px 2px 0 rgba(255,255,255,0.08),
+    inset -3px -3px 0 rgba(0,0,0,0.6);
+  border-radius:0;
+}
+
+.pixel-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  font-family:var(--font-mono);
+  font-weight:700;
+  font-size:12px;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  padding:10px 16px;
+  border:3px solid;
+  border-radius:0;
+  transition:transform 0.08s ease, box-shadow 0.08s ease;
+  white-space:nowrap;
+  user-select:none;
+}
+.pixel-btn.primary{
+  background:var(--red);
+  color:#fff;
+  border-color:#ff5c7a;
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,0.35), inset -3px -3px 0 rgba(0,0,0,0.35), 4px 4px 0 rgba(0,0,0,0.4);
+}
+.pixel-btn.secondary{
+  background:var(--panel-2);
+  color:var(--ink);
+  border-color:var(--panel-border);
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,0.06), inset -3px -3px 0 rgba(0,0,0,0.5), 4px 4px 0 rgba(0,0,0,0.4);
+}
+.pixel-btn.gold{
+  background:var(--gold);
+  color:#1a1400;
+  border-color:#ffe680;
+  box-shadow: inset 2px 2px 0 rgba(255,255,255,0.5), inset -3px -3px 0 rgba(0,0,0,0.3), 4px 4px 0 rgba(0,0,0,0.4);
+}
+.pixel-btn:hover{ transform:translate(-2px,-2px); }
+.pixel-btn.primary:hover{ box-shadow: inset 2px 2px 0 rgba(255,255,255,0.35), inset -3px -3px 0 rgba(0,0,0,0.35), 6px 6px 0 rgba(0,0,0,0.4); }
+.pixel-btn.secondary:hover{ box-shadow: inset 2px 2px 0 rgba(255,255,255,0.06), inset -3px -3px 0 rgba(0,0,0,0.5), 6px 6px 0 rgba(0,0,0,0.4); border-color:var(--ink-dim); }
+.pixel-btn.gold:hover{ box-shadow: inset 2px 2px 0 rgba(255,255,255,0.5), inset -3px -3px 0 rgba(0,0,0,0.3), 6px 6px 0 rgba(0,0,0,0.4); }
+
+.pixel-input, .pixel-select {
+  width: 100%;
+  padding: 10px 12px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--gold);
+  background: var(--panel-2);
+  border: 3px solid var(--panel-border);
+  box-shadow: inset 2px 2px 0 rgba(0,0,0,0.6), inset -2px -2px 0 rgba(255,255,255,0.05);
+  outline: none;
+}
+.pixel-input:focus, .pixel-select:focus {
+  border-color: var(--gold);
+}
+
+/* Custom Pixel Sliders */
+input[type=range].pose-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  background: transparent;
+}
+input[type=range].pose-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8px;
+  background: var(--panel-2);
+  border: 2px solid var(--panel-border);
+}
+input[type=range].pose-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 16px;
+  width: 10px;
+  background: var(--gold);
+  border: 2px solid #000;
+  margin-top: -5px;
+  cursor: pointer;
+}
+
+/* ---------- Studio Workspace Layout ---------- */
+main{ max-width:1200px; margin:0 auto; padding:0 20px; }
+
+.eyebrow{
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:var(--red);
+  margin-bottom:10px;
+}
+h1.display{
+  font-family:var(--font-display);
+  font-size:clamp(22px, 4vw, 34px);
+  line-height:1.5;
+  color:var(--ink);
+  margin-bottom:12px;
+}
+.subheading{
+  color:var(--ink-dim);
+  font-size:15px;
+  line-height:1.6;
+  max-width:680px;
+  margin-bottom:24px;
+}
+
+.studio-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+@media (min-width: 992px) {
+  .studio-grid {
+    grid-template-columns: 7fr 5fr;
+  }
+}
+
+/* Viewport Box & Canvas */
+.viewport-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.viewport-stage {
+  position: relative;
+  min-height: 520px;
+  height: 60vh;
+  max-height: 680px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--void);
+}
+.viewport-stage.drag-active {
+  border-color: var(--gold);
+  background: rgba(255, 204, 0, 0.05);
+}
+#canvasAspectWrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+canvas#skinContainer {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  outline: none;
+}
+
+.hud-overlay {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.hud-controls {
+  pointer-events: auto;
+  display: flex;
+  gap: 6px;
+}
+.hud-badge {
+  pointer-events: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 6px 12px;
+  background: var(--panel);
+  border: 2px solid var(--panel-border);
+  color: var(--ink-dim);
+}
+.hud-badge span { color: var(--gold); }
+
+/* Sidebar Controls */
+.sidebar-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.sidebar-section {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.sidebar-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.drop-upload-zone {
+  border: 2px dashed var(--panel-border);
+  background: var(--panel-2);
+  padding: 16px;
+  text-align: center;
+  transition: border-color 0.15s ease;
+}
+.drop-upload-zone:hover {
+  border-color: var(--gold);
+}
+
+.layer-grid, .btn-grid-2, .btn-grid-3, .btn-grid-4 {
+  display: grid;
+  gap: 8px;
+}
+.btn-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.btn-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.btn-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+.checkbox-slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--panel-2);
+  border: 2px solid var(--panel-border);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.checkbox-slot input { accent-color: var(--gold); }
+
+.pose-group {
+  border-bottom: 1px dashed var(--panel-border);
+  padding-bottom: 8px;
+}
+.pose-group-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+.slider-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-dim);
+}
+
+#appToast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  padding: 8px 16px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  border: 3px solid #000;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--void); }
+::-webkit-scrollbar-thumb { background: var(--panel-border); }
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+</style>
+</head>
+<body>
+
+<main>
+  <div class="eyebrow">// Utility Tool</div>
+  <h1 class="display">Skin Preview & 3D Pose Studio</h1>
+  <p class="subheading">Inspect, rig, pose, and export high-resolution Minecraft skins in interactive 3D.</p>
+
+  <div class="studio-grid">
+
+    <!-- Left Column: Viewport & Render Controls -->
+    <div class="viewport-panel">
+      <!-- 3D Canvas Stage -->
+      <div id="dropZone" class="pixel-panel viewport-stage">
+        <div id="canvasAspectWrapper">
+          <canvas id="skinContainer"></canvas>
+        </div>
+
+        <!-- HUD overlay -->
+        <div class="hud-overlay">
+          <div class="hud-controls">
+            <button id="btnResetCamera" class="pixel-btn secondary" title="Reset Camera">📷 View</button>
+            <button id="btnToggleRotate" class="pixel-btn secondary" title="Toggle Auto Rotate">🔄 Spin</button>
+            <button id="btnResetPose" class="pixel-btn secondary" title="Reset Pose">🧍 Stand</button>
+          </div>
+          <div class="hud-badge">
+            Model: <span id="modelTypeText">Classic (Steve)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Export Bar -->
+      <div class="pixel-panel p-4" style="padding:16px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:48px; height:48px; background:var(--panel-2); border:2px solid var(--panel-border); padding:2px;">
+            <img id="textureMap2D" src="" alt="Texture Preview" style="width:100%; height:100%; object-fit:contain; image-rendering:pixelated;">
+          </div>
+          <div>
+            <div style="font-family:var(--font-mono); font-weight:700; font-size:13px; color:var(--gold);">2D Skin Texture</div>
+            <div style="font-size:12px; color:var(--ink-dim);">64x64 PNG format</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <a id="btnDownloadSkin" download="minecraft-skin.png" href="#" class="pixel-btn secondary">Save Texture</a>
+          <button id="btnSavePoseOnly" class="pixel-btn primary">Save Pose (PNG)</button>
+          <button id="btnSaveFullScene" class="pixel-btn gold">Save Scene</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Rigging & Customization Sidebar -->
+    <div class="sidebar-panel">
+
+      <!-- 1. IMPORT SKIN -->
+      <div class="pixel-panel sidebar-section">
+        <div class="sidebar-title"><span>📥 Import Skin</span></div>
+        
+        <label class="drop-upload-zone">
+          <span style="font-family:var(--font-mono); font-size:12px; color:var(--gold);">Click or Drop PNG Skin Here</span>
+          <input type="file" id="skinInput" accept="image/png" style="display:none;">
+        </label>
+
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="usernameInput" placeholder="Fetch Username..." class="pixel-input">
+          <button id="btnFetchUser" class="pixel-btn gold">Load</button>
+        </div>
+
+        <select id="modelTypeSelect" class="pixel-select">
+          <option value="auto">Auto Detect Arm Model</option>
+          <option value="default">Classic (4px Arms / Steve)</option>
+          <option value="slim">Slim (3px Arms / Alex)</option>
+        </select>
+      </div>
+
+      <!-- 2. MANUAL RIGGING -->
+      <div class="pixel-panel sidebar-section">
+        <div class="sidebar-title">
+          <span>⚙️ Limb Rigging</span>
+          <span id="animStateBadge" style="font-size:9px; padding:2px 6px; background:var(--gold-dim); color:#fff;">Active Anim</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px; max-height:220px; overflow-y:auto; padding-right:4px;">
+          <!-- Head -->
+          <div class="pose-group">
+            <div class="pose-group-label">Head</div>
+            <div class="slider-grid">
+              <div>Pitch<input type="range" id="headX" min="-1.5" max="1.5" step="0.05" value="0" class="pose-slider"></div>
+              <div>Yaw<input type="range" id="headY" min="-1.5" max="1.5" step="0.05" value="0" class="pose-slider"></div>
+              <div>Roll<input type="range" id="headZ" min="-0.8" max="0.8" step="0.05" value="0" class="pose-slider"></div>
+            </div>
+          </div>
+          <!-- Left Arm -->
+          <div class="pose-group">
+            <div class="pose-group-label">Left Arm</div>
+            <div class="slider-grid">
+              <div>Pitch<input type="range" id="leftArmX" min="-3" max="3" step="0.05" value="0" class="pose-slider"></div>
+              <div>Yaw<input type="range" id="leftArmY" min="-1.5" max="1.5" step="0.05" value="0" class="pose-slider"></div>
+              <div>Roll<input type="range" id="leftArmZ" min="-3" max="3" step="0.05" value="0" class="pose-slider"></div>
+            </div>
+          </div>
+          <!-- Right Arm -->
+          <div class="pose-group">
+            <div class="pose-group-label">Right Arm</div>
+            <div class="slider-grid">
+              <div>Pitch<input type="range" id="rightArmX" min="-3" max="3" step="0.05" value="0" class="pose-slider"></div>
+              <div>Yaw<input type="range" id="rightArmY" min="-1.5" max="1.5" step="0.05" value="0" class="pose-slider"></div>
+              <div>Roll<input type="range" id="rightArmZ" min="-3" max="3" step="0.05" value="0" class="pose-slider"></div>
+            </div>
+          </div>
+          <!-- Left Leg -->
+          <div class="pose-group">
+            <div class="pose-group-label">Left Leg</div>
+            <div class="slider-grid">
+              <div>Pitch<input type="range" id="leftLegX" min="-2" max="2" step="0.05" value="0" class="pose-slider"></div>
+              <div>Yaw<input type="range" id="leftLegY" min="-1" max="1" step="0.05" value="0" class="pose-slider"></div>
+              <div>Roll<input type="range" id="leftLegZ" min="-1" max="1" step="0.05" value="0" class="pose-slider"></div>
+            </div>
+          </div>
+          <!-- Right Leg -->
+          <div class="pose-group">
+            <div class="pose-group-label">Right Leg</div>
+            <div class="slider-grid">
+              <div>Pitch<input type="range" id="rightLegX" min="-2" max="2" step="0.05" value="0" class="pose-slider"></div>
+              <div>Yaw<input type="range" id="rightLegY" min="-1" max="1" step="0.05" value="0" class="pose-slider"></div>
+              <div>Roll<input type="range" id="rightLegZ" min="-1" max="1" step="0.05" value="0" class="pose-slider"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. LAYERS TOGGLE -->
+      <div class="pixel-panel sidebar-section">
+        <div class="sidebar-title"><span>🥞 Skin Outer Layers</span></div>
+        <div class="layer-grid btn-grid-2">
+          <label class="checkbox-slot"><input type="checkbox" id="layerHat" checked> Head Layer</label>
+          <label class="checkbox-slot"><input type="checkbox" id="layerJacket" checked> Jacket</label>
+          <label class="checkbox-slot"><input type="checkbox" id="layerSleeves" checked> Sleeves</label>
+          <label class="checkbox-slot"><input type="checkbox" id="layerPants" checked> Pants</label>
+        </div>
+      </div>
+
+      <!-- 4. CAMERA & RATIO -->
+      <div class="pixel-panel sidebar-section">
+        <div class="sidebar-title"><span>📐 Aspect Ratio & Preset Camera</span></div>
+        <div class="btn-grid-4">
+          <button data-ratio="responsive" class="ratio-btn pixel-btn gold">Fit</button>
+          <button data-ratio="16:9" class="ratio-btn pixel-btn secondary">16:9</button>
+          <button data-ratio="1:1" class="ratio-btn pixel-btn secondary">1:1</button>
+          <button data-ratio="9:16" class="ratio-btn pixel-btn secondary">9:16</button>
+        </div>
+        <div class="btn-grid-2">
+          <button data-cam="front" class="cam-btn pixel-btn secondary">Front View</button>
+          <button data-cam="back" class="cam-btn pixel-btn secondary">Back View</button>
+          <button data-cam="iso" class="cam-btn pixel-btn secondary">Isometric</button>
+          <button data-cam="headshot" class="cam-btn pixel-btn secondary">Headshot</button>
+        </div>
+      </div>
+
+      <!-- 5. PRE-BUILT POSES & ANIMATIONS -->
+      <div class="pixel-panel sidebar-section">
+        <div class="sidebar-title"><span>🎬 Preset Poses & Anims</span></div>
+        <div id="poseButtonsContainer" class="btn-grid-2"></div>
+        <div class="btn-grid-4" style="margin-top:6px;">
+          <button data-anim="none" class="anim-btn pixel-btn secondary">Static</button>
+          <button data-anim="idle" class="anim-btn pixel-btn secondary">Idle</button>
+          <button data-anim="walk" class="anim-btn pixel-btn gold">Walk</button>
+          <button data-anim="run" class="anim-btn pixel-btn secondary">Run</button>
+        </div>
+      </div>
+
+      <!-- 6. EQUIPMENT & CAPES -->
+      <div class="pixel-panel sidebar-section">
+        <div class="sidebar-title"><span>🛡️ Capes & Gear</span></div>
+        <div class="btn-grid-3">
+          <button data-equip="none" class="equip-btn pixel-btn secondary">None</button>
+          <button data-equip="cape" class="equip-btn pixel-btn gold">Cape</button>
+          <button data-equip="elytra" class="equip-btn pixel-btn secondary">Elytra</button>
+        </div>
+        <input type="file" id="capeInput" accept="image/png" class="pixel-input" style="padding:6px; font-size:11px;">
+      </div>
+
+      <!-- 7. BACKGROUND & POSE CODE -->
+      <div class="pixel-panel sidebar-section">
+        <div class="sidebar-title"><span>🎨 Canvas & Pose Data</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="color" id="bgColorPicker" value="#0a0a0a" style="width:32px; height:32px; border:2px solid var(--panel-border); background:none; cursor:pointer;">
+            <span id="bgColorHex" style="font-family:var(--font-mono); font-size:12px; color:var(--gold);">#0a0a0a</span>
+          </div>
+          <button id="btnBgTransparent" class="pixel-btn secondary" style="padding:6px 10px; font-size:10px;">Transparent</button>
+        </div>
+        <div style="display:flex; gap:6px; margin-top:6px;">
+          <button id="btnCopyPoseCode" class="pixel-btn secondary" style="flex:1;">Copy Pose JSON</button>
+          <button id="btnLoadPoseCode" class="pixel-btn secondary" style="flex:1;">Load Pose JSON</button>
+        </div>
+        <input type="text" id="poseCodeInput" placeholder="Paste pose JSON here..." class="pixel-input" style="font-size:11px;">
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+<script>
+/* ---------- Skin Viewer Engine Implementation ---------- */
+const DEFAULT_SKIN = "https://textures.minecraft.net/texture/31f477eb3fe5170f1bf814122d2b40b67d7e48d3db9f7d6a2f3277024f2b9633";
+const DEFAULT_CAPE = "https://textures.minecraft.net/texture/2340a23573ea505663f8ae4aadd1fc946f5ae9d2a6320a101235b24479e12";
+
+const canvas = document.getElementById("skinContainer");
+const dropZone = document.getElementById("dropZone");
+const wrapper = document.getElementById("canvasAspectWrapper");
+
+let activeCapeUrl = DEFAULT_CAPE;
+let activeEquipment = "cape";
+let currentTextureUrl = DEFAULT_SKIN;
+let currentSkinUrl = DEFAULT_SKIN;
+let modelOverride = "auto";
+
+function showToast(message, isError = false) {
+  const existing = document.getElementById("appToast");
+  if (existing) existing.remove();
+  const toast = document.createElement("div");
+  toast.id = "appToast";
+  toast.style.background = isError ? "var(--red)" : "var(--gold)";
+  toast.style.color = isError ? "#fff" : "#1a1400";
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => { toast.style.opacity = "1"; });
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    setTimeout(() => toast.remove(), 200);
+  }, 2400);
+}
+
+const skinViewer = new skinview3d.SkinViewer({
+  canvas: canvas,
+  width: wrapper.clientWidth || 600,
+  height: wrapper.clientHeight || 520,
+  skin: DEFAULT_SKIN,
+  cape: DEFAULT_CAPE,
+  background: "#0a0a0a",
+  preserveDrawingBuffer: true
+});
+
+skinViewer.fov = 70;
+skinViewer.zoom = 0.85;
+skinViewer.animation = new skinview3d.WalkingAnimation();
+
+const resizeObserver = new ResizeObserver(() => {
+  skinViewer.width = wrapper.clientWidth;
+  skinViewer.height = wrapper.clientHeight;
+});
+resizeObserver.observe(wrapper);
+
+function update2DTexture(url) {
+  const texImg = document.getElementById("textureMap2D");
+  texImg.crossOrigin = "anonymous";
+  texImg.src = url;
+  currentTextureUrl = url;
+  document.getElementById("btnDownloadSkin").href = url;
+}
+update2DTexture(DEFAULT_SKIN);
+
+function setModelBadge(text) {
+  document.getElementById("modelTypeText").textContent = text;
+}
+
+function setAnimBadge(active) {
+  const badge = document.getElementById("animStateBadge");
+  if (active) {
+    badge.textContent = "Active Anim";
+    badge.style.background = "var(--gold-dim)";
+  } else {
+    badge.textContent = "Custom Pose";
+    badge.style.background = "var(--red-dim)";
+  }
+}
+
+function loadSkinFromSource(url) {
+  currentSkinUrl = url;
+  const modelOption = modelOverride === "auto" ? "auto-detect" : modelOverride;
+  const result = skinViewer.loadSkin(url, { model: modelOption });
+  if (result && typeof result.then === "function") {
+    result
+      .then(() => {
+        const detected = skinViewer.playerObject.skin.modelType;
+        setModelBadge(detected === "slim" ? "Slim (Alex)" : "Classic (Steve)");
+        showToast("Skin loaded!");
+      })
+      .catch(() => showToast("Failed to load skin.", true));
+  }
+  update2DTexture(url);
+}
+
+document.getElementById("btnDownloadSkin").addEventListener("click", (e) => {
+  e.preventDefault();
+  if (!currentTextureUrl) return;
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.onload = () => {
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = img.naturalWidth || img.width;
+    tempCanvas.height = img.naturalHeight || img.height;
+    tempCanvas.getContext("2d").drawImage(img, 0, 0);
+    try {
+      const dataUrl = tempCanvas.toDataURL("image/png");
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = "minecraft-skin.png";
+      a.click();
+      showToast("Texture saved!");
+    } catch (err) {
+      showToast("Could not export texture.", true);
+    }
+  };
+  img.onerror = () => showToast("Error loading texture.", true);
+  img.src = currentTextureUrl;
+});
+
+['dragenter', 'dragover'].forEach(eventName => {
+  dropZone.addEventListener(eventName, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.add('drag-active');
+  }, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+  dropZone.addEventListener(eventName, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.remove('drag-active');
+  }, false);
+});
+
+dropZone.addEventListener('drop', (e) => {
+  const dt = e.dataTransfer;
+  const files = dt.files;
+  if (files.length > 0 && files[0].type.includes("image")) {
+    const url = URL.createObjectURL(files[0]);
+    loadSkinFromSource(url);
+  } else {
+    showToast("Please drop a PNG skin file.", true);
+  }
+});
+
+document.getElementById("skinInput").addEventListener("change", (e) => {
+  if (e.target.files.length > 0) {
+    const url = URL.createObjectURL(e.target.files[0]);
+    loadSkinFromSource(url);
+  }
+});
+
+document.getElementById("btnFetchUser").addEventListener("click", () => {
+  const username = document.getElementById("usernameInput").value.trim();
+  if (!username) return;
+
+  showToast(`Fetching skin for ${username}...`);
+  const minotarUrl = `https://minotar.net/skin/${username}`;
+  const mcHeadsUrl = `https://mc-heads.net/skin/${username}`;
+
+  const testImg = new Image();
+  testImg.crossOrigin = "anonymous";
+  testImg.onload = () => loadSkinFromSource(minotarUrl);
+  testImg.onerror = () => loadSkinFromSource(mcHeadsUrl);
+  testImg.src = minotarUrl;
+});
+
+document.getElementById("modelTypeSelect").addEventListener("change", (e) => {
+  modelOverride = e.target.value;
+  if (modelOverride === "auto") {
+    loadSkinFromSource(currentSkinUrl);
+  } else {
+    skinViewer.playerObject.skin.modelType = modelOverride;
+    setModelBadge(modelOverride === "slim" ? "Slim (Alex)" : "Classic (Steve)");
+  }
+});
+
+const layers = {
+  hat: document.getElementById("layerHat"),
+  jacket: document.getElementById("layerJacket"),
+  sleeves: document.getElementById("layerSleeves"),
+  pants: document.getElementById("layerPants")
+};
+
+function updateLayerVisibility() {
+  const p = skinViewer.playerObject.skin;
+  p.head.outerLayer.visible = layers.hat.checked;
+  p.body.outerLayer.visible = layers.jacket.checked;
+  p.leftArm.outerLayer.visible = layers.sleeves.checked;
+  p.rightArm.outerLayer.visible = layers.sleeves.checked;
+  p.leftLeg.outerLayer.visible = layers.pants.checked;
+  p.rightLeg.outerLayer.visible = layers.pants.checked;
+}
+
+Object.values(layers).forEach(checkbox => {
+  checkbox.addEventListener("change", updateLayerVisibility);
+});
+
+document.querySelectorAll(".ratio-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".ratio-btn").forEach(b => {
+      b.classList.remove("gold");
+      b.classList.add("secondary");
+    });
+    btn.classList.add("gold");
+    btn.classList.remove("secondary");
+
+    const ratio = btn.dataset.ratio;
+    if (ratio === "responsive") {
+      wrapper.style.aspectRatio = "auto";
+    } else {
+      const parts = ratio.split(':');
+      wrapper.style.aspectRatio = `${parts[0]} / ${parts[1]}`;
+    }
+    skinViewer.width = wrapper.clientWidth;
+    skinViewer.height = wrapper.clientHeight;
+  });
+});
+
+document.querySelectorAll(".cam-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const mode = btn.dataset.cam;
+    skinViewer.controls.reset();
+    switch (mode) {
+      case "front":
+        skinViewer.camera.position.set(0, 0, 60);
+        skinViewer.zoom = 0.85;
+        break;
+      case "back":
+        skinViewer.camera.position.set(0, 0, -60);
+        skinViewer.zoom = 0.85;
+        break;
+      case "iso":
+        skinViewer.camera.position.set(40, 20, 40);
+        skinViewer.zoom = 0.85;
+        break;
+      case "headshot":
+        skinViewer.camera.position.set(0, 12, 25);
+        skinViewer.zoom = 1.8;
+        break;
+    }
+  });
+});
+
+const bgColorPicker = document.getElementById("bgColorPicker");
+bgColorPicker.addEventListener("input", (e) => {
+  skinViewer.background = e.target.value;
+  document.getElementById("bgColorHex").textContent = e.target.value;
+});
+
+document.getElementById("btnBgTransparent").addEventListener("click", () => {
+  skinViewer.background = null;
+  document.getElementById("bgColorHex").textContent = "Transparent";
+});
+
+const sliders = {
+  headX: document.getElementById("headX"), headY: document.getElementById("headY"), headZ: document.getElementById("headZ"),
+  leftArmX: document.getElementById("leftArmX"), leftArmY: document.getElementById("leftArmY"), leftArmZ: document.getElementById("leftArmZ"),
+  rightArmX: document.getElementById("rightArmX"), rightArmY: document.getElementById("rightArmY"), rightArmZ: document.getElementById("rightArmZ"),
+  leftLegX: document.getElementById("leftLegX"), leftLegY: document.getElementById("leftLegY"), leftLegZ: document.getElementById("leftLegZ"),
+  rightLegX: document.getElementById("rightLegX"), rightLegY: document.getElementById("rightLegY"), rightLegZ: document.getElementById("rightLegZ")
+};
+
+function applyCustomPose() {
+  if (skinViewer.animation) {
+    skinViewer.animation = null;
+    setAnimBadge(false);
+    document.querySelectorAll(".anim-btn").forEach(b => {
+      b.classList.remove("gold");
+      b.classList.add("secondary");
+    });
+  }
+
+  const p = skinViewer.playerObject.skin;
+  p.head.rotation.set(parseFloat(sliders.headX.value), parseFloat(sliders.headY.value), parseFloat(sliders.headZ.value));
+  p.leftArm.rotation.set(parseFloat(sliders.leftArmX.value), parseFloat(sliders.leftArmY.value), parseFloat(sliders.leftArmZ.value));
+  p.rightArm.rotation.set(parseFloat(sliders.rightArmX.value), parseFloat(sliders.rightArmY.value), parseFloat(sliders.rightArmZ.value));
+  p.leftLeg.rotation.set(parseFloat(sliders.leftLegX.value), parseFloat(sliders.leftLegY.value), parseFloat(sliders.leftLegZ.value));
+  p.rightLeg.rotation.set(parseFloat(sliders.rightLegX.value), parseFloat(sliders.rightLegY.value), parseFloat(sliders.rightLegZ.value));
+
+  document.getElementById("poseCodeInput").value = getCurrentPoseJSON();
+}
+
+Object.values(sliders).forEach(slider => {
+  slider.addEventListener("input", applyCustomPose);
+});
+
+function setSliderValues(values) {
+  Object.keys(values).forEach(key => {
+    if (sliders[key] && values[key] !== undefined) {
+      sliders[key].value = values[key];
+    }
+  });
+  applyCustomPose();
+}
+
+function getCurrentPoseJSON() {
+  const poseData = {};
+  Object.keys(sliders).forEach(key => {
+    poseData[key] = parseFloat(sliders[key].value);
+  });
+  return JSON.stringify(poseData);
+}
+
+document.getElementById("btnCopyPoseCode").addEventListener("click", () => {
+  const code = getCurrentPoseJSON();
+  navigator.clipboard.writeText(code);
+  document.getElementById("poseCodeInput").value = code;
+  showToast("Pose JSON copied!");
+});
+
+document.getElementById("btnLoadPoseCode").addEventListener("click", () => {
+  try {
+    const inputVal = document.getElementById("poseCodeInput").value;
+    const parsed = JSON.parse(inputVal);
+    setSliderValues(parsed);
+    showToast("Pose JSON loaded!");
+  } catch (err) {
+    showToast("Invalid JSON code.", true);
+  }
+});
+
+const PRESET_POSES = {
+  reset: {
+    label: "Stand",
+    data: { headX:0, headY:0, headZ:0, leftArmX:0, leftArmY:0, leftArmZ:0, rightArmX:0, rightArmY:0, rightArmZ:0, leftLegX:0, leftLegY:0, leftLegZ:0, rightLegX:0, rightLegY:0, rightLegZ:0 }
+  },
+  tpose: {
+    label: "T-Pose",
+    data: { headX:0, headY:0, headZ:0, leftArmX:0, leftArmY:0, leftArmZ:1.57, rightArmX:0, rightArmY:0, rightArmZ:-1.57, leftLegX:0, leftLegY:0, leftLegZ:0, rightLegX:0, rightLegY:0, rightLegZ:0 }
+  },
+  sword: {
+    label: "Sword Stance",
+    data: { headX:0.2, headY:-0.3, headZ:0, leftArmX:-0.5, leftArmY:0.3, leftArmZ:-0.2, rightArmX:-1.8, rightArmY:-0.5, rightArmZ:0.4, leftLegX:0.6, leftLegY:0, leftLegZ:0, rightLegX:-0.6, rightLegY:0, rightLegZ:0 }
+  },
+  flex: {
+    label: "Flex",
+    data: { headX:-0.1, headY:0, headZ:0, leftArmX:-2.2, leftArmY:0, leftArmZ:0.8, rightArmX:-2.2, rightArmY:0, rightArmZ:-0.8, leftLegX:0.2, leftLegY:0, leftLegZ:0.2, rightLegX:0.2, rightLegY:0, rightLegZ:-0.2 }
+  },
+  zombie: {
+    label: "Zombie",
+    data: { headX:0.2, headY:0, headZ:0, leftArmX:-1.57, leftArmY:0, leftArmZ:0, rightArmX:-1.57, rightArmY:0, rightArmZ:0, leftLegX:0.3, leftLegY:0, leftLegZ:0, rightLegX:-0.3, rightLegY:0, rightLegZ:0 }
+  },
+  dab: {
+    label: "Dab",
+    data: { headX:0.4, headY:0.6, headZ:0, leftArmX:-1.2, leftArmY:1.1, leftArmZ:-0.5, rightArmX:-2.2, rightArmY:-0.8, rightArmZ:0, leftLegX:0.1, leftLegY:0, leftLegZ:0, rightLegX:-0.1, rightLegY:0, rightLegZ:0 }
+  }
+};
+
+function renderPoseButtons() {
+  const container = document.getElementById("poseButtonsContainer");
+  container.innerHTML = "";
+  Object.keys(PRESET_POSES).forEach(key => {
+    const poseObj = PRESET_POSES[key];
+    const btn = document.createElement("button");
+    btn.className = "pixel-btn secondary";
+    btn.textContent = poseObj.label;
+    btn.addEventListener("click", () => {
+      setSliderValues(poseObj.data);
+    });
+    container.appendChild(btn);
+  });
+}
+renderPoseButtons();
+
+document.getElementById("btnResetPose").addEventListener("click", () => {
+  setSliderValues(PRESET_POSES.reset.data);
+});
+
+document.querySelectorAll(".anim-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".anim-btn").forEach(b => {
+      b.classList.remove("gold");
+      b.classList.add("secondary");
+    });
+    btn.classList.add("gold");
+    btn.classList.remove("secondary");
+
+    const animType = btn.dataset.anim;
+    switch (animType) {
+      case "idle":
+        skinViewer.animation = new skinview3d.IdleAnimation();
+        setAnimBadge(true);
+        break;
+      case "walk":
+        skinViewer.animation = new skinview3d.WalkingAnimation();
+        setAnimBadge(true);
+        break;
+      case "run":
+        skinViewer.animation = new skinview3d.RunningAnimation();
+        setAnimBadge(true);
+        break;
+      default:
+        skinViewer.animation = null;
+        setAnimBadge(false);
+    }
+  });
+});
+
+function updateEquipmentState(equipType) {
+  activeEquipment = equipType;
+  document.querySelectorAll(".equip-btn").forEach(b => {
+    if (b.dataset.equip === equipType) {
+      b.classList.add("gold");
+      b.classList.remove("secondary");
+    } else {
+      b.classList.remove("gold");
+      b.classList.add("secondary");
+    }
+  });
+
+  if (equipType === "none") {
+    skinViewer.loadCape(null);
+  } else if (equipType === "cape") {
+    skinViewer.loadCape(activeCapeUrl, { backEquipment: "cape" });
+  } else if (equipType === "elytra") {
+    skinViewer.loadCape(activeCapeUrl, { backEquipment: "elytra" });
+  }
+}
+
+document.querySelectorAll(".equip-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    updateEquipmentState(btn.dataset.equip);
+  });
+});
+
+document.getElementById("capeInput").addEventListener("change", (e) => {
+  if (e.target.files.length > 0) {
+    activeCapeUrl = URL.createObjectURL(e.target.files[0]);
+    updateEquipmentState(activeEquipment === "none" ? "cape" : activeEquipment);
+    showToast("Cape texture updated!");
+  }
+});
+
+document.getElementById("btnResetCamera").addEventListener("click", () => {
+  skinViewer.controls.reset();
+  skinViewer.zoom = 0.85;
+});
+
+let autoRotateState = false;
+document.getElementById("btnToggleRotate").addEventListener("click", () => {
+  autoRotateState = !autoRotateState;
+  skinViewer.autoRotate = autoRotateState;
+  showToast(autoRotateState ? "Auto-rotate ON" : "Auto-rotate OFF");
+});
+
+document.getElementById("btnSaveFullScene").addEventListener("click", () => {
+  const dataUrl = skinViewer.canvas.toDataURL("image/png");
+  const a = document.createElement("a");
+  a.href = dataUrl;
+  a.download = "minecraft-full-scene.png";
+  a.click();
+  showToast("Full scene saved!");
+});
+
+document.getElementById("btnSavePoseOnly").addEventListener("click", () => {
+  const currentBg = skinViewer.background;
+  skinViewer.background = null;
+  skinViewer.render();
+  
+  const dataUrl = skinViewer.canvas.toDataURL("image/png");
+  const a = document.createElement("a");
+  a.href = dataUrl;
+  a.download = "minecraft-pose-transparent.png";
+  a.click();
+  showToast("Transparent pose saved!");
+
+  skinViewer.background = currentBg;
+  skinViewer.render();
+});
+</script>
+</body>
+</html>
