@@ -684,7 +684,7 @@ footer{
       <p class="subheading" id="home-subtitle"></p>
       <div class="hero-actions">
         <a href="#servers" class="pixel-btn gold">▶ Join the servers</a>
-        <a href="#mc-world" class="pixel-btn secondary">⇩ Browse Downloads</a>
+        <a href="#mc-files" class="pixel-btn secondary">⇩ Browse Downloads</a>
       </div>
     </div>
 
@@ -741,12 +741,7 @@ footer{
     <div class="files-grid" id="files-grid"></div>
   </section>
 
-  <section id="page-mc-world" class="page">
-    <div class="eyebrow">// Minecraft Worlds</div>
-    <h1 class="display" id="worlds-heading"></h1>
-    <p class="subheading" id="worlds-subheading"></p>
-    <div class="worlds-grid" id="worlds-grid"></div>
-  </section>
+
 
   <section id="page-tools" class="page">
     <div class="eyebrow">// Web Utilities</div>
@@ -759,7 +754,7 @@ footer{
 
 <footer>
   <div id="footer-copy"></div>
-  <div>Press 1-6 to jump between pages</div>
+  <div>Press 1-5 to jump between pages</div>
 </footer>
 
 <div class="hotbar-wrap" id="hotbar"></div>
@@ -807,32 +802,8 @@ const WebsiteConfig = {
                 image: "images/files/survival-world-banner-coming-soon.png",
                 description: "Download our custom maps and schematics showcased in the latest YouTube tutorials.",
                 linkText: "Get Downloads",
-                url: "#mc-world"
-            },
-            // {
-            //     title: "Celebrity commented on my video",
-            //     tag: "Best Moment",
-            //     image: "images/files/highlight-comment-sudhy.png",
-            //     description: "Explore our active survival multiplayer server with custom events, active players, and massive builds.",
-            //     linkText: "Watch Video",
-            //     url: "https://youtube.com/shorts/IvAvs0vSMkE?si=IjfWbtq9kmRYwj8a"
-            // },
-            // {
-            //     title: "Survival Series Season 1",
-            //     tag: "Must Watch",
-            //     image: "images/files/playlist-cover-s1.png",
-            //     description: "Catch up on the complete epic survival playlist featuring automated farms, base builds, and more.",
-            //     linkText: "Watch Series",
-            //     url: "https://www.youtube.com/watch?v=JKzt8ibyVpA&list=PLeRSQWBIp81vBLOyZNAq2x91FdQQmolCk"
-            // },
-            // {
-            //     title: "World Map & Schematics",
-            //     tag: "Free Download",
-            //     image: "images/files/survival-world-banner-coming-soon.png",
-            //     description: "Download our custom maps and schematics showcased in the latest YouTube tutorials.",
-            //     linkText: "Get Downloads",
-            //     url: "#mc-world"
-            // }
+                url: "#mc-files"
+            }
         ]
     },
 
@@ -872,7 +843,7 @@ const WebsiteConfig = {
             { image: "images/about/avatar-body-1.png", caption: "Body" },
             { image: "images/about/avatar-body-3.png", caption: "Action Shot" },
             { image: "images/about/avatar-body-2.png", caption: "Side View" },
-            { image: "images/about/avatar-sitting.png", caption: "Sitting" },
+            { image: "images/about/avatar-sitting.png", caption: "Sitting" }
         ]
     },
 
@@ -891,10 +862,10 @@ const WebsiteConfig = {
         ]
     },
 
-    mcWorldPage: {
-        heading: "World Downloads",
-        subheading: "Access official map saves, custom schematics, and modpacks featured in my videos.",
-        worldsList: [
+    mcFilesPage: {
+        heading: "Channel Downloads & Files",
+        subheading: "Access official map saves, schematics, modpacks, and media featured in my videos.",
+        filesList: [
             {
                 title: "Survival World Season 1 Release (S01)",
                 fileIcon: "images/files/survival-world-icon.png",
@@ -905,27 +876,20 @@ const WebsiteConfig = {
                 image: "images/files/survival-world-banner-coming-soon.png",
                 description: "The complete survival world save featuring the ultimate farms and builds from our first season of epic adventures.",
                 actions: [
-                    { label: "Download World (.zip)", url: "----------------Coming_Soooooooooooooooooooooon--------------", type: "primary" },
+                    { label: "Download World (.zip)", url: "#", type: "primary" },
                     { label: "Screenshots", url: "https://drive.google.com/drive/folders/1gxqzeW3o5yB4mT8zq5pt0H9AxqURXdhG?usp=drive_link", type: "secondary" },
-                    { label: "Watch Video Tour", url: "https://youtube.com/watch?v=example", type: "secondary" }
+                    { label: "Watch Video Tour", url: "https://www.youtube.com/watch?v=JKzt8ibyVpA&list=PLeRSQWBIp81vBLOyZNAq2x91FdQQmolCk", type: "secondary" }
                 ]
-            }
-        ]
-    },
-    
-    mcFilesPage: {
-        heading: "Channel Files Downloads",
-        subheading: "Access pictures and other media featured in my videos.",
-        filesList: [
+            },
             {
-                title: "Survival World Season 3",
+                title: "Survival World Season 1",
                 fileIcon: "images/files/survival-world-icon.png",
                 category: "Image",
                 date: "July 2026",
-                image: "images/files/survival-world-banner-coming-soon.png",
+                image: "images/files/img1.png",
                 description: "The complete survival world save featuring the automated mega farms built in our latest video series.",
                 actions: [
-                    { label: "Download Image", url: "https://drive.google.com/drive/folders/1gxqzeW3o5yB4mT8zq5pt0H9AxqURXdhG?usp=drive_link", type: "primary" }
+                    { label: "View Image", url: "images/files/img1.png", type: "primary" }
                 ]
             }
         ]
@@ -937,7 +901,6 @@ const NAV_ICONS = {
   about:         '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>',
   servers:       '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6"/><rect x="3" y="14" width="18" height="6"/><circle cx="7" cy="7" r="0.6"/><circle cx="7" cy="17" r="0.6"/></svg>',
   files:         '<svg viewBox="0 0 24 24"><path d="M4 4h9l3 3h4v13H4z"/><path d="M12 11v6M9 14h6"/></svg>',
-  worldDownload: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a15.3 15.3 0 0 1 4 9 15.3 15.3 0 0 1-4 9 15.3 15.3 0 0 1-4-9z"/><path d="M12 8v8M9 13l3 3 3-3"/></svg>',
   tools:         '<svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>'
 };
 
@@ -945,9 +908,8 @@ const PAGES = [
   { id: "home",     label: "Home",    icon: NAV_ICONS.home },
   { id: "about",    label: "About",   icon: NAV_ICONS.about },
   { id: "servers",  label: "Servers", icon: NAV_ICONS.servers },
-  { id: "mc-world", label: "World",   icon: NAV_ICONS.worldDownload },
   { id: "mc-files", label: "Files",   icon: NAV_ICONS.files },
-  { id: "tools",    label: "Utility",   icon: NAV_ICONS.tools, url: "tools.html" }
+  { id: "tools",    label: "Utility", icon: NAV_ICONS.tools, url: "tools.html" }
 ];
 
 function el(html){
@@ -955,8 +917,6 @@ function el(html){
   t.innerHTML = html.trim();
   return t.content.firstElementChild;
 }
-
-
 
 function renderChrome(){
   document.title = WebsiteConfig.brand.channelName + " — Official Hub";
@@ -1021,7 +981,7 @@ function renderHome(){
   const quickItems = [
     { icon: NAV_ICONS.about,   title: "Meet the creator", desc: "Bio, milestones and the story behind the channel.", href: "#about" },
     { icon: NAV_ICONS.servers, title: "Live servers",     desc: "Check status and copy the IP to join right now.",   href: "#servers" },
-    { icon: NAV_ICONS.files,   title: "World downloads",  desc: "Grab map saves and schematics from recent videos.", href: "#mc-world" }
+    { icon: NAV_ICONS.files,   title: "World downloads",  desc: "Grab map saves and schematics from recent videos.", href: "#mc-files" }
   ];
   quickGrid.innerHTML = "";
   quickItems.forEach(q=>{
@@ -1071,10 +1031,8 @@ function renderAbout(){
     });
   }
 
-  // RENDER FIRST TEXT SECTION
   const textHeading = document.getElementById("about-text-heading");
   const textContainer = document.getElementById("about-text-content");
-  
   if (cfg.announcementsHeading && cfg.announcementsText) {
     textHeading.textContent = cfg.announcementsHeading;
     textContainer.innerHTML = "";
@@ -1084,10 +1042,8 @@ function renderAbout(){
     });
   }
 
-  // RENDER SECOND TEXT SECTION
   const secondHeading = document.getElementById("about-second-text-heading");
   const secondContainer = document.getElementById("about-second-text-content");
-
   if (cfg.secondNoticeHeading && cfg.secondNoticeText) {
     secondHeading.textContent = cfg.secondNoticeHeading;
     secondContainer.innerHTML = "";
@@ -1173,11 +1129,14 @@ function renderFiles(){
 
 function renderWorlds() {
   const cfg = WebsiteConfig.mcWorldPage;
-  
-  document.getElementById("worlds-heading").textContent = cfg.heading;
-  document.getElementById("worlds-subheading").textContent = cfg.subheading;
-
   const grid = document.getElementById("worlds-grid");
+  const heading = document.getElementById("worlds-heading");
+  const subheading = document.getElementById("worlds-subheading");
+
+  if (!cfg || !grid || !heading || !subheading) return;
+
+  heading.textContent = cfg.heading;
+  subheading.textContent = cfg.subheading;
   grid.innerHTML = "";
 
   cfg.worldsList.forEach(w => {
@@ -1193,13 +1152,11 @@ function renderWorlds() {
         </div>
         <div class="file-body">
           <div class="file-title">${w.title}</div>
-          
           <div class="file-meta">
             <span class="meta-badge">Ver: ${w.version}</span>
             <span class="meta-badge">Size: ${w.size}</span>
             <span class="file-date">${w.date}</span>
           </div>
-
           <div class="file-desc">${w.description}</div>
           <div class="file-actions">${actions}</div>
         </div>
