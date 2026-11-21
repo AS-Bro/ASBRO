@@ -646,23 +646,533 @@ h2.display{ font-size:clamp(18px, 3vw, 24px); margin-bottom:14px; }
 .file-desc{ color:var(--ink-dim); font-size:13.5px; line-height:1.6; flex:1; }
 .file-actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; }
 
-/* ---------- Footer ---------- */
-footer{
-  max-width:1100px;
-  margin:40px auto 0;
-  padding:24px 20px 8px;
-  border-top:3px solid var(--panel-border);
-  display:flex;
-  flex-wrap:wrap;
-  align-items:center;
-  justify-content:space-between;
-  gap:14px;
-  font-family:var(--font-mono);
-  font-size:11.5px;
-  color:#6b6b66;
-  text-transform:uppercase;
-  letter-spacing:0.03em;
+/* ---------- AS BRO Minecraft Overworld Footer ---------- */
+.minecraft-footer{
+  --ground-height:clamp(170px,15vw,238px);
+  position:relative;width:100%;min-height:500px;margin-top:64px;overflow:hidden;isolation:isolate;
+  color:#f5f5f0;background:#65b9ed;border-top:4px solid #2b241d;image-rendering:pixelated;
 }
+.minecraft-footer *{box-sizing:border-box}
+.footer-sky-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 36%;z-index:0;image-rendering:pixelated}
+.footer-sky-tint{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(20,92,160,.03),rgba(210,238,255,.04) 54%,rgba(39,79,30,.16) 100%);pointer-events:none}
+.footer-hills{position:absolute;left:-4%;right:-4%;bottom:calc(var(--ground-height) + 28px);height:150px;z-index:1;pointer-events:none}
+.footer-hill{position:absolute;bottom:0;height:100%;width:62%;clip-path:polygon(0 100%,0 72%,12% 72%,23% 48%,34% 48%,46% 15%,56% 15%,67% 43%,78% 43%,88% 27%,100% 27%,100% 100%);opacity:.82}
+.footer-hill.back{left:-4%;background:#9acb82;transform:scaleY(.78)}
+.footer-hill.front{right:-5%;background:#78ad68;transform:scaleY(1.02)}
+.footer-tree{position:absolute;z-index:2;bottom:calc(var(--ground-height) + 28px);height:auto;max-width:none;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(5px 5px 0 rgba(25,50,20,.12));transform-origin:50% 100%;animation:footer-tree-sway 6s ease-in-out infinite alternate}
+.footer-tree.t1{left:5%;width:clamp(95px,13vw,190px);animation-delay:-2s}
+.footer-tree.t2{left:29%;width:clamp(125px,17vw,245px);animation-delay:-4s}
+.footer-tree.t3{right:23%;width:clamp(105px,14vw,205px);animation-delay:-1s}
+.footer-tree.t4{right:3%;width:clamp(130px,18vw,260px);animation-delay:-3s}
+@keyframes footer-tree-sway{from{transform:rotate(-2deg)}to{transform:rotate(2deg)}}
+.footer-terrain{position:absolute;z-index:3;left:0;right:0;bottom:32px;height:var(--ground-height);background-image:url('images/footer/terrain/grass-dirt-platform.webp');background-repeat:repeat-x;background-position:left bottom;background-size:auto 100%;image-rendering:pixelated}
+.footer-plant{position:absolute;z-index:4;bottom:calc(var(--ground-height) + 27px);height:auto;max-width:none;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(2px 2px 0 rgba(0,0,0,.12))}
+.footer-plant.p1{left:17%;width:clamp(28px,4vw,58px)}
+.footer-plant.p2{left:46%;width:clamp(34px,4.8vw,68px)}
+.footer-plant.p3{right:38%;width:clamp(30px,4.2vw,60px)}
+.footer-plant.p4{right:8%;width:clamp(36px,5vw,72px)}
+.footer-animal{position:absolute;z-index:4;bottom:calc(var(--ground-height) + 27px);height:auto;max-width:none;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(3px 3px 0 rgba(0,0,0,.15))}
+.footer-animal.pig{left:61%;width:clamp(48px,6vw,82px)}
+.footer-animal.chicken{left:83%;width:clamp(30px,3.8vw,52px)}
+.footer-animal.sheep{left:91%;width:clamp(55px,6.5vw,88px)}
+.footer-sign{position:absolute;z-index:5;left:clamp(18px,9vw,150px);bottom:calc(var(--ground-height) + 31px);transform:rotate(-1deg);font-family:var(--font-display);font-size:10px;line-height:1.7;color:#3c2818;background:#c69a5e;border:4px solid #67452d;padding:10px 13px;box-shadow:4px 4px 0 rgba(0,0,0,.25)}
+.footer-sign:after{content:"";position:absolute;left:50%;top:100%;height:34px;width:9px;background:#76502f;border-left:2px solid #4c321f}
+.footer-copy{position:absolute;z-index:7;top:28px;left:clamp(18px,5vw,82px);max-width:min(470px,38vw);text-shadow:2px 2px 0 rgba(44,65,67,.25)}
+.footer-kicker{font:10px var(--font-mono);letter-spacing:.2em;color:#6b3d18;margin-bottom:10px;text-transform:uppercase}
+.footer-title{font:clamp(20px,3vw,32px) var(--font-display);line-height:1.45;color:#182a32;margin-bottom:7px}
+.footer-message{font-size:14px;font-weight:700;color:#263b3e;line-height:1.6}
+.footer-walker{position:absolute;z-index:8;left:0;bottom:calc(var(--ground-height) + 32px);width:clamp(68px,5.2vw,90px);height:auto;will-change:left;pointer-events:none}
+.footer-character{display:block;width:100%;height:auto;max-width:none;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(4px 5px 0 rgba(0,0,0,.2));transform-origin:50% 90%;will-change:transform;animation:character-step .28s steps(2,end) infinite alternate}
+@keyframes character-step{from{translate:0 0}to{translate:0 -3px}}
+.footer-dialog{position:absolute;z-index:9;left:var(--dialog-left,50%);bottom:calc(100% + 10px);width:max-content;max-width:min(250px,calc(100vw - 28px));padding:11px 14px;background:#fff8e9;color:#34271d;border:4px solid #35291f;box-shadow:4px 4px 0 rgba(0,0,0,.2);font:10px/1.8 var(--font-mono);white-space:nowrap;will-change:left}
+.footer-dialog:before{content:"";position:absolute;left:var(--tail-left,24px);bottom:-11px;width:14px;height:14px;background:#fff8e9;border-right:4px solid #35291f;border-bottom:4px solid #35291f;transform:rotate(45deg)}
+.footer-bottom{position:absolute;z-index:10;left:0;right:0;bottom:0;min-height:34px;padding:8px clamp(16px,4vw,56px);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:rgba(18,22,18,.9);border-top:2px solid rgba(255,255,255,.12);font:9px var(--font-mono);letter-spacing:.04em;color:#d2d0c2;text-transform:uppercase}
+.footer-bottom span:last-child{color:#b3c58c}
+@media(max-width:700px){
+  .minecraft-footer{min-height:410px;--ground-height:150px}
+  .footer-sky-image{object-position:center 32%}
+  .footer-hills{height:100px;bottom:calc(var(--ground-height) + 22px)}
+  .footer-tree{bottom:calc(var(--ground-height) + 22px)}
+  .footer-tree.t1{left:-2%;width:105px}.footer-tree.t2{left:28%;width:130px}.footer-tree.t3{right:20%;width:115px}.footer-tree.t4{right:-9%;width:140px}
+  .footer-terrain{bottom:32px}
+  .footer-plant,.footer-animal{bottom:calc(var(--ground-height) + 21px)}
+  .footer-sign{left:12px;bottom:calc(var(--ground-height) + 22px);font-size:8px;padding:7px 9px}
+  .footer-copy{top:18px;max-width:42%}
+  .footer-title{max-width:310px;font-size:21px}
+  .footer-message{font-size:11px;max-width:300px}
+  .footer-walker{bottom:calc(var(--ground-height) + 24px);width:68px}
+  .footer-dialog{font-size:8px;padding:7px 9px;max-width:calc(100vw - 24px)}
+  .footer-dialog:before{width:11px;height:11px;bottom:-9px}
+  .footer-bottom{font-size:7px}
+}
+@media(prefers-reduced-motion:reduce){.footer-tree,.footer-character{animation:none!important}}
+
+/* ---------- Refined Minecraft footer: scale, spacing and depth ---------- */
+.minecraft-footer{
+  --ground-height:108px;
+  position:relative;
+  height:380px;
+  min-height:360px;
+  margin-top:48px;
+  overflow:hidden;
+  isolation:isolate;
+  background:#a8d8f0;
+  border-top:3px solid #28231e;
+  color:#f5f5f0;
+}
+.minecraft-footer *{box-sizing:border-box}
+.footer-sky-image{
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 10%;
+  filter:saturate(.78) brightness(1.04);
+  image-rendering:auto;
+}
+.footer-sky-tint{
+  z-index:1;
+  background:linear-gradient(
+    180deg,
+    rgba(255,255,255,.12) 0%,
+    rgba(228,242,250,.03) 45%,
+    rgba(87,130,66,.14) 100%
+  );
+}
+.footer-meadow{
+  position:absolute;
+  z-index:2;
+  left:0;right:0;
+  bottom:calc(var(--ground-height) + 32px);
+  height:158px;
+  background:linear-gradient(
+    180deg,
+    rgba(145,190,121,0) 0%,
+    rgba(151,195,125,.72) 36%,
+    #91b978 100%
+  );
+  pointer-events:none;
+}
+.footer-hills{
+  z-index:3;
+  left:-3%;right:-3%;
+  bottom:calc(var(--ground-height) + 32px);
+  height:158px;
+}
+.footer-hill{
+  bottom:0;
+  height:100%;
+  opacity:.9;
+  filter:none;
+}
+.footer-hill.back{
+  left:-5%;
+  width:68%;
+  background:#a4c987;
+  clip-path:polygon(0 100%,0 68%,12% 68%,25% 43%,39% 43%,51% 18%,64% 18%,76% 45%,88% 45%,100% 30%,100% 100%);
+}
+.footer-hill.front{
+  right:-5%;
+  width:67%;
+  background:#83b26f;
+  clip-path:polygon(0 100%,0 48%,14% 48%,29% 25%,44% 25%,57% 49%,72% 49%,84% 31%,100% 31%,100% 100%);
+}
+.footer-tree{
+  z-index:4;
+  bottom:calc(var(--ground-height) + 32px);
+  width:auto;
+  max-height:190px;
+  filter:drop-shadow(2px 3px 0 rgba(34,54,28,.12));
+  animation:footer-tree-sway 8s ease-in-out infinite alternate;
+  image-rendering:auto;
+}
+.footer-tree.t1{left:12%;height:145px;animation-delay:-2s}
+.footer-tree.t2{left:34%;height:178px;animation-delay:-4s}
+.footer-tree.t3{right:26%;height:142px;animation-delay:-1s}
+.footer-tree.t4{right:5%;height:188px;animation-delay:-3s}
+@keyframes footer-tree-sway{
+  from{transform:rotate(-.16deg)}
+  to{transform:rotate(.16deg)}
+}
+.footer-terrain{
+  z-index:5;
+  left:0;right:0;
+  bottom:32px;
+  height:var(--ground-height);
+  background-image:url('images/footer/terrain/grass-dirt-platform.webp');
+  background-repeat:repeat-x;
+  background-position:left bottom;
+  background-size:auto var(--ground-height);
+  image-rendering:auto;
+}
+.footer-plant,.footer-animal{
+  z-index:6;
+  bottom:calc(var(--ground-height) + 32px);
+  image-rendering:auto;
+  filter:drop-shadow(1px 2px 0 rgba(0,0,0,.12));
+}
+.footer-plant.p1{left:23%;width:34px}
+.footer-plant.p2{left:49%;width:39px}
+.footer-plant.p3{right:40%;width:32px}
+.footer-plant.p4{right:13%;width:40px}
+.footer-animal.pig{left:66%;width:68px}
+.footer-animal.chicken{left:82%;width:43px}
+.footer-animal.sheep{left:91%;width:66px}
+.footer-sign{
+  z-index:7;
+  left:clamp(24px,9vw,145px);
+  bottom:calc(var(--ground-height) + 32px);
+  transform:rotate(-1deg) scale(.92);
+  transform-origin:bottom left;
+  font-size:9px;
+  padding:8px 11px;
+  border-width:3px;
+  box-shadow:3px 3px 0 rgba(0,0,0,.2);
+}
+.footer-sign:after{height:32px;width:8px}
+.footer-copy{
+  z-index:8;
+  top:24px;
+  left:clamp(24px,5vw,78px);
+  width:min(490px,44vw);
+  max-width:490px;
+  text-shadow:0 1px 0 rgba(255,255,255,.35);
+}
+.footer-kicker{
+  margin-bottom:9px;
+  color:#684322;
+  font-size:9px;
+  letter-spacing:.22em;
+}
+.footer-title{
+  max-width:490px;
+  font-size:clamp(17px,2.05vw,27px);
+  line-height:1.55;
+  letter-spacing:-.025em;
+  color:#172a32;
+  margin-bottom:8px;
+  text-shadow:2px 2px 0 rgba(255,255,255,.2);
+}
+.footer-message{
+  max-width:460px;
+  font-size:13px;
+  line-height:1.55;
+  color:#243b3e;
+  text-shadow:0 1px 0 rgba(255,255,255,.4);
+}
+.footer-walker{
+  z-index:9;
+  left:0;
+  bottom:calc(var(--ground-height) + 32px);
+  width:clamp(62px,4.1vw,78px);
+  overflow:visible;
+}
+
+.footer-character {
+  width: 150px !important;
+  height: 190px !important;
+  max-height: none !important;
+  object-fit: contain;
+}
+
+.footer-character{
+  width:100%;
+  max-height:190px;
+  object-fit:contain;
+  image-rendering:pixelated;
+  filter:drop-shadow(2px 3px 0 rgba(0,0,0,.18));
+  animation:character-step .32s steps(2,end) infinite alternate;
+  transform: translateY(8px);
+}
+@keyframes character-step {
+  from {
+    translate: 0 8px;
+  }
+  to {
+    translate: 0 6px;
+  }
+}
+.footer-dialog{
+  z-index:10;
+  left:var(--dialog-left,0px);
+  bottom:calc(100% + 11px);
+  width:208px;
+  max-width:min(208px,calc(100vw - 24px));
+  padding:9px 12px;
+  border:3px solid #35291f;
+  box-shadow:3px 3px 0 rgba(0,0,0,.18);
+  font-size:9px;
+  line-height:1.75;
+  white-space:normal;
+  background:#fff8e9;
+}
+.footer-dialog:before{
+  left:var(--tail-left,24px);
+  bottom:-10px;
+  width:13px;height:13px;
+  border-right:3px solid #35291f;
+  border-bottom:3px solid #35291f;
+}
+.footer-bottom{
+  z-index:11;
+  height:32px;
+  min-height:32px;
+  padding:7px clamp(16px,3.6vw,52px);
+  gap:8px;
+  background:rgba(18,22,18,.94);
+  font-size:8px;
+}
+@media(max-width:900px){
+  .minecraft-footer{height:360px;min-height:340px;--ground-height:96px}
+  .footer-tree.t1{left:8%;height:118px}
+  .footer-tree.t2{left:35%;height:145px}
+  .footer-tree.t3{right:25%;height:116px}
+  .footer-tree.t4{right:2%;height:150px}
+  .footer-copy{width:min(420px,48vw)}
+  .footer-title{font-size:clamp(16px,2.7vw,23px)}
+  .footer-message{font-size:12px}
+}
+@media(max-width:600px){
+  .minecraft-footer{height:350px;min-height:330px;--ground-height:88px;margin-top:36px}
+  .footer-sky-image{object-position:center 8%}
+  .footer-meadow,.footer-hills{height:125px}
+  .footer-tree.t1{left:2%;height:90px}
+  .footer-tree.t2{left:35%;height:112px}
+  .footer-tree.t3{right:25%;height:90px}
+  .footer-tree.t4{right:-5%;height:112px}
+  .footer-plant.p1{left:24%;width:27px}
+  .footer-plant.p2{left:53%;width:29px}
+  .footer-plant.p3{right:36%;width:25px}
+  .footer-plant.p4{right:10%;width:29px}
+  .footer-animal.pig{left:64%;width:48px}
+  .footer-animal.chicken{left:84%;width:32px}
+  .footer-animal.sheep{display:none}
+  .footer-sign{left:12px;transform:scale(.76);transform-origin:bottom left}
+  .footer-copy{top:18px;left:16px;width:58%;max-width:58%}
+  .footer-kicker{font-size:8px;margin-bottom:7px}
+  .footer-title{font-size:15px;line-height:1.55;margin-bottom:5px}
+  .footer-message{font-size:10px;line-height:1.45;max-width:290px}
+  .footer-walker{width:58px}
+  .footer-dialog{width:178px;max-width:calc(100vw - 22px);font-size:8px;padding:7px 9px}
+  .footer-bottom{font-size:6.5px;padding:6px 10px}
+  .footer-bottom span:last-child{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .footer-tree,.footer-character{animation:none!important}
+}
+
+
+/* ---------- Ground-contact correction ---------- */
+/* Push scene props slightly into the grass edge so their bases are planted,
+   and let the terrain overlap their lower edges like a real side-scroller. */
+.minecraft-footer{--ground-contact-inset:30px;}
+.footer-meadow,
+.footer-hills,
+.footer-tree,
+.footer-plant,
+.footer-animal,
+.footer-sign{
+  bottom:calc(var(--ground-height) + 32px - var(--ground-contact-inset)) !important;
+}
+.footer-meadow{height:176px !important;background:linear-gradient(180deg,rgba(145,190,121,0) 0%,rgba(151,195,125,.78) 36%,#91b978 100%) !important;}
+.footer-hills{height:172px !important;}
+.footer-terrain{z-index:7 !important;}
+.footer-tree{z-index:4 !important;}
+.footer-plant,.footer-animal{z-index:6 !important;}
+.footer-sign{z-index:8 !important;}
+.footer-walker{bottom:calc(var(--ground-height) - 28px) !important;z-index:9 !important;}
+.footer-dialog{z-index:10 !important;}
+@media(max-width:600px){
+  .minecraft-footer{--ground-contact-inset:10px;}
+  .footer-meadow{height:142px !important;}
+  .footer-hills{height:138px !important;}
+}
+
+.footer-tree {
+  transform-origin: bottom center;
+  animation: footer-tree-sway 10s ease-in-out infinite alternate;
+}
+
+@keyframes footer-tree-sway {
+  from { transform: rotate(-1.5deg); }
+  to   { transform: rotate(1.5deg); }
+}
+/* ===== MINECRAFT ANIMAL ANIMATIONS ===== */
+
+/* Pig: gentle wandering and bouncing */
+
+/* PIG: WALK AND FACE THE SAME DIRECTION */
+
+.footer-animal.pig {
+  animation: pig-walk 8s ease-in-out infinite;
+  transform-origin: center bottom;
+  will-change: transform;
+}
+
+@keyframes pig-walk {
+  /* Walk right — face right */
+  0% {
+    transform: translateX(0) scaleX(-1);
+  }
+
+  24% {
+    transform: translateX(12px) scaleX(-1);
+  }
+
+  /* Turn and walk left — face left */
+  25% {
+    transform: translateX(12px) scaleX(1);
+  }
+
+  49% {
+    transform: translateX(-12px) scaleX(1);
+  }
+
+  /* Turn and walk right — face right */
+  50% {
+    transform: translateX(-12px) scaleX(-1);
+  }
+
+  74% {
+    transform: translateX(12px) scaleX(-1);
+  }
+
+  /* Turn and walk left — face left */
+  75% {
+    transform: translateX(12px) scaleX(1);
+  }
+
+  100% {
+    transform: translateX(0) scaleX(1);
+  }
+}
+
+
+/* Chicken: little pecking movements */
+.footer-animal.chicken {
+  transform-origin: center bottom;
+  animation: chicken-peck 5s ease-in-out infinite;
+}
+
+@keyframes chicken-peck {
+  0%, 15%, 100% {
+    transform: rotate(0deg) translateY(0) scaleX(-1);
+  }
+
+  18% {
+    transform: rotate(30deg) translateY(10px) scaleX(-1);
+  }
+
+  21% {
+    transform: rotate(-5deg) translateY(0) scaleX(-1);
+  }
+
+  24% {
+    transform: rotate(30deg) translateY(10px) scaleX(-1);
+  }
+
+  28%, 90% {
+    transform: rotate(0deg) translateY(0) scaleX(-1);
+  }
+}
+
+/* Sheep: relaxed idle movement */
+/* SHEEP ANIMATION */
+.footer-animal.sheep {
+  transform-origin: center bottom;
+  animation: sheep-life 18s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes sheep-life {
+  /* Standing calmly */
+  0%, 12%, 100% {
+    transform: translateY(0) rotate(0deg) scaleY(1) scaleX(-1);
+  }
+
+  /* Grazing */
+  16% {
+    transform: translateY(2px) rotate(10deg) scaleY(0.98) scaleX(-1);
+  }
+
+  20% {
+    transform: translateY(2px) rotate(4deg) scaleY(0.98) scaleX(-1);
+  }
+
+  21%, 35% {
+    transform: translateY(0) rotate(0deg) scaleY(1) scaleX(1);
+  }
+
+  /* Looking around */
+  36% {
+    transform: rotate(-3deg) scaleX(-1);
+  }
+
+  44% {
+    transform: rotate(3deg) scaleX(-1);
+  }
+
+  48%, 55% {
+    transform: rotate(0deg) scaleX(-1);
+  }
+
+  /* Gentle walking movement */
+  60% {
+    transform: translateY(-2px) translateX(1px) scaleX(-1);
+  }
+
+  64% {
+    transform: translateY(0) translateX(3px) scaleX(-1);
+  }
+
+  68% {
+    transform: translateY(-2px) translateX(5px) scaleX(-1);
+  }
+
+  69%, 78% {
+    transform: translateY(0) translateX(5px) scaleX(1);
+  }
+
+  /* Resting */
+  83% {
+    transform: translateY(2px) scaleY(0.96) scaleX(-1);
+  }
+
+  88%, 94% {
+    transform: translateY(2px) scaleY(0.96) scaleX(-1);
+  }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .footer-animal {
+    animation: none !important;
+  }
+}
+
+/* Raise the signboard */
+.footer-sign {
+  bottom: calc(var(--ground-height) + 38px) !important;
+}
+
+.footer-sign::after {
+  height: 44px;
+}
+
+.footer-message {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative;
+  z-index: 9;
+  color: #172a32 !important;
+  font-size: 14px;
+  max-width: 500px;
+  line-height: 1.6;
+  text-shadow: 0 1px 2px rgba(255,255,255,.7);
+}
+
+
 </style>
 </head>
 <body>
@@ -752,9 +1262,37 @@ footer{
 
 </main>
 
-<footer>
-  <div id="footer-copy"></div>
-  <div>Press 1-5 to jump between pages</div>
+<footer class="minecraft-footer" aria-label="AS BRO Minecraft world footer">
+  <img class="footer-sky-image" src="images/footer/background/sky.webp" alt="" aria-hidden="true">
+  <div class="footer-sky-tint"></div>
+  <div class="footer-meadow" aria-hidden="true"></div>
+  <div class="footer-hills" aria-hidden="true"><div class="footer-hill back"></div><div class="footer-hill front"></div></div>
+  <img class="footer-tree t1" src="images/footer/trees/oak-small.webp" alt="" aria-hidden="true">
+  <img class="footer-tree t2" src="images/footer/trees/oak-medium.webp" alt="" aria-hidden="true">
+  <img class="footer-tree t3" src="images/footer/trees/oak-small.webp" alt="" aria-hidden="true">
+  <img class="footer-tree t4" src="images/footer/trees/oak-large.webp" alt="" aria-hidden="true">
+  <img class="footer-plant p1" src="images/footer/vegetation/foliage-10.webp" alt="" aria-hidden="true">
+  <img class="footer-plant p2" src="images/footer/vegetation/foliage-16.webp" alt="" aria-hidden="true">
+  <img class="footer-plant p3" src="images/footer/vegetation/foliage-23.webp" alt="" aria-hidden="true">
+  <img class="footer-plant p4" src="images/footer/vegetation/foliage-29.webp" alt="" aria-hidden="true">
+  <img class="footer-animal pig" src="images/footer/animals/pig.webp" alt="" aria-hidden="true">
+  <img class="footer-animal chicken" src="images/footer/animals/chicken.webp" alt="" aria-hidden="true">
+  <img class="footer-animal sheep" src="images/footer/animals/sheep.webp" alt="" aria-hidden="true">
+  <div class="footer-terrain" aria-hidden="true"></div>
+  <div class="footer-sign" aria-label="AS BRO sign">AS BRO<br>ADVENTURES</div>
+  <div class="footer-copy">
+    <div class="footer-kicker">Thanks for visiting</div>
+    <div class="footer-title">WELCOME TO MY WORLD</div>
+    <div class="footer-message">Keep crafting. Keep exploring. See you in the next adventure!</div>
+  </div>
+  <div class="footer-walker" id="footer-walker">
+    <img class="footer-character" id="footer-character" src="images/footer/character/asbro-character.webp" alt="AS BRO Minecraft character">
+    <div class="footer-dialog">Thanks for exploring!<br>See you in the next video &gt;</div>
+  </div>
+  <div class="footer-bottom">
+    <span id="footer-copy"></span>
+    <span>Press 1–5 to jump between pages</span>
+  </div>
 </footer>
 
 <div class="hotbar-wrap" id="hotbar"></div>
@@ -1202,6 +1740,94 @@ renderServers();
 renderFiles();
 renderWorlds();
 router();
+
+// AS BRO character patrol: the speech bubble stays attached to the moving character.
+(() => {
+  const scene = document.querySelector(".minecraft-footer");
+  const walker = document.getElementById("footer-walker");
+  const character = document.getElementById("footer-character");
+  const dialog = walker?.querySelector(".footer-dialog");
+  if (!scene || !walker || !character || !dialog) return;
+
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const speed = 42;
+  let x = 0;
+  let direction = 1;
+  let previousTime = 0;
+  let raf = 0;
+
+  const bounds = () => {
+    const width = scene.clientWidth;
+    const walkerWidth = walker.getBoundingClientRect().width;
+    const min = Math.min(width * 0.38, Math.max(12, width - walkerWidth - 12));
+    const max = Math.max(min, width * 0.86 - walkerWidth / 2);
+    return { min, max };
+  };
+
+  function placeBubble() {
+    const sceneWidth = scene.clientWidth;
+    const walkerWidth = walker.getBoundingClientRect().width;
+    const bubbleWidth = dialog.getBoundingClientRect().width;
+    const characterCenter = x + walkerWidth / 2;
+    const bubbleLeftInScene = Math.max(
+      10,
+      Math.min(characterCenter - bubbleWidth / 2, sceneWidth - bubbleWidth - 10)
+    );
+    const bubbleLeftInWalker = bubbleLeftInScene - x;
+    const tailLeft = Math.max(
+      18,
+      Math.min(characterCenter - bubbleLeftInScene - 8, bubbleWidth - 28)
+    );
+
+    dialog.style.setProperty("--dialog-left", `${bubbleLeftInWalker}px`);
+    dialog.style.setProperty("--tail-left", `${tailLeft}px`);
+  }
+
+  function render() {
+    walker.style.left = `${x}px`;
+    character.style.transform = direction < 0 ? "scaleX(-1)" : "scaleX(1)";
+    placeBubble();
+  }
+
+  function frame(time) {
+    if (reducedMotion.matches) return;
+    if (!previousTime) previousTime = time;
+    const delta = Math.min((time - previousTime) / 1000, 0.04);
+    previousTime = time;
+
+    const { min, max } = bounds();
+    x += direction * speed * delta;
+
+    if (x >= max) { x = max; direction = -1; }
+    if (x <= min) { x = min; direction = 1; }
+
+    render();
+    raf = requestAnimationFrame(frame);
+  }
+
+  function resetPosition() {
+    const { min, max } = bounds();
+    x = Math.max(min, Math.min(x || scene.clientWidth * 0.55, max));
+    render();
+  }
+
+  resetPosition();
+  if (!reducedMotion.matches) raf = requestAnimationFrame(frame);
+
+  window.addEventListener("resize", () => {
+    cancelAnimationFrame(raf);
+    resetPosition();
+    previousTime = 0;
+    if (!reducedMotion.matches) raf = requestAnimationFrame(frame);
+  });
+
+  reducedMotion.addEventListener?.("change", () => {
+    cancelAnimationFrame(raf);
+    previousTime = 0;
+    resetPosition();
+    if (!reducedMotion.matches) raf = requestAnimationFrame(frame);
+  });
+})();
 </script>
 </body>
 </html>
